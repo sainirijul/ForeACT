@@ -33,7 +33,7 @@ export function DecisionAnalysisPage({ spec, analysis, onAnalyze }: { spec: Fore
           {policy.rules.map((rule) => <div className="policy-card" key={rule.id}><strong>{rule.id}</strong><span>{rule.when}</span><b>{rule.then}</b><p>{rule.rationale}</p></div>)}
         </div>
       </article>
-      <div className="full-span"><MatrixPlot points={analysis.matrix_points} /></div>
+      <div className="full-span"><MatrixPlot points={analysis.matrix_points} methods={analysis.dataset_profile.selected_methods} /></div>
       <div className="full-span"><DecisionCards cards={analysis.decision_cards} /></div>
       <div className="full-span"><SignalInsights results={analysis.target_results} /></div>
       <article className="panel full-span">
