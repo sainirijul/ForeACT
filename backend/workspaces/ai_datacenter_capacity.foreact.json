@@ -3,7 +3,7 @@
     "matrix_points": [
       {
         "target": "target_1_total_load_mwh",
-        "x_variance_abs_pct": 8.525,
+        "x_variance_abs_pct": 19.048,
         "y_volatility_score": 15.055,
         "variance_class": "Large",
         "volatility_class": "High",
@@ -11,7 +11,7 @@
       },
       {
         "target": "target_2_peak_load_mw",
-        "x_variance_abs_pct": 9.447,
+        "x_variance_abs_pct": 18.121,
         "y_volatility_score": 14.618,
         "variance_class": "Large",
         "volatility_class": "High",
@@ -26,10 +26,10 @@
         "trace": {
           "DatasetVersion": "144 rows / 13 columns",
           "FieldModel": "8 drivers, 2 targets",
-          "AnalysisScope": "2026-09 \u2192 2026-12, 2027-01 to 2029-12",
+          "AnalysisScope": "2026-06 \u2192 2026-12, 2027-01 to 2029-12",
           "MethodSet": "version_to_version_pct + version_dispersion_pct",
           "ForecastComparisonModel": "36 aligned horizon rows",
-          "SignalModel": "variance=8.53, volatility=15.06"
+          "SignalModel": "variance=19.05, volatility=15.06"
         }
       },
       {
@@ -39,10 +39,10 @@
         "trace": {
           "DatasetVersion": "144 rows / 13 columns",
           "FieldModel": "8 drivers, 2 targets",
-          "AnalysisScope": "2026-09 \u2192 2026-12, 2027-01 to 2029-12",
+          "AnalysisScope": "2026-06 \u2192 2026-12, 2027-01 to 2029-12",
           "MethodSet": "version_to_version_pct + version_dispersion_pct",
           "ForecastComparisonModel": "36 aligned horizon rows",
-          "SignalModel": "variance=9.45, volatility=14.62"
+          "SignalModel": "variance=18.12, volatility=14.62"
         }
       }
     ],
@@ -2612,7 +2612,7 @@
         "horizon_field_count": 1,
         "variance_method": "version_to_version_pct",
         "volatility_method": "version_dispersion_pct",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
         "period_start": "2027-01",
         "period_end": "2029-12"
@@ -2700,161 +2700,161 @@
       {
         "period": "2027-01",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 169949.74,
+        "baseline": 146933.0,
         "current": 195985.46,
-        "variance_pct": 15.31965862377901,
+        "variance_pct": 33.3842363526233,
         "volatility": 18.053344317795077
       },
       {
         "period": "2027-02",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 186079.25,
+        "baseline": 154464.38,
         "current": 209413.46,
-        "variance_pct": 12.539931238974788,
+        "variance_pct": 35.57394915254895,
         "volatility": 16.347293496823635
       },
       {
         "period": "2027-03",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 205217.76,
+        "baseline": 171672.7,
         "current": 229920.45,
-        "variance_pct": 12.037306127890686,
+        "variance_pct": 33.92953568039647,
         "volatility": 21.08118222424936
       },
       {
         "period": "2027-04",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 203266.22,
+        "baseline": 192283.16,
         "current": 218680.43,
-        "variance_pct": 7.583261990113257,
+        "variance_pct": 13.728331695817767,
         "volatility": 14.861593893904217
       },
       {
         "period": "2027-05",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 207404.33,
+        "baseline": 181457.13,
         "current": 219624.17,
-        "variance_pct": 5.8917959909516,
+        "variance_pct": 21.033640287378073,
         "volatility": 12.83047687367253
       },
       {
         "period": "2027-06",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 200533.14,
+        "baseline": 188299.79,
         "current": 240720.15,
-        "variance_pct": 20.040084147687498,
+        "variance_pct": 27.83877772779246,
         "volatility": 15.49806673712262
       },
       {
         "period": "2027-07",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 214820.19,
+        "baseline": 185987.87,
         "current": 229952.26,
-        "variance_pct": 7.044063223293866,
+        "variance_pct": 23.638310390887327,
         "volatility": 15.491205610762446
       },
       {
         "period": "2027-08",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 196331.69,
+        "baseline": 184039.95,
         "current": 243830.18,
-        "variance_pct": 24.192981785059757,
+        "variance_pct": 32.48763651587602,
         "volatility": 17.83454279568565
       },
       {
         "period": "2027-01",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 384.81,
+        "baseline": 337.81,
         "current": 449.4,
-        "variance_pct": 16.7849068371404,
+        "variance_pct": 33.033361949024595,
         "volatility": 17.25558088283199
       },
       {
         "period": "2027-02",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 426.49,
+        "baseline": 364.52,
         "current": 476.44,
-        "variance_pct": 11.71188070060259,
+        "variance_pct": 30.70339076045211,
         "volatility": 15.9246779726573
       },
       {
         "period": "2027-03",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 456.6,
+        "baseline": 389.89,
         "current": 522.47,
-        "variance_pct": 14.426193604905826,
+        "variance_pct": 34.00446279719922,
         "volatility": 20.82798205339674
       },
       {
         "period": "2027-04",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 464.44,
+        "baseline": 433.56,
         "current": 500.72,
-        "variance_pct": 7.811558005339771,
+        "variance_pct": 15.490358889196425,
         "volatility": 15.049131722810635
       },
       {
         "period": "2027-05",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 472.12,
+        "baseline": 415.0,
         "current": 495.47,
-        "variance_pct": 4.94577649750064,
+        "variance_pct": 19.39036144578314,
         "volatility": 12.729264388428579
       },
       {
         "period": "2027-06",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 463.94,
+        "baseline": 423.04,
         "current": 537.28,
-        "variance_pct": 15.808078630857434,
+        "variance_pct": 27.00453857791224,
         "volatility": 14.652253065262327
       },
       {
         "period": "2027-07",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 486.76,
+        "baseline": 427.97,
         "current": 520.4,
-        "variance_pct": 6.91100336921686,
+        "variance_pct": 21.59730822253895,
         "volatility": 14.681109889113289
       },
       {
         "period": "2027-08",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-09",
+        "baseline_version": "2026-06",
         "current_version": "2026-12",
-        "baseline": 451.33,
+        "baseline": 419.27,
         "current": 553.15,
-        "variance_pct": 22.559989364766356,
+        "variance_pct": 31.931690795907176,
         "volatility": 17.71089596330574
       }
     ]
@@ -2886,7 +2886,7 @@
       {
         "id": "DP-003",
         "rationale": "Signal is meaningful enough to prepare planning options.",
-        "then": "Prepare options",
+        "then": "Prepare options for future",
         "when": "Moderate variance AND Low volatility"
       },
       {
@@ -3084,7 +3084,7 @@
   },
   "metadata": {
     "created_by": "ForeACT scaffold",
-    "updated_at": "2026-07-14T05:37:55Z"
+    "updated_at": "2026-07-14T19:31:43Z"
   },
   "metamodel_extension": {
     "concepts": [],
@@ -3104,7 +3104,7 @@
       "volatility_threshold_medium": 2
     },
     "scope": {
-      "baseline_version": "2026-09",
+      "baseline_version": "2026-06",
       "current_version": "2026-12",
       "grouping_fields": [],
       "horizon_field": "forecast_period",
