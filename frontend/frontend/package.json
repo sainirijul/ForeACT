@@ -1,0 +1,42 @@
+{
+  "name": "foreact-studio-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5173",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "backend": "cd ../backend && poetry run python run.py",
+    "start:all": "concurrently \"npm run backend\" \"npm run dev\""
+  },
+  "dependencies": {
+    "@azure/msal-browser": "^4.26.1",
+    "@azure/msal-react": "^3.0.21",
+    "@tanstack/react-query": "^5.90.5",
+    "axios": "^1.13.1",
+    "lucide-react": "^0.552.0",
+    "plotly.js-basic-dist": "^3.2.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-plotly.js": "^2.6.0",
+    "react-router-dom": "^7.9.5",
+    "recharts": "^2.10.3",
+    "zustand": "^5.0.8",
+    "@xyflow/react": "^12.11.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@types/node": "^22.9.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.3",
+    "concurrently": "^9.0.1",
+    "eslint": "^9.13.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.14",
+    "typescript": "~5.6.2",
+    "vite": "^5.4.10"
+  }
+}

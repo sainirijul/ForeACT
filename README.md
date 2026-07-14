@@ -1,34 +1,29 @@
 # ForeACT Studio
 
-**ForeACT** is a model-driven workbench for actionability assessment of forecast changes. It is designed as a MODELS Tools & Demonstrations style prototype, not as a generic dashboard.
+ForeACT Studio is a model-driven forecast actionability workbench for the AI data-center electricity-demand forecasting use case.
 
-The tool organizes the workflow into separate DSL-oriented pages. All pages read from and write to one dataset-specific central project file:
+## What is new in this version
 
-`backend/workspaces/ai_datacenter_capacity.foreact.json`
+This version uses **one canonical metamodel file**:
 
-## Workflow
+```text
+backend/metamodel/foreact.ecore
+```
 
-1. **Semantic Field Modeling**  
-   Profile a CSV dataset and enrich automatically discovered fields with role, semantic type, business name, unit, direction, and description. The interface includes search, filters, pagination, role counts, and bulk semantic actions so it can scale to 100+ variables.
+The backend loads this Ecore file with PyEcore and projects it into JSON for the frontend. The React UI no longer maintains a separate hard-coded TypeScript metamodel. Project-specific extensions are saved in the dataset/use-case-specific ForeACT project file:
 
-2. **Methodology Review**  
-   Select baseline/current forecast versions, select the forecast horizon of interest, declare variance and volatility methods, configure thresholds, and review the decision policy.
+```text
+backend/workspaces/ai_datacenter_capacity.foreact.json
+```
 
-3. **Metamodel Extension**  
-   Inspect the existing ForeACT metamodel and extend it graphically with use-case-specific concepts using a React Flow canvas and tool palette.
+## Main pages
 
-4. **Model Transformation Analysis**  
-   Compile the project specification into explicit model artifacts:
-   - `DatasetVersion -> SemanticFieldModel`
-   - `SemanticFieldModel + AnalysisScope -> AlignedForecastModel`
-   - `AlignedForecastModel + MethodModel -> SignalModel`
-   - `SignalModel + DecisionPolicy -> DecisionCardModel`
-
-5. **Variance and Volatility Analysis**  
-   Inspect decision cards, decision policy, variance × volatility matrix, signal details, and conformance checks.
-
-6. **Project Spec File**  
-   View or edit the central `.foreact.json` file that connects the whole workbench.
+1. Semantic Field Modeling — DSL Step 1
+2. Methodology Review — DSL Steps 2–3
+3. Metamodel Extension — DSL Step 4
+4. Model Rigor & Instance View
+5. Variance & Volatility Analysis
+6. Project Spec File
 
 ## Run backend
 
@@ -46,20 +41,30 @@ npm install
 npm run dev
 ```
 
-Or from the frontend folder:
+or:
 
 ```bash
+cd frontend
 npm run start:all
 ```
 
-## Active use case
+## Single-source metamodel flow
 
-The included use case is **AI data-center electricity demand forecasting**. A utility or planning group compares forecast cycles for the same future months. The tool helps distinguish forecast changes that look actionable from those that should be monitored because uncertainty or volatility is high.
+```text
+backend/metamodel/foreact.ecore
+  → PyEcore loader
+  → /api/metamodel
+  → React Flow metamodel view
+  → compiled model instance / analysis views
+```
 
-Active dataset:
+The metamodel uses inheritance, composition, and associations. Composition is shown with `◆`, inheritance with `extends`, and regular references as labeled associations.
 
-`data/use_cases/ai_datacenter_load_forecast.csv`
 
-## Why this is model-driven
+## v6.3 fix notes
 
-ForeACT stores the user’s modeling decisions as explicit model elements in the central JSON file. The analysis is generated through transformations over the specification rather than hidden UI state. The compiled result includes both a metamodel view and a model-instance view for introspection.
+- The ForeACT metamodel is maintained in one file: `backend/metamodel/foreact.ecore`.
+- No manual generation button is required. The backend projects the Ecore metamodel through `GET /api/metamodel`.
+- The Metamodel Extension page now renders directly from `metamodel.graph.nodes` / `metamodel.graph.edges`.
+- The frontend TypeScript build errors from `replaceAll` and unknown model-fit rows are fixed.
+- Extension classes can be added, selected, inspected, and deleted.

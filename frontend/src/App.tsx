@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import '@xyflow/react/dist/style.css';
-import { analyzeWorkspace, loadDefaultWorkspace, saveWorkspace, uploadWorkspaceData } from './api/client';
-import type { AnalysisResponse, ForeACTProjectSpec, ProfileResponse } from './types/analysis';
+import { analyzeWorkspace, loadDefaultWorkspace, loadMetamodel, saveWorkspace, uploadWorkspaceData } from './api/client';
+import type { AnalysisResponse, ForeACTProjectSpec, MetaModel, ProfileResponse } from './types/analysis';
 import { AppShell, type PageId } from './components/Shell';
 import { ProjectSpecPanel } from './components/ProjectSpecPanel';
 import { SemanticFieldModelingPage } from './components/SemanticFieldModelingPage';
@@ -17,17 +17,44 @@ export default function App() {
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [workspaceFile, setWorkspaceFile] = useState('');
+  const [metamodel, setMetamodel] = useState<MetaModel | null>(null);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    run(async () => {
-      const workspace = await loadDefaultWorkspace();
-      setSpec(workspace.spec);
-      setProfile(workspace.profile);
-      setWorkspaceFile(workspace.workspace_file);
-    }, 'Loaded ForeACT project specification.');
+    async function bootstrap() {
+      setLoading(true);
+      setError(null);
+      try {
+        const workspace = await loadDefaultWorkspace();
+        setSpec(workspace.spec);
+        setProfile(workspace.profile);
+        setWorkspaceFile(workspace.workspace_file);
+
+        // The workspace endpoint now also returns the Ecore-projected metamodel.
+        // This makes the metamodel viewer work even if the separate /api/metamodel
+        // request is blocked, cached incorrectly, or fails during development.
+        if (workspace.metamodel) {
+          setMetamodel(workspace.metamodel);
+        }
+
+        try {
+          const loadedMetamodel = await loadMetamodel();
+          setMetamodel(loadedMetamodel);
+        } catch (metaErr) {
+          console.warn('Could not load /api/metamodel. Using workspace-provided metamodel if available.', metaErr);
+        }
+
+        setStatus('Loaded ForeACT project specification.');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Something went wrong');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    bootstrap();
   }, []);
 
   async function run(action: () => Promise<void>, successMessage?: string) {
@@ -91,7 +118,7 @@ export default function App() {
       {loading && <div className="status-panel">Working on the current ForeACT model...</div>}
       {active === 'semantic' && <SemanticFieldModelingPage spec={spec} profile={profile} setSpec={updateSpec} />}
       {active === 'methodology' && <MethodologyReviewPage spec={spec} profile={profile} setSpec={updateSpec} />}
-      {active === 'metamodel' && <MetamodelExtensionPage spec={spec} setSpec={updateSpec} />}
+      {active === 'metamodel' && <MetamodelExtensionPage spec={spec} setSpec={setSpec} metamodel={metamodel} />}
       {active === 'transformations' && <TransformationAnalysisPage spec={spec} profile={profile} analysis={analysis} onAnalyze={compileAndAnalyze} />}
       {active === 'decisions' && <DecisionAnalysisPage spec={spec} analysis={analysis} onAnalyze={compileAndAnalyze} />}
       {active === 'spec' && <ProjectSpecPanel spec={spec} profile={profile} workspaceFile={workspaceFile || spec.project.central_file} onSpecChange={updateSpec} onUploadData={uploadData} />}

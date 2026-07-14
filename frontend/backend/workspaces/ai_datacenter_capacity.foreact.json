@@ -1,0 +1,267 @@
+{
+  "schema_version": "0.6.0",
+  "project": {
+    "id": "ai_datacenter_capacity",
+    "name": "AI Data Center Load Forecast Assurance",
+    "tool_name": "ForeACT",
+    "domain": "Energy demand forecasting",
+    "central_file": "backend/workspaces/ai_datacenter_capacity.foreact.json",
+    "description": "A utility or planning team compares forecast cycles for electricity demand where AI data-center load assumptions can cause large revisions."
+  },
+  "dataset": {
+    "id": "ai_datacenter_load_forecast",
+    "source_type": "local_csv",
+    "path": "data/use_cases/ai_datacenter_load_forecast.csv",
+    "format": "long_forecast_cycle",
+    "version_field": "forecast_cycle",
+    "horizon_field": "forecast_period",
+    "description": "Synthetic energy-demand planning case study with several forecast cycles for the same future months."
+  },
+  "dsl_steps": [
+    {
+      "step": 1,
+      "name": "Semantic Field Modeling",
+      "output_model": "FieldModel"
+    },
+    {
+      "step": 2,
+      "name": "Methodology Review",
+      "output_model": "MethodSet"
+    },
+    {
+      "step": 3,
+      "name": "Analysis Scope and Decision Policy",
+      "output_model": "AnalysisScope + DecisionPolicy"
+    },
+    {
+      "step": 4,
+      "name": "Metamodel Extension",
+      "output_model": "ForecastAssuranceMetamodel"
+    },
+    {
+      "step": 5,
+      "name": "Model Transformation Analysis",
+      "output_model": "CompiledForecastAssuranceModel"
+    },
+    {
+      "step": 6,
+      "name": "Variance and Volatility Analysis",
+      "output_model": "DecisionModel"
+    }
+  ],
+  "field_model": {
+    "fields": [
+      {
+        "name": "forecast_cycle",
+        "role": "forecast_version",
+        "data_type": "text",
+        "semantic_type": "forecast_issue_time",
+        "business_name": "Forecast Cycle",
+        "unit": "",
+        "description": "Month when the forecast version is issued. Used to align baseline and current forecast versions.",
+        "direction": "neutral",
+        "include_in_model": true
+      },
+      {
+        "name": "forecast_period",
+        "role": "forecast_horizon",
+        "data_type": "text",
+        "semantic_type": "forecast_target_time",
+        "business_name": "Forecast Horizon Period",
+        "unit": "",
+        "description": "Future month for which the forecast value is predicted.",
+        "direction": "neutral",
+        "include_in_model": true
+      },
+      {
+        "name": "months_ahead",
+        "role": "feature",
+        "data_type": "numeric",
+        "semantic_type": "forecast_horizon_index",
+        "business_name": "Months Ahead",
+        "unit": "months",
+        "description": "Lead time between forecast cycle and forecast horizon.",
+        "direction": "neutral",
+        "include_in_model": true
+      },
+      {
+        "name": "scenario",
+        "role": "scenario",
+        "data_type": "text",
+        "semantic_type": "planning_scenario",
+        "business_name": "Planning Scenario",
+        "unit": "",
+        "description": "Planning scenario used to represent uncertain data-center connection assumptions.",
+        "direction": "neutral",
+        "include_in_model": true
+      },
+      {
+        "name": "feature_1_data_center_committed_mw",
+        "role": "feature",
+        "data_type": "numeric",
+        "semantic_type": "external_driver",
+        "business_name": "Committed AI Data Center Load",
+        "unit": "MW",
+        "description": "Planned or committed data-center load that may affect future electricity demand.",
+        "direction": "higher_is_riskier",
+        "include_in_model": true
+      },
+      {
+        "name": "feature_2_grid_connection_probability_pct",
+        "role": "feature",
+        "data_type": "numeric",
+        "semantic_type": "external_driver",
+        "business_name": "Grid Connection Probability",
+        "unit": "%",
+        "description": "Estimated likelihood that proposed data-center load connects within the forecast horizon.",
+        "direction": "higher_is_riskier",
+        "include_in_model": true
+      },
+      {
+        "name": "feature_3_power_price_index",
+        "role": "feature",
+        "data_type": "numeric",
+        "semantic_type": "external_driver",
+        "business_name": "Power Price Index",
+        "unit": "index",
+        "description": "Energy price pressure that may influence industrial and data-center demand.",
+        "direction": "higher_is_riskier",
+        "include_in_model": true
+      },
+      {
+        "name": "feature_4_avg_temperature_c",
+        "role": "feature",
+        "data_type": "numeric",
+        "semantic_type": "external_driver",
+        "business_name": "Average Temperature",
+        "unit": "\u00b0C",
+        "description": "Average monthly temperature used as a weather driver for cooling demand.",
+        "direction": "higher_is_riskier",
+        "include_in_model": true
+      },
+      {
+        "name": "feature_5_cooling_efficiency_pue",
+        "role": "feature",
+        "data_type": "numeric",
+        "semantic_type": "external_driver",
+        "business_name": "Cooling Efficiency PUE",
+        "unit": "ratio",
+        "description": "Power usage effectiveness assumption for data-center cooling efficiency.",
+        "direction": "higher_is_riskier",
+        "include_in_model": true
+      },
+      {
+        "name": "feature_6_industrial_growth_index",
+        "role": "feature",
+        "data_type": "numeric",
+        "semantic_type": "external_driver",
+        "business_name": "Industrial Growth Index",
+        "unit": "index",
+        "description": "Industrial activity index used as an explanatory demand driver.",
+        "direction": "higher_is_riskier",
+        "include_in_model": true
+      },
+      {
+        "name": "feature_7_renewable_availability_pct",
+        "role": "feature",
+        "data_type": "numeric",
+        "semantic_type": "external_driver",
+        "business_name": "Renewable Availability",
+        "unit": "%",
+        "description": "Estimated renewable availability that may influence grid planning uncertainty.",
+        "direction": "higher_is_riskier",
+        "include_in_model": true
+      },
+      {
+        "name": "target_1_total_load_mwh",
+        "role": "target",
+        "data_type": "numeric",
+        "semantic_type": "forecast_target",
+        "business_name": "Total Electricity Load Forecast",
+        "unit": "MWh",
+        "description": "Forecasted total monthly electricity load for the selected planning region.",
+        "direction": "higher_is_riskier",
+        "include_in_model": true
+      },
+      {
+        "name": "target_2_peak_load_mw",
+        "role": "target",
+        "data_type": "numeric",
+        "semantic_type": "forecast_target",
+        "business_name": "Peak Electricity Load Forecast",
+        "unit": "MW",
+        "description": "Forecasted peak electricity load used for capacity planning.",
+        "direction": "higher_is_riskier",
+        "include_in_model": true
+      }
+    ]
+  },
+  "methodology_model": {
+    "scope": {
+      "version_field": "forecast_cycle",
+      "horizon_field": "forecast_period",
+      "baseline_version": "2026-09",
+      "current_version": "2026-12",
+      "period_start": "2027-01",
+      "period_end": "2029-12",
+      "grouping_fields": []
+    },
+    "methods": {
+      "variance_method": "version_to_version_pct",
+      "volatility_method": "version_dispersion_pct",
+      "variance_threshold_large": 5.0,
+      "variance_threshold_moderate": 2.0,
+      "volatility_threshold_high": 4.0,
+      "volatility_threshold_medium": 2.0,
+      "rolling_window": 4,
+      "custom_variance_formula": "",
+      "custom_volatility_formula": ""
+    },
+    "method_notes": "Methods are explicit model elements. The analysis is generated only after the selected methods and scope are declared."
+  },
+  "decision_policy": {
+    "name": "Default actionability policy",
+    "rules": [
+      {
+        "id": "DP-001",
+        "when": "Large variance AND Low volatility",
+        "then": "Act / review strategy",
+        "rationale": "Large movement under controlled volatility is likely decision-relevant."
+      },
+      {
+        "id": "DP-002",
+        "when": "Large variance AND Medium/High volatility",
+        "then": "Monitor closely",
+        "rationale": "Large movement exists but uncertainty is elevated."
+      },
+      {
+        "id": "DP-003",
+        "when": "Moderate variance AND Low volatility",
+        "then": "Prepare options",
+        "rationale": "Signal is meaningful enough to prepare planning options."
+      },
+      {
+        "id": "DP-004",
+        "when": "High volatility dominates",
+        "then": "Watch uncertainty",
+        "rationale": "The signal may be unstable and should be monitored before irreversible action."
+      },
+      {
+        "id": "DP-005",
+        "when": "Small variance AND Low/Medium volatility",
+        "then": "Stable / no action",
+        "rationale": "Movement is not material enough for action."
+      }
+    ]
+  },
+  "metamodel_extension": {
+    "concepts": [],
+    "edges": []
+  },
+  "compiled_model": {},
+  "analysis_cache": {},
+  "metadata": {
+    "created_by": "ForeACT scaffold",
+    "updated_at": "2026-07-13"
+  }
+}

@@ -6,11 +6,21 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from app.metamodel_projection import ecore_to_graph
+from app.metamodel_editor import (
+    add_class,
+    delete_class,
+    add_attribute,
+    delete_attribute,
+    add_reference,
+)
+
 import pandas as pd
 from flask import Blueprint, jsonify, request
 
 from .analysis import analyze_dataframe, dataset_profile, make_demo_energy_data, read_csv_file
 from .domain import method_catalog
+from .metamodel_projection import ecore_to_graph
 
 api = Blueprint("api", __name__)
 
@@ -94,7 +104,7 @@ def _analysis_from_spec(spec: dict[str, Any]) -> dict[str, Any]:
     spec["compiled_model"] = {
         "metamodel": analysis.get("metamodel"),
         "transformations": analysis.get("transformations"),
-        "aligned_forecast_preview": analysis.get("aligned_forecast_preview"),
+        "forecast_comparison_preview": analysis.get("forecast_comparison_preview"),
     }
     spec["analysis_cache"] = {
         "matrix_points": analysis.get("matrix_points"),
@@ -115,16 +125,24 @@ def methods():
     return jsonify(method_catalog())
 
 
+@api.get("/metamodel")
+def metamodel():
+    # The core metamodel is independent of the workspace file.
+    # Keeping this endpoint workspace-free avoids a blank canvas when the
+    # workspace id and workspace filename differ during early prototyping.
+    return jsonify(ecore_to_graph([]))
+
+
 @api.get("/workspace/default")
 def workspace_default():
     spec = _read_workspace(DEFAULT_WORKSPACE_ID)
-    return jsonify({"spec": spec, "profile": _profile_for_spec(spec), "workspace_file": spec.get("project", {}).get("central_file")})
+    return jsonify({"spec": spec, "profile": _profile_for_spec(spec), "workspace_file": spec.get("project", {}).get("central_file"), "metamodel": ecore_to_graph(spec.get("metamodel_extension", {}).get("concepts", []))})
 
 
 @api.get("/workspace/<workspace_id>")
 def workspace_get(workspace_id: str):
     spec = _read_workspace(workspace_id)
-    return jsonify({"spec": spec, "profile": _profile_for_spec(spec), "workspace_file": spec.get("project", {}).get("central_file")})
+    return jsonify({"spec": spec, "profile": _profile_for_spec(spec), "workspace_file": spec.get("project", {}).get("central_file"), "metamodel": ecore_to_graph(spec.get("metamodel_extension", {}).get("concepts", []))})
 
 
 @api.post("/workspace/save")
@@ -214,3 +232,51 @@ def upload():
     scope = _json_form("scope", None)
     custom_concepts = _json_form("custom_concepts", [])
     return jsonify(analyze_dataframe(df, field_specs, methods, scope, custom_concepts))
+
+
+@api.get("/metamodel")
+def get_metamodel():
+    return jsonify(ecore_to_graph())
+
+
+@api.post("/metamodel/classes")
+def create_metamodel_class():
+    try:
+        payload = request.get_json(force=True) or {}
+        return jsonify(add_class(payload))
+    except Exception as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 400
+
+
+@api.delete("/metamodel/classes/<class_name>")
+def delete_metamodel_class(class_name):
+    try:
+        return jsonify(delete_class(class_name))
+    except Exception as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 400
+
+
+@api.post("/metamodel/classes/<class_name>/attributes")
+def create_metamodel_attribute(class_name):
+    try:
+        payload = request.get_json(force=True) or {}
+        return jsonify(add_attribute(class_name, payload))
+    except Exception as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 400
+
+
+@api.delete("/metamodel/classes/<class_name>/attributes/<attribute_name>")
+def delete_metamodel_attribute(class_name, attribute_name):
+    try:
+        return jsonify(delete_attribute(class_name, attribute_name))
+    except Exception as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 400
+
+
+@api.post("/metamodel/classes/<class_name>/references")
+def create_metamodel_reference(class_name):
+    try:
+        payload = request.get_json(force=True) or {}
+        return jsonify(add_reference(class_name, payload))
+    except Exception as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 400

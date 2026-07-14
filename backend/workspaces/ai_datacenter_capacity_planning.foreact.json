@@ -3,16 +3,16 @@
     "matrix_points": [
       {
         "target": "target_1_total_load_mwh",
-        "x_variance_abs_pct": 39.785,
-        "y_volatility_score": 16.833,
+        "x_variance_abs_pct": 8.525,
+        "y_volatility_score": 15.055,
         "variance_class": "Large",
         "volatility_class": "High",
         "recommended_action": "Monitor closely"
       },
       {
         "target": "target_2_peak_load_mw",
-        "x_variance_abs_pct": 40.344,
-        "y_volatility_score": 16.352,
+        "x_variance_abs_pct": 9.447,
+        "y_volatility_score": 14.618,
         "variance_class": "Large",
         "volatility_class": "High",
         "recommended_action": "Monitor closely"
@@ -25,11 +25,11 @@
         "rationale": "The movement is large, but uncertainty is elevated; avoid immediate irreversible action.",
         "trace": {
           "DatasetVersion": "144 rows / 13 columns",
-          "SemanticFieldModel": "8 drivers, 2 targets",
-          "AnalysisScope": "2026-03 \u2192 2026-12, 2027-01 to 2027-12",
-          "MethodModel": "version_to_version_pct + version_dispersion_pct",
-          "AlignedForecastModel": "12 aligned horizon rows",
-          "SignalModel": "variance=39.78, volatility=16.83"
+          "FieldModel": "8 drivers, 2 targets",
+          "AnalysisScope": "2026-09 \u2192 2026-12, 2027-01 to 2029-12",
+          "MethodSet": "version_to_version_pct + version_dispersion_pct",
+          "ForecastComparisonModel": "36 aligned horizon rows",
+          "SignalModel": "variance=8.53, volatility=15.06"
         }
       },
       {
@@ -38,11 +38,11 @@
         "rationale": "The movement is large, but uncertainty is elevated; avoid immediate irreversible action.",
         "trace": {
           "DatasetVersion": "144 rows / 13 columns",
-          "SemanticFieldModel": "8 drivers, 2 targets",
-          "AnalysisScope": "2026-03 \u2192 2026-12, 2027-01 to 2027-12",
-          "MethodModel": "version_to_version_pct + version_dispersion_pct",
-          "AlignedForecastModel": "12 aligned horizon rows",
-          "SignalModel": "variance=40.34, volatility=16.35"
+          "FieldModel": "8 drivers, 2 targets",
+          "AnalysisScope": "2026-09 \u2192 2026-12, 2027-01 to 2029-12",
+          "MethodSet": "version_to_version_pct + version_dispersion_pct",
+          "ForecastComparisonModel": "36 aligned horizon rows",
+          "SignalModel": "variance=9.45, volatility=14.62"
         }
       }
     ],
@@ -87,318 +87,2535 @@
   },
   "compiled_model": {
     "metamodel": {
-      "name": "Forecast Actionability DSL",
-      "version": "0.4.0",
-      "intent": "Make forecast-version comparison, signal computation, actionability, and traceability explicit through model transformations.",
-      "concepts": {
-        "DatasetVersion": {
-          "description": "Versioned uploaded dataset with semantic field annotations."
-        },
-        "SemanticFieldModel": {
-          "features": [
+      "name": "ForeACT Forecast Assurance Metamodel",
+      "version": "1.0.0",
+      "source": "C:\\Users\\sainir\\Desktop\\ShradhaSaburi\\NAV-RS-Data\\Technical\\SpaceX\\ForeACT\\backend\\metamodel\\foreact.ecore",
+      "nsURI": "http://foreact/model",
+      "intent": "Single-source Ecore metamodel for forecast-change actionability assessment.",
+      "classes": [
+        {
+          "id": "ModelElement",
+          "label": "ModelElement",
+          "kind": "abstract",
+          "package": "Core",
+          "stereotype": "abstract EClass",
+          "abstract": true,
+          "count": 1,
+          "attributes": [
             {
-              "business_name": "Months Ahead",
-              "data_type": "numeric",
-              "description": "Lead time between forecast cycle and forecast horizon.",
-              "direction": "higher_is_riskier",
-              "include_in_model": true,
-              "name": "months_ahead",
-              "role": "feature",
-              "semantic_type": "external_driver",
-              "unit": "months"
+              "name": "id",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
             },
             {
-              "business_name": "Committed AI Data Center Load",
-              "data_type": "numeric",
-              "description": "Planned or committed data-center load that may affect future electricity demand.",
-              "direction": "higher_is_riskier",
-              "include_in_model": true,
-              "name": "feature_1_data_center_committed_mw",
-              "role": "feature",
-              "semantic_type": "external_driver",
-              "unit": "MW"
+              "name": "name",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
             },
             {
-              "business_name": "Grid Connection Probability",
-              "data_type": "numeric",
-              "description": "Estimated likelihood that proposed data-center load connects within the forecast horizon.",
-              "direction": "higher_is_riskier",
-              "include_in_model": true,
-              "name": "feature_2_grid_connection_probability_pct",
-              "role": "feature",
-              "semantic_type": "external_driver",
-              "unit": "%"
-            },
-            {
-              "business_name": "Power Price Index",
-              "data_type": "numeric",
-              "description": "Energy price pressure that may influence industrial and data-center demand.",
-              "direction": "higher_is_riskier",
-              "include_in_model": true,
-              "name": "feature_3_power_price_index",
-              "role": "feature",
-              "semantic_type": "external_driver",
-              "unit": "index"
-            },
-            {
-              "business_name": "Average Temperature",
-              "data_type": "numeric",
-              "description": "Average monthly temperature used as a weather driver for cooling demand.",
-              "direction": "higher_is_riskier",
-              "include_in_model": true,
-              "name": "feature_4_avg_temperature_c",
-              "role": "feature",
-              "semantic_type": "external_driver",
-              "unit": "\u00b0C"
-            },
-            {
-              "business_name": "Cooling Efficiency PUE",
-              "data_type": "numeric",
-              "description": "Power usage effectiveness assumption for data-center cooling efficiency.",
-              "direction": "higher_is_riskier",
-              "include_in_model": true,
-              "name": "feature_5_cooling_efficiency_pue",
-              "role": "feature",
-              "semantic_type": "external_driver",
-              "unit": "ratio"
-            },
-            {
-              "business_name": "Industrial Growth Index",
-              "data_type": "numeric",
-              "description": "Industrial activity index used as an explanatory demand driver.",
-              "direction": "higher_is_riskier",
-              "include_in_model": true,
-              "name": "feature_6_industrial_growth_index",
-              "role": "feature",
-              "semantic_type": "external_driver",
-              "unit": "index"
-            },
-            {
-              "business_name": "Renewable Availability",
-              "data_type": "numeric",
-              "description": "Estimated renewable availability that may influence grid planning uncertainty.",
-              "direction": "higher_is_riskier",
-              "include_in_model": true,
-              "name": "feature_7_renewable_availability_pct",
-              "role": "feature",
-              "semantic_type": "external_driver",
-              "unit": "%"
+              "name": "description",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
             }
           ],
-          "targets": [
-            {
-              "business_name": "Total Electricity Load Forecast",
-              "data_type": "numeric",
-              "description": "Forecasted total monthly electricity load for the selected planning region.",
-              "direction": "higher_is_riskier",
-              "include_in_model": true,
-              "name": "target_1_total_load_mwh",
-              "role": "target",
-              "semantic_type": "forecast_target",
-              "unit": "MWh"
-            },
-            {
-              "business_name": "Peak Electricity Load Forecast",
-              "data_type": "numeric",
-              "description": "Forecasted peak electricity load used for capacity planning.",
-              "direction": "higher_is_riskier",
-              "include_in_model": true,
-              "name": "target_2_peak_load_mw",
-              "role": "target",
-              "semantic_type": "forecast_target",
-              "unit": "MW"
-            }
-          ],
-          "version_fields": [
-            {
-              "business_name": "Forecast Cycle",
-              "data_type": "text",
-              "description": "Month when the forecast version is issued. Used to align baseline and current forecast versions.",
-              "direction": "higher_is_riskier",
-              "include_in_model": true,
-              "name": "forecast_cycle",
-              "role": "forecast_version",
-              "semantic_type": "external_driver",
-              "unit": ""
-            }
-          ],
-          "horizon_fields": [
-            {
-              "business_name": "Forecast Horizon Period",
-              "data_type": "text",
-              "description": "Future month for which the forecast value is predicted.",
-              "direction": "higher_is_riskier",
-              "include_in_model": true,
-              "name": "forecast_period",
-              "role": "forecast_horizon",
-              "semantic_type": "external_driver",
-              "unit": ""
-            }
-          ],
-          "scenario_fields": []
-        },
-        "AnalysisScope": {
-          "version_field": "forecast_cycle",
-          "horizon_field": "forecast_period",
-          "baseline_version": "2026-03",
-          "current_version": "2026-12",
-          "period_start": "2027-01",
-          "period_end": "2027-12",
-          "grouping_fields": []
-        },
-        "ScenarioAssumptionModel": {
-          "description": "Captures planning scenarios and assumptions such as AI data-center commissioning, committed capacity, grid connection probability, and cooling efficiency.",
-          "fields": []
-        },
-        "MethodModel": {
-          "variance_method": "version_to_version_pct",
-          "volatility_method": "version_dispersion_pct",
-          "variance_threshold_large": 5.0,
-          "variance_threshold_moderate": 2.0,
-          "volatility_threshold_high": 4.0,
-          "volatility_threshold_medium": 2.0,
-          "rolling_window": 4,
-          "custom_variance_formula": "",
-          "custom_volatility_formula": ""
-        },
-        "AlignedForecastModel": {
-          "description": "A derived model produced by joining baseline and current forecast versions over the same forecast horizon and target variables."
-        },
-        "SignalModel": {
-          "description": "Derived variance, volatility, confidence, and driver-link signals produced from declared methods."
-        },
-        "DecisionCardModel": {
-          "description": "Traceable business interpretation generated from signal classes and conformance rules."
-        },
-        "CustomConcepts": [
-          {
-            "connects_to": "ScenarioAssumptionModel",
-            "description": "Represents committed AI data-center capacity used as a scenario assumption.",
-            "kind": "domain",
-            "name": "DataCenterCommitment",
-            "x": 360,
-            "y": 60
+          "references": [],
+          "position": {
+            "x": 0,
+            "y": 0
           },
-          {
-            "connects_to": "DecisionCardModel",
-            "description": "Represents a capacity planning decision affected by forecast actionability.",
-            "kind": "decision",
-            "name": "PlanningDecision",
-            "x": 720,
-            "y": 360
-          }
-        ]
-      },
+          "isCore": true
+        },
+        {
+          "id": "ForecastAssuranceProject",
+          "label": "ForecastAssuranceProject",
+          "kind": "class",
+          "package": "Project",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "domain",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "dataset",
+              "target": "DatasetVersion",
+              "containment": true,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "fieldModel",
+              "target": "FieldModel",
+              "containment": true,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "scenarioModel",
+              "target": "ScenarioModel",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "methodSet",
+              "target": "MethodSet",
+              "containment": true,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "comparisonModel",
+              "target": "ForecastComparisonModel",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "signalModel",
+              "target": "SignalModel",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "decisionModel",
+              "target": "DecisionModel",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "position": {
+            "x": 300,
+            "y": 0
+          },
+          "isCore": true
+        },
+        {
+          "id": "DatasetVersion",
+          "label": "DatasetVersion",
+          "kind": "class",
+          "package": "Data",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "sourcePath",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "rowCount",
+              "type": "EInt",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "columnCount",
+              "type": "EInt",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "rawFields",
+              "target": "RawField",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": "*"
+            }
+          ],
+          "position": {
+            "x": 600,
+            "y": 250
+          },
+          "isCore": true
+        },
+        {
+          "id": "RawField",
+          "label": "RawField",
+          "kind": "class",
+          "package": "Data",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "columnName",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "dataType",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "missingRate",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 900,
+            "y": 250
+          },
+          "isCore": true
+        },
+        {
+          "id": "FieldModel",
+          "label": "FieldModel",
+          "kind": "class",
+          "package": "Semantics",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "completenessScore",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "fields",
+              "target": "SemanticField",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": "*"
+            }
+          ],
+          "position": {
+            "x": 0,
+            "y": 630
+          },
+          "isCore": true
+        },
+        {
+          "id": "SemanticField",
+          "label": "SemanticField",
+          "kind": "abstract",
+          "package": "Semantics",
+          "stereotype": "abstract EClass",
+          "abstract": true,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "businessName",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "unit",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "semanticType",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "direction",
+              "type": "DirectionKind",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "sourceColumn",
+              "target": "RawField",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            }
+          ],
+          "position": {
+            "x": 300,
+            "y": 630
+          },
+          "isCore": true
+        },
+        {
+          "id": "VersionField",
+          "label": "VersionField",
+          "kind": "class",
+          "package": "Semantics",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "versionFormat",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 600,
+            "y": 630
+          },
+          "isCore": true
+        },
+        {
+          "id": "HorizonField",
+          "label": "HorizonField",
+          "kind": "class",
+          "package": "Semantics",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "granularity",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 900,
+            "y": 630
+          },
+          "isCore": true
+        },
+        {
+          "id": "TargetField",
+          "label": "TargetField",
+          "kind": "class",
+          "package": "Semantics",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "riskDirection",
+              "type": "DirectionKind",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 0,
+            "y": 760
+          },
+          "isCore": true
+        },
+        {
+          "id": "DriverField",
+          "label": "DriverField",
+          "kind": "class",
+          "package": "Semantics",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "expectedEffect",
+              "type": "DirectionKind",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 300,
+            "y": 760
+          },
+          "isCore": true
+        },
+        {
+          "id": "ScenarioModel",
+          "label": "ScenarioModel",
+          "kind": "class",
+          "package": "Scenario",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [],
+          "references": [
+            {
+              "name": "assumptions",
+              "target": "AssumptionElement",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": "*"
+            },
+            {
+              "name": "evidence",
+              "target": "EvidenceArtifact",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": "*"
+            }
+          ],
+          "position": {
+            "x": 600,
+            "y": 1040
+          },
+          "isCore": true
+        },
+        {
+          "id": "AssumptionElement",
+          "label": "AssumptionElement",
+          "kind": "abstract",
+          "package": "Scenario",
+          "stereotype": "abstract EClass",
+          "abstract": true,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "confidence",
+              "type": "ConfidenceKind",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "validityPeriod",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "supportedBy",
+              "target": "EvidenceArtifact",
+              "containment": false,
+              "lowerBound": 0,
+              "upperBound": "*"
+            }
+          ],
+          "position": {
+            "x": 900,
+            "y": 1040
+          },
+          "isCore": true
+        },
+        {
+          "id": "ScenarioAssumption",
+          "label": "ScenarioAssumption",
+          "kind": "class",
+          "package": "Scenario",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "statement",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 0,
+            "y": 1170
+          },
+          "isCore": true
+        },
+        {
+          "id": "DataCenterCommitment",
+          "label": "DataCenterCommitment",
+          "kind": "class",
+          "package": "Scenario",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "committedLoadMW",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "probability",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "expectedInServiceDate",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "affects",
+              "target": "TargetField",
+              "containment": false,
+              "lowerBound": 0,
+              "upperBound": "*"
+            }
+          ],
+          "position": {
+            "x": 300,
+            "y": 1170
+          },
+          "isCore": true
+        },
+        {
+          "id": "EvidenceArtifact",
+          "label": "EvidenceArtifact",
+          "kind": "class",
+          "package": "Scenario",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "sourceType",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "uri",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "confidence",
+              "type": "ConfidenceKind",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 600,
+            "y": 1170
+          },
+          "isCore": true
+        },
+        {
+          "id": "MethodSet",
+          "label": "MethodSet",
+          "kind": "class",
+          "package": "Methodology",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [],
+          "references": [
+            {
+              "name": "methods",
+              "target": "AnalysisMethod",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": "*"
+            }
+          ],
+          "position": {
+            "x": 900,
+            "y": 1470
+          },
+          "isCore": true
+        },
+        {
+          "id": "AnalysisMethod",
+          "label": "AnalysisMethod",
+          "kind": "abstract",
+          "package": "Methodology",
+          "stereotype": "abstract EClass",
+          "abstract": true,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "formula",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "threshold",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 0,
+            "y": 1600
+          },
+          "isCore": true
+        },
+        {
+          "id": "VarianceMethod",
+          "label": "VarianceMethod",
+          "kind": "class",
+          "package": "Methodology",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "largeVarianceThreshold",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 300,
+            "y": 1600
+          },
+          "isCore": true
+        },
+        {
+          "id": "VolatilityMethod",
+          "label": "VolatilityMethod",
+          "kind": "class",
+          "package": "Methodology",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "highVolatilityThreshold",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 600,
+            "y": 1600
+          },
+          "isCore": true
+        },
+        {
+          "id": "ConfidenceMethod",
+          "label": "ConfidenceMethod",
+          "kind": "class",
+          "package": "Methodology",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "confidenceRule",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 900,
+            "y": 1600
+          },
+          "isCore": true
+        },
+        {
+          "id": "ForecastComparisonModel",
+          "label": "ForecastComparisonModel",
+          "kind": "class",
+          "package": "Comparison",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "baselineVersion",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "currentVersion",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "periodStart",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "periodEnd",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "records",
+              "target": "ForecastComparisonRecord",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": "*"
+            },
+            {
+              "name": "versionField",
+              "target": "VersionField",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "horizonField",
+              "target": "HorizonField",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            }
+          ],
+          "position": {
+            "x": 0,
+            "y": 2000
+          },
+          "isCore": true
+        },
+        {
+          "id": "ForecastComparisonRecord",
+          "label": "ForecastComparisonRecord",
+          "kind": "class",
+          "package": "Comparison",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "period",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "baselineValue",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "currentValue",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "delta",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "target",
+              "target": "TargetField",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            }
+          ],
+          "position": {
+            "x": 300,
+            "y": 2000
+          },
+          "isCore": true
+        },
+        {
+          "id": "SignalModel",
+          "label": "SignalModel",
+          "kind": "class",
+          "package": "Signals",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [],
+          "references": [
+            {
+              "name": "signals",
+              "target": "Signal",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": "*"
+            }
+          ],
+          "position": {
+            "x": 600,
+            "y": 2250
+          },
+          "isCore": true
+        },
+        {
+          "id": "Signal",
+          "label": "Signal",
+          "kind": "abstract",
+          "package": "Signals",
+          "stereotype": "abstract EClass",
+          "abstract": true,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "value",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "classification",
+              "type": "SignalClass",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "computedFor",
+              "target": "TargetField",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "computedBy",
+              "target": "AnalysisMethod",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            }
+          ],
+          "position": {
+            "x": 900,
+            "y": 2250
+          },
+          "isCore": true
+        },
+        {
+          "id": "VarianceSignal",
+          "label": "VarianceSignal",
+          "kind": "class",
+          "package": "Signals",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "variancePct",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 0,
+            "y": 2380
+          },
+          "isCore": true
+        },
+        {
+          "id": "VolatilitySignal",
+          "label": "VolatilitySignal",
+          "kind": "class",
+          "package": "Signals",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "volatilityScore",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 300,
+            "y": 2380
+          },
+          "isCore": true
+        },
+        {
+          "id": "ConfidenceSignal",
+          "label": "ConfidenceSignal",
+          "kind": "class",
+          "package": "Signals",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "confidenceLevel",
+              "type": "ConfidenceKind",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "supportedBy",
+              "target": "EvidenceArtifact",
+              "containment": false,
+              "lowerBound": 0,
+              "upperBound": "*"
+            }
+          ],
+          "position": {
+            "x": 600,
+            "y": 2380
+          },
+          "isCore": true
+        },
+        {
+          "id": "DecisionModel",
+          "label": "DecisionModel",
+          "kind": "class",
+          "package": "Decision",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [],
+          "references": [
+            {
+              "name": "policy",
+              "target": "DecisionPolicy",
+              "containment": true,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "cards",
+              "target": "DecisionCard",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": "*"
+            }
+          ],
+          "position": {
+            "x": 900,
+            "y": 2680
+          },
+          "isCore": true
+        },
+        {
+          "id": "DecisionPolicy",
+          "label": "DecisionPolicy",
+          "kind": "class",
+          "package": "Decision",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [],
+          "references": [
+            {
+              "name": "rules",
+              "target": "DecisionRule",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": "*"
+            }
+          ],
+          "position": {
+            "x": 0,
+            "y": 2810
+          },
+          "isCore": true
+        },
+        {
+          "id": "DecisionRule",
+          "label": "DecisionRule",
+          "kind": "class",
+          "package": "Decision",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "condition",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "action",
+              "type": "ActionKind",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 300,
+            "y": 2810
+          },
+          "isCore": true
+        },
+        {
+          "id": "DecisionCard",
+          "label": "DecisionCard",
+          "kind": "class",
+          "package": "Decision",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "headline",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "recommendedAction",
+              "type": "ActionKind",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "rationale",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "target",
+              "target": "TargetField",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "usesSignals",
+              "target": "Signal",
+              "containment": false,
+              "lowerBound": 0,
+              "upperBound": "*"
+            },
+            {
+              "name": "appliesPolicy",
+              "target": "DecisionPolicy",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "supportedBy",
+              "target": "EvidenceArtifact",
+              "containment": false,
+              "lowerBound": 0,
+              "upperBound": "*"
+            }
+          ],
+          "position": {
+            "x": 600,
+            "y": 2810
+          },
+          "isCore": true
+        }
+      ],
+      "enums": [
+        {
+          "name": "DirectionKind",
+          "literals": [
+            "increase",
+            "decrease",
+            "neutral",
+            "unknown"
+          ]
+        },
+        {
+          "name": "ConfidenceKind",
+          "literals": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        {
+          "name": "SignalClass",
+          "literals": [
+            "low",
+            "moderate",
+            "high"
+          ]
+        },
+        {
+          "name": "ActionKind",
+          "literals": [
+            "no_action",
+            "monitor",
+            "review",
+            "act"
+          ]
+        }
+      ],
       "graph": {
         "nodes": [
           {
-            "id": "dataset",
+            "id": "ModelElement",
+            "label": "ModelElement",
+            "kind": "abstract",
+            "package": "Core",
+            "stereotype": "abstract EClass",
+            "abstract": true,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "id",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "name",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "description",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "isCore": true
+          },
+          {
+            "id": "ForecastAssuranceProject",
+            "label": "ForecastAssuranceProject",
+            "kind": "class",
+            "package": "Project",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "domain",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "dataset",
+                "target": "DatasetVersion",
+                "containment": true,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "fieldModel",
+                "target": "FieldModel",
+                "containment": true,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "scenarioModel",
+                "target": "ScenarioModel",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "methodSet",
+                "target": "MethodSet",
+                "containment": true,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "comparisonModel",
+                "target": "ForecastComparisonModel",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "signalModel",
+                "target": "SignalModel",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "decisionModel",
+                "target": "DecisionModel",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "position": {
+              "x": 300,
+              "y": 0
+            },
+            "isCore": true
+          },
+          {
+            "id": "DatasetVersion",
             "label": "DatasetVersion",
-            "kind": "source",
-            "count": 13
+            "kind": "class",
+            "package": "Data",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "sourcePath",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "rowCount",
+                "type": "EInt",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "columnCount",
+                "type": "EInt",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "rawFields",
+                "target": "RawField",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": "*"
+              }
+            ],
+            "position": {
+              "x": 600,
+              "y": 250
+            },
+            "isCore": true
           },
           {
-            "id": "field_model",
-            "label": "SemanticFieldModel",
-            "kind": "metamodel",
-            "count": 12
+            "id": "RawField",
+            "label": "RawField",
+            "kind": "class",
+            "package": "Data",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "columnName",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "dataType",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "missingRate",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 900,
+              "y": 250
+            },
+            "isCore": true
           },
           {
-            "id": "scope_model",
-            "label": "AnalysisScope",
-            "kind": "metamodel",
-            "count": 1
+            "id": "FieldModel",
+            "label": "FieldModel",
+            "kind": "class",
+            "package": "Semantics",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "completenessScore",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "fields",
+                "target": "SemanticField",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": "*"
+              }
+            ],
+            "position": {
+              "x": 0,
+              "y": 630
+            },
+            "isCore": true
           },
           {
-            "id": "scenario_model",
-            "label": "ScenarioAssumptionModel",
-            "kind": "metamodel",
-            "count": 0
+            "id": "SemanticField",
+            "label": "SemanticField",
+            "kind": "abstract",
+            "package": "Semantics",
+            "stereotype": "abstract EClass",
+            "abstract": true,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "businessName",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "unit",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "semanticType",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "direction",
+                "type": "DirectionKind",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "sourceColumn",
+                "target": "RawField",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              }
+            ],
+            "position": {
+              "x": 300,
+              "y": 630
+            },
+            "isCore": true
           },
           {
-            "id": "method_model",
-            "label": "MethodModel",
-            "kind": "metamodel",
-            "count": 2
+            "id": "VersionField",
+            "label": "VersionField",
+            "kind": "class",
+            "package": "Semantics",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "versionFormat",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 600,
+              "y": 630
+            },
+            "isCore": true
           },
           {
-            "id": "aligned_forecast_model",
-            "label": "AlignedForecastModel",
-            "kind": "runtime-model",
-            "count": 2
+            "id": "HorizonField",
+            "label": "HorizonField",
+            "kind": "class",
+            "package": "Semantics",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "granularity",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 900,
+              "y": 630
+            },
+            "isCore": true
           },
           {
-            "id": "signal_model",
-            "label": "SignalModel",
-            "kind": "runtime-model",
-            "count": 4
+            "id": "TargetField",
+            "label": "TargetField",
+            "kind": "class",
+            "package": "Semantics",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "riskDirection",
+                "type": "DirectionKind",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 0,
+              "y": 760
+            },
+            "isCore": true
           },
           {
-            "id": "decision_model",
-            "label": "DecisionCardModel",
-            "kind": "assurance",
-            "count": 2
+            "id": "DriverField",
+            "label": "DriverField",
+            "kind": "class",
+            "package": "Semantics",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "expectedEffect",
+                "type": "DirectionKind",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 300,
+              "y": 760
+            },
+            "isCore": true
           },
           {
-            "id": "custom_0_datacentercommitment",
+            "id": "ScenarioModel",
+            "label": "ScenarioModel",
+            "kind": "class",
+            "package": "Scenario",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [],
+            "references": [
+              {
+                "name": "assumptions",
+                "target": "AssumptionElement",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": "*"
+              },
+              {
+                "name": "evidence",
+                "target": "EvidenceArtifact",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": "*"
+              }
+            ],
+            "position": {
+              "x": 600,
+              "y": 1040
+            },
+            "isCore": true
+          },
+          {
+            "id": "AssumptionElement",
+            "label": "AssumptionElement",
+            "kind": "abstract",
+            "package": "Scenario",
+            "stereotype": "abstract EClass",
+            "abstract": true,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "confidence",
+                "type": "ConfidenceKind",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "validityPeriod",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "supportedBy",
+                "target": "EvidenceArtifact",
+                "containment": false,
+                "lowerBound": 0,
+                "upperBound": "*"
+              }
+            ],
+            "position": {
+              "x": 900,
+              "y": 1040
+            },
+            "isCore": true
+          },
+          {
+            "id": "ScenarioAssumption",
+            "label": "ScenarioAssumption",
+            "kind": "class",
+            "package": "Scenario",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "statement",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 0,
+              "y": 1170
+            },
+            "isCore": true
+          },
+          {
+            "id": "DataCenterCommitment",
             "label": "DataCenterCommitment",
-            "kind": "domain",
-            "count": 1
+            "kind": "class",
+            "package": "Scenario",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "committedLoadMW",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "probability",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "expectedInServiceDate",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "affects",
+                "target": "TargetField",
+                "containment": false,
+                "lowerBound": 0,
+                "upperBound": "*"
+              }
+            ],
+            "position": {
+              "x": 300,
+              "y": 1170
+            },
+            "isCore": true
           },
           {
-            "id": "custom_1_planningdecision",
-            "label": "PlanningDecision",
-            "kind": "decision",
-            "count": 1
+            "id": "EvidenceArtifact",
+            "label": "EvidenceArtifact",
+            "kind": "class",
+            "package": "Scenario",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "sourceType",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "uri",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "confidence",
+                "type": "ConfidenceKind",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 600,
+              "y": 1170
+            },
+            "isCore": true
+          },
+          {
+            "id": "MethodSet",
+            "label": "MethodSet",
+            "kind": "class",
+            "package": "Methodology",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [],
+            "references": [
+              {
+                "name": "methods",
+                "target": "AnalysisMethod",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": "*"
+              }
+            ],
+            "position": {
+              "x": 900,
+              "y": 1470
+            },
+            "isCore": true
+          },
+          {
+            "id": "AnalysisMethod",
+            "label": "AnalysisMethod",
+            "kind": "abstract",
+            "package": "Methodology",
+            "stereotype": "abstract EClass",
+            "abstract": true,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "formula",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "threshold",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 0,
+              "y": 1600
+            },
+            "isCore": true
+          },
+          {
+            "id": "VarianceMethod",
+            "label": "VarianceMethod",
+            "kind": "class",
+            "package": "Methodology",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "largeVarianceThreshold",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 300,
+              "y": 1600
+            },
+            "isCore": true
+          },
+          {
+            "id": "VolatilityMethod",
+            "label": "VolatilityMethod",
+            "kind": "class",
+            "package": "Methodology",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "highVolatilityThreshold",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 600,
+              "y": 1600
+            },
+            "isCore": true
+          },
+          {
+            "id": "ConfidenceMethod",
+            "label": "ConfidenceMethod",
+            "kind": "class",
+            "package": "Methodology",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "confidenceRule",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 900,
+              "y": 1600
+            },
+            "isCore": true
+          },
+          {
+            "id": "ForecastComparisonModel",
+            "label": "ForecastComparisonModel",
+            "kind": "class",
+            "package": "Comparison",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "baselineVersion",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "currentVersion",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "periodStart",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "periodEnd",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "records",
+                "target": "ForecastComparisonRecord",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": "*"
+              },
+              {
+                "name": "versionField",
+                "target": "VersionField",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "horizonField",
+                "target": "HorizonField",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              }
+            ],
+            "position": {
+              "x": 0,
+              "y": 2000
+            },
+            "isCore": true
+          },
+          {
+            "id": "ForecastComparisonRecord",
+            "label": "ForecastComparisonRecord",
+            "kind": "class",
+            "package": "Comparison",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "period",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "baselineValue",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "currentValue",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "delta",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "target",
+                "target": "TargetField",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              }
+            ],
+            "position": {
+              "x": 300,
+              "y": 2000
+            },
+            "isCore": true
+          },
+          {
+            "id": "SignalModel",
+            "label": "SignalModel",
+            "kind": "class",
+            "package": "Signals",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [],
+            "references": [
+              {
+                "name": "signals",
+                "target": "Signal",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": "*"
+              }
+            ],
+            "position": {
+              "x": 600,
+              "y": 2250
+            },
+            "isCore": true
+          },
+          {
+            "id": "Signal",
+            "label": "Signal",
+            "kind": "abstract",
+            "package": "Signals",
+            "stereotype": "abstract EClass",
+            "abstract": true,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "value",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "classification",
+                "type": "SignalClass",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "computedFor",
+                "target": "TargetField",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "computedBy",
+                "target": "AnalysisMethod",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              }
+            ],
+            "position": {
+              "x": 900,
+              "y": 2250
+            },
+            "isCore": true
+          },
+          {
+            "id": "VarianceSignal",
+            "label": "VarianceSignal",
+            "kind": "class",
+            "package": "Signals",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "variancePct",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 0,
+              "y": 2380
+            },
+            "isCore": true
+          },
+          {
+            "id": "VolatilitySignal",
+            "label": "VolatilitySignal",
+            "kind": "class",
+            "package": "Signals",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "volatilityScore",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 300,
+              "y": 2380
+            },
+            "isCore": true
+          },
+          {
+            "id": "ConfidenceSignal",
+            "label": "ConfidenceSignal",
+            "kind": "class",
+            "package": "Signals",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "confidenceLevel",
+                "type": "ConfidenceKind",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "supportedBy",
+                "target": "EvidenceArtifact",
+                "containment": false,
+                "lowerBound": 0,
+                "upperBound": "*"
+              }
+            ],
+            "position": {
+              "x": 600,
+              "y": 2380
+            },
+            "isCore": true
+          },
+          {
+            "id": "DecisionModel",
+            "label": "DecisionModel",
+            "kind": "class",
+            "package": "Decision",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [],
+            "references": [
+              {
+                "name": "policy",
+                "target": "DecisionPolicy",
+                "containment": true,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "cards",
+                "target": "DecisionCard",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": "*"
+              }
+            ],
+            "position": {
+              "x": 900,
+              "y": 2680
+            },
+            "isCore": true
+          },
+          {
+            "id": "DecisionPolicy",
+            "label": "DecisionPolicy",
+            "kind": "class",
+            "package": "Decision",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [],
+            "references": [
+              {
+                "name": "rules",
+                "target": "DecisionRule",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": "*"
+              }
+            ],
+            "position": {
+              "x": 0,
+              "y": 2810
+            },
+            "isCore": true
+          },
+          {
+            "id": "DecisionRule",
+            "label": "DecisionRule",
+            "kind": "class",
+            "package": "Decision",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "condition",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "action",
+                "type": "ActionKind",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 300,
+              "y": 2810
+            },
+            "isCore": true
+          },
+          {
+            "id": "DecisionCard",
+            "label": "DecisionCard",
+            "kind": "class",
+            "package": "Decision",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "headline",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "recommendedAction",
+                "type": "ActionKind",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "rationale",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "target",
+                "target": "TargetField",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "usesSignals",
+                "target": "Signal",
+                "containment": false,
+                "lowerBound": 0,
+                "upperBound": "*"
+              },
+              {
+                "name": "appliesPolicy",
+                "target": "DecisionPolicy",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "supportedBy",
+                "target": "EvidenceArtifact",
+                "containment": false,
+                "lowerBound": 0,
+                "upperBound": "*"
+              }
+            ],
+            "position": {
+              "x": 600,
+              "y": 2810
+            },
+            "isCore": true
           }
         ],
         "edges": [
           {
-            "source": "dataset",
-            "target": "field_model",
-            "label": "T1 profile-to-semantic-model"
+            "source": "ForecastAssuranceProject",
+            "target": "DatasetVersion",
+            "label": "\u25c6 dataset",
+            "kind": "composition"
           },
           {
-            "source": "field_model",
-            "target": "scope_model",
-            "label": "binds version/horizon roles"
+            "source": "ForecastAssuranceProject",
+            "target": "FieldModel",
+            "label": "\u25c6 fieldModel",
+            "kind": "composition"
           },
           {
-            "source": "scope_model",
-            "target": "aligned_forecast_model",
-            "label": "T2 aligns versions over horizon"
+            "source": "ForecastAssuranceProject",
+            "target": "ScenarioModel",
+            "label": "\u25c6 scenarioModel",
+            "kind": "composition"
           },
           {
-            "source": "scenario_model",
-            "target": "aligned_forecast_model",
-            "label": "contextualizes"
+            "source": "ForecastAssuranceProject",
+            "target": "MethodSet",
+            "label": "\u25c6 methodSet",
+            "kind": "composition"
           },
           {
-            "source": "method_model",
-            "target": "signal_model",
-            "label": "T3 computes declared signals"
+            "source": "ForecastAssuranceProject",
+            "target": "ForecastComparisonModel",
+            "label": "\u25c6 comparisonModel",
+            "kind": "composition"
           },
           {
-            "source": "aligned_forecast_model",
-            "target": "signal_model",
-            "label": "provides paired forecast values"
+            "source": "ForecastAssuranceProject",
+            "target": "SignalModel",
+            "label": "\u25c6 signalModel",
+            "kind": "composition"
           },
           {
-            "source": "signal_model",
-            "target": "decision_model",
-            "label": "T4 derives actionability"
+            "source": "ForecastAssuranceProject",
+            "target": "DecisionModel",
+            "label": "\u25c6 decisionModel",
+            "kind": "composition"
           },
           {
-            "source": "custom_0_datacentercommitment",
-            "target": "scenario_model",
-            "label": "extends"
+            "source": "ForecastAssuranceProject",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
           },
           {
-            "source": "custom_1_planningdecision",
-            "target": "decision_model",
-            "label": "extends"
+            "source": "DatasetVersion",
+            "target": "RawField",
+            "label": "\u25c6 rawFields",
+            "kind": "composition"
+          },
+          {
+            "source": "DatasetVersion",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "RawField",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "FieldModel",
+            "target": "SemanticField",
+            "label": "\u25c6 fields",
+            "kind": "composition"
+          },
+          {
+            "source": "FieldModel",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "SemanticField",
+            "target": "RawField",
+            "label": "sourceColumn",
+            "kind": "association"
+          },
+          {
+            "source": "SemanticField",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "VersionField",
+            "target": "SemanticField",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "HorizonField",
+            "target": "SemanticField",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "TargetField",
+            "target": "SemanticField",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "DriverField",
+            "target": "SemanticField",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "ScenarioModel",
+            "target": "AssumptionElement",
+            "label": "\u25c6 assumptions",
+            "kind": "composition"
+          },
+          {
+            "source": "ScenarioModel",
+            "target": "EvidenceArtifact",
+            "label": "\u25c6 evidence",
+            "kind": "composition"
+          },
+          {
+            "source": "ScenarioModel",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "AssumptionElement",
+            "target": "EvidenceArtifact",
+            "label": "supportedBy",
+            "kind": "association"
+          },
+          {
+            "source": "AssumptionElement",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "ScenarioAssumption",
+            "target": "AssumptionElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "DataCenterCommitment",
+            "target": "TargetField",
+            "label": "affects",
+            "kind": "association"
+          },
+          {
+            "source": "DataCenterCommitment",
+            "target": "AssumptionElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "EvidenceArtifact",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "MethodSet",
+            "target": "AnalysisMethod",
+            "label": "\u25c6 methods",
+            "kind": "composition"
+          },
+          {
+            "source": "MethodSet",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "AnalysisMethod",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "VarianceMethod",
+            "target": "AnalysisMethod",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "VolatilityMethod",
+            "target": "AnalysisMethod",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "ConfidenceMethod",
+            "target": "AnalysisMethod",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "ForecastComparisonModel",
+            "target": "ForecastComparisonRecord",
+            "label": "\u25c6 records",
+            "kind": "composition"
+          },
+          {
+            "source": "ForecastComparisonModel",
+            "target": "VersionField",
+            "label": "versionField",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastComparisonModel",
+            "target": "HorizonField",
+            "label": "horizonField",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastComparisonModel",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "ForecastComparisonRecord",
+            "target": "TargetField",
+            "label": "target",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastComparisonRecord",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "SignalModel",
+            "target": "Signal",
+            "label": "\u25c6 signals",
+            "kind": "composition"
+          },
+          {
+            "source": "SignalModel",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "Signal",
+            "target": "TargetField",
+            "label": "computedFor",
+            "kind": "association"
+          },
+          {
+            "source": "Signal",
+            "target": "AnalysisMethod",
+            "label": "computedBy",
+            "kind": "association"
+          },
+          {
+            "source": "Signal",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "VarianceSignal",
+            "target": "Signal",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "VolatilitySignal",
+            "target": "Signal",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "ConfidenceSignal",
+            "target": "EvidenceArtifact",
+            "label": "supportedBy",
+            "kind": "association"
+          },
+          {
+            "source": "ConfidenceSignal",
+            "target": "Signal",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "DecisionModel",
+            "target": "DecisionPolicy",
+            "label": "\u25c6 policy",
+            "kind": "composition"
+          },
+          {
+            "source": "DecisionModel",
+            "target": "DecisionCard",
+            "label": "\u25c6 cards",
+            "kind": "composition"
+          },
+          {
+            "source": "DecisionModel",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "DecisionPolicy",
+            "target": "DecisionRule",
+            "label": "\u25c6 rules",
+            "kind": "composition"
+          },
+          {
+            "source": "DecisionPolicy",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "DecisionRule",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "DecisionCard",
+            "target": "TargetField",
+            "label": "target",
+            "kind": "association"
+          },
+          {
+            "source": "DecisionCard",
+            "target": "Signal",
+            "label": "usesSignals",
+            "kind": "association"
+          },
+          {
+            "source": "DecisionCard",
+            "target": "DecisionPolicy",
+            "label": "appliesPolicy",
+            "kind": "association"
+          },
+          {
+            "source": "DecisionCard",
+            "target": "EvidenceArtifact",
+            "label": "supportedBy",
+            "kind": "association"
+          },
+          {
+            "source": "DecisionCard",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
           }
         ]
+      },
+      "runtime_summary": {
+        "field_count": 13,
+        "target_count": 2,
+        "driver_count": 8,
+        "version_field_count": 1,
+        "horizon_field_count": 1,
+        "variance_method": "version_to_version_pct",
+        "volatility_method": "version_dispersion_pct",
+        "baseline_version": "2026-09",
+        "current_version": "2026-12",
+        "period_start": "2027-01",
+        "period_end": "2029-12"
       },
       "conformance_rules": [
         {
@@ -432,7 +2649,7 @@
         {
           "rule_id": "CR-005",
           "name": "Transformation traceability",
-          "description": "DecisionCards must trace to DatasetVersion, SemanticFieldModel, AnalysisScope, MethodModel, AlignedForecastModel, and SignalModel.",
+          "description": "DecisionCards must trace to DatasetVersion, FieldModel, AnalysisScope, MethodSet, ForecastComparisonModel, and SignalModel.",
           "severity": "error",
           "rationale": "The user must be able to inspect why a recommendation was produced and which transformation produced it."
         },
@@ -448,24 +2665,24 @@
     "transformations": [
       {
         "id": "T1",
-        "name": "ProfileToSemanticFieldModel",
+        "name": "ProfileToFieldModel",
         "input": "DatasetVersion",
-        "output": "SemanticFieldModel",
+        "output": "FieldModel",
         "purpose": "Convert raw CSV columns into typed, editable semantic fields.",
         "status": "pass"
       },
       {
         "id": "T2",
         "name": "ScopeBindingAndVersionAlignment",
-        "input": "SemanticFieldModel + AnalysisScope",
-        "output": "AlignedForecastModel",
+        "input": "FieldModel + AnalysisScope",
+        "output": "ForecastComparisonModel",
         "purpose": "Join baseline and current forecast versions for the same forecast horizon and targets.",
         "status": "pass"
       },
       {
         "id": "T3",
-        "name": "MethodModelToSignalModel",
-        "input": "AlignedForecastModel + MethodModel",
+        "name": "MethodSetToSignalModel",
+        "input": "ForecastComparisonModel + MethodSet",
         "output": "VarianceSignal + VolatilitySignal",
         "purpose": "Apply declared variance and volatility methods rather than hidden calculations.",
         "status": "pass"
@@ -474,170 +2691,170 @@
         "id": "T4",
         "name": "SignalModelToDecisionCard",
         "input": "VarianceSignal + VolatilitySignal + Thresholds",
-        "output": "DecisionCardModel",
+        "output": "DecisionModel",
         "purpose": "Transform classified signals into traceable actionability recommendations.",
         "status": "pass"
       }
     ],
-    "aligned_forecast_preview": [
+    "forecast_comparison_preview": [
       {
         "period": "2027-01",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 129100.41,
+        "baseline": 169949.74,
         "current": 195985.46,
-        "variance_pct": 51.80854963977263,
+        "variance_pct": 15.31965862377901,
         "volatility": 18.053344317795077
       },
       {
         "period": "2027-02",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 148264.35,
+        "baseline": 186079.25,
         "current": 209413.46,
-        "variance_pct": 41.24329955245478,
+        "variance_pct": 12.539931238974788,
         "volatility": 16.347293496823635
       },
       {
         "period": "2027-03",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 139719.01,
+        "baseline": 205217.76,
         "current": 229920.45,
-        "variance_pct": 64.55917487534445,
+        "variance_pct": 12.037306127890686,
         "volatility": 21.08118222424936
       },
       {
         "period": "2027-04",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 152078.51,
+        "baseline": 203266.22,
         "current": 218680.43,
-        "variance_pct": 43.79443223108905,
+        "variance_pct": 7.583261990113257,
         "volatility": 14.861593893904217
       },
       {
         "period": "2027-05",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 164778.52,
+        "baseline": 207404.33,
         "current": 219624.17,
-        "variance_pct": 33.28446571798317,
+        "variance_pct": 5.8917959909516,
         "volatility": 12.83047687367253
       },
       {
         "period": "2027-06",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 167334.86,
+        "baseline": 200533.14,
         "current": 240720.15,
-        "variance_pct": 43.85535088146009,
+        "variance_pct": 20.040084147687498,
         "volatility": 15.49806673712262
       },
       {
         "period": "2027-07",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 160955.92,
+        "baseline": 214820.19,
         "current": 229952.26,
-        "variance_pct": 42.86660596267598,
+        "variance_pct": 7.044063223293866,
         "volatility": 15.491205610762446
       },
       {
         "period": "2027-08",
         "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 160732.64,
+        "baseline": 196331.69,
         "current": 243830.18,
-        "variance_pct": 51.69923171796342,
+        "variance_pct": 24.192981785059757,
         "volatility": 17.83454279568565
       },
       {
         "period": "2027-01",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 302.3,
+        "baseline": 384.81,
         "current": 449.4,
-        "variance_pct": 48.660271253721454,
+        "variance_pct": 16.7849068371404,
         "volatility": 17.25558088283199
       },
       {
         "period": "2027-02",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 333.76,
+        "baseline": 426.49,
         "current": 476.44,
-        "variance_pct": 42.74928092042186,
+        "variance_pct": 11.71188070060259,
         "volatility": 15.9246779726573
       },
       {
         "period": "2027-03",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 317.96,
+        "baseline": 456.6,
         "current": 522.47,
-        "variance_pct": 64.31941124669773,
+        "variance_pct": 14.426193604905826,
         "volatility": 20.82798205339674
       },
       {
         "period": "2027-04",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 346.91,
+        "baseline": 464.44,
         "current": 500.72,
-        "variance_pct": 44.33714796344873,
+        "variance_pct": 7.811558005339771,
         "volatility": 15.049131722810635
       },
       {
         "period": "2027-05",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 371.98,
+        "baseline": 472.12,
         "current": 495.47,
-        "variance_pct": 33.19802139899995,
+        "variance_pct": 4.94577649750064,
         "volatility": 12.729264388428579
       },
       {
         "period": "2027-06",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 382.13,
+        "baseline": 463.94,
         "current": 537.28,
-        "variance_pct": 40.601366027268206,
+        "variance_pct": 15.808078630857434,
         "volatility": 14.652253065262327
       },
       {
         "period": "2027-07",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 370.1,
+        "baseline": 486.76,
         "current": 520.4,
-        "variance_pct": 40.61064577141312,
+        "variance_pct": 6.91100336921686,
         "volatility": 14.681109889113289
       },
       {
         "period": "2027-08",
         "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-03",
+        "baseline_version": "2026-09",
         "current_version": "2026-12",
-        "baseline": 364.79,
+        "baseline": 451.33,
         "current": 553.15,
-        "variance_pct": 51.63518736807477,
+        "variance_pct": 22.559989364766356,
         "volatility": 17.71089596330574
       }
     ]
@@ -689,12 +2906,12 @@
   "dsl_steps": [
     {
       "name": "Semantic Field Modeling",
-      "output_model": "SemanticFieldModel",
+      "output_model": "FieldModel",
       "step": 1
     },
     {
       "name": "Methodology Review",
-      "output_model": "MethodModel",
+      "output_model": "MethodSet",
       "step": 2
     },
     {
@@ -714,7 +2931,7 @@
     },
     {
       "name": "Variance and Volatility Analysis",
-      "output_model": "DecisionCardModel",
+      "output_model": "DecisionModel",
       "step": 6
     }
   ],
@@ -724,44 +2941,44 @@
         "business_name": "Forecast Cycle",
         "data_type": "text",
         "description": "Month when the forecast version is issued. Used to align baseline and current forecast versions.",
-        "direction": "higher_is_riskier",
+        "direction": "neutral",
         "include_in_model": true,
         "name": "forecast_cycle",
         "role": "forecast_version",
-        "semantic_type": "external_driver",
+        "semantic_type": "forecast_issue_time",
         "unit": ""
       },
       {
         "business_name": "Forecast Horizon Period",
         "data_type": "text",
         "description": "Future month for which the forecast value is predicted.",
-        "direction": "higher_is_riskier",
+        "direction": "neutral",
         "include_in_model": true,
         "name": "forecast_period",
         "role": "forecast_horizon",
-        "semantic_type": "external_driver",
+        "semantic_type": "forecast_target_time",
         "unit": ""
       },
       {
         "business_name": "Months Ahead",
         "data_type": "numeric",
         "description": "Lead time between forecast cycle and forecast horizon.",
-        "direction": "higher_is_riskier",
+        "direction": "neutral",
         "include_in_model": true,
         "name": "months_ahead",
         "role": "feature",
-        "semantic_type": "external_driver",
+        "semantic_type": "forecast_horizon_index",
         "unit": "months"
       },
       {
         "business_name": "Planning Scenario",
         "data_type": "text",
         "description": "Planning scenario used to represent uncertain data-center connection assumptions.",
-        "direction": "higher_is_riskier",
-        "include_in_model": false,
+        "direction": "neutral",
+        "include_in_model": true,
         "name": "scenario",
-        "role": "ignore",
-        "semantic_type": "external_driver",
+        "role": "scenario",
+        "semantic_type": "planning_scenario",
         "unit": ""
       },
       {
@@ -867,39 +3084,11 @@
   },
   "metadata": {
     "created_by": "ForeACT scaffold",
-    "updated_at": "2026-07-13T16:02:06Z"
+    "updated_at": "2026-07-14T04:36:39Z"
   },
   "metamodel_extension": {
-    "concepts": [
-      {
-        "connects_to": "ScenarioAssumptionModel",
-        "description": "Represents committed AI data-center capacity used as a scenario assumption.",
-        "kind": "domain",
-        "name": "DataCenterCommitment",
-        "x": 360,
-        "y": 60
-      },
-      {
-        "connects_to": "DecisionCardModel",
-        "description": "Represents a capacity planning decision affected by forecast actionability.",
-        "kind": "decision",
-        "name": "PlanningDecision",
-        "x": 720,
-        "y": 360
-      }
-    ],
-    "edges": [
-      {
-        "label": "specializes",
-        "source": "ScenarioAssumptionModel",
-        "target": "DataCenterCommitment"
-      },
-      {
-        "label": "informs",
-        "source": "DecisionCardModel",
-        "target": "PlanningDecision"
-      }
-    ]
+    "concepts": [],
+    "edges": []
   },
   "methodology_model": {
     "method_notes": "Methods are explicit model elements. The analysis is generated only after the selected methods and scope are declared.",
@@ -915,11 +3104,11 @@
       "volatility_threshold_medium": 2
     },
     "scope": {
-      "baseline_version": "2026-03",
+      "baseline_version": "2026-09",
       "current_version": "2026-12",
       "grouping_fields": [],
       "horizon_field": "forecast_period",
-      "period_end": "2027-12",
+      "period_end": "2029-12",
       "period_start": "2027-01",
       "version_field": "forecast_cycle"
     }
@@ -932,5 +3121,5 @@
     "name": "AI Data Center Load Forecast Assurance",
     "tool_name": "ForeACT"
   },
-  "schema_version": "foreact.project.v1"
+  "schema_version": "0.6.0"
 }
