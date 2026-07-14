@@ -5,7 +5,7 @@ export function SignalInsights({ results }: { results: TargetResult[] }) {
   return (
     <section className="grid two">
       {results.map((result) => (
-        <article className="panel" key={result.target}>
+        <article className="panel" key={result.target} style={{ display: 'flex', flexDirection: 'column' }}>
           <p className="eyebrow">Signal introspection</p>
           <h3>{result.target}</h3>
           <div className="signal-metrics">
@@ -15,19 +15,21 @@ export function SignalInsights({ results }: { results: TargetResult[] }) {
           </div>
           <p className="muted"><b>Variance:</b> {result.variance_basis}</p>
           <p className="muted"><b>Volatility:</b> {result.volatility_basis}</p>
-          <Plot
-            data={[
-              { x: result.series.map((p) => p.period), y: result.series.map((p) => p.variance_pct), type: 'scatter', mode: 'lines', name: 'Variance %' },
-              { x: result.series.map((p) => p.period), y: result.series.map((p) => p.volatility), type: 'scatter', mode: 'lines', name: 'Volatility' }
-            ]}
-            layout={{ height: 280, margin: { l: 45, r: 10, t: 10, b: 80 }, legend: { orientation: 'h' } }}
-            config={{ displayModeBar: false, responsive: true }}
-            style={{ width: '100%' }}
-          />
+          <div style={{ minHeight: '280px', flexShrink: 0 }}>
+            <Plot
+              data={[
+                { x: result.series.map((p) => p.period), y: result.series.map((p) => p.variance_pct), type: 'scatter', mode: 'lines', name: 'Variance %' },
+                { x: result.series.map((p) => p.period), y: result.series.map((p) => p.volatility), type: 'scatter', mode: 'lines', name: 'Volatility' }
+              ]}
+              layout={{ height: 280, margin: { l: 45, r: 10, t: 10, b: 80 }, legend: { orientation: 'h' } }}
+              config={{ displayModeBar: false, responsive: true }}
+              style={{ width: '100%' }}
+            />
+          </div>
           <h4>Top driver links</h4>
-          <div className="driver-list">
+          <div className="driver-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
             {result.top_driver_links.map((driver) => (
-              <span key={driver.feature}>{driver.feature}: <b>{driver.correlation ?? 'n/a'}</b></span>
+              <span key={driver.feature} style={{ wordBreak: 'break-all', background: '#f8fbff', border: '1px solid #dfe8f2', padding: '0.4rem 0.7rem', borderRadius: '8px' }}>{driver.feature}: <b>{driver.correlation ?? 'n/a'}</b></span>
             ))}
           </div>
         </article>

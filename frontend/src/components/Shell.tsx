@@ -40,6 +40,7 @@ export function AppShell({
             <span>Forecast Actionability Studio</span>
           </div>
         </div>
+        <div className="workspace-chip"><Database size={15} /> AI Data-Center Capacity Planning</div>
         <nav className="nav-stack">
           {pages.map((page) => {
             const Icon = page.icon;
