@@ -15,8 +15,8 @@ export function ProjectSpecPanel({ spec, profile, workspaceFile, onSpecChange, o
         <h2>{spec.project.name}</h2>
         <p>{spec.project.description}</p>
         <div className="metric-row">
-          <span><strong>{workspaceFile}</strong><small>Workspace file</small></span>
-          <span><strong>{spec.dataset.format}</strong><small>Dataset format</small></span>
+          <span><strong title={workspaceFile}>{workspaceFile}</strong><small>Workspace file</small></span>
+          <span><strong title ={spec.dataset.format}>{spec.dataset.format}</strong><small>Dataset format</small></span>
           <span><strong>{profile?.rows ?? 0}</strong><small>Rows</small></span>
           <span><strong>{profile?.columns ?? 0}</strong><small>Columns</small></span>
         </div>
