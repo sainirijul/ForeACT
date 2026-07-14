@@ -77,7 +77,7 @@ export function MethodologyReviewPage({ spec, profile, setSpec }: { spec: ForeAC
       <article className="panel full-span">
         <p className="eyebrow">Method catalog</p>
         <div className="catalog-grid">
-          {profile ? profile.method_catalog.variance_methods.concat(profile.method_catalog.volatility_methods).map((m) => <div key={m.id} className="catalog-card"><strong>{m.name}</strong><code>{m.formula}</code><p>{m.interpretation}</p></div>) : null}
+          {profile ? profile.method_catalog.variance_methods.concat(profile.method_catalog.volatility_methods).map((m, index) => <div key={`${m.id}-${index}`} className="catalog-card"><strong>{m.name}</strong><code>{m.formula}</code><p>{m.interpretation}</p></div>) : null}
         </div>
       </article>
     </section>

@@ -7,11 +7,11 @@ export function SummaryCards({ analysis }: { analysis: AnalysisResponse }) {
   const features = dataset_profile.field_specs.filter((f) => f.role === 'feature' && f.include_in_model).length;
   const targets = dataset_profile.field_specs.filter((f) => f.role === 'target' && f.include_in_model).length;
   return (
-    <section className="grid four">
-      <div className="metric-card"><span>Features in model</span><strong>{features}</strong></div>
-      <div className="metric-card"><span>Targets assured</span><strong>{targets}</strong></div>
-      <div className="metric-card"><span>Rules passed</span><strong>{pass}</strong></div>
-      <div className="metric-card"><span>Warnings</span><strong>{warnings}</strong></div>
-    </section>
+    <div className="metric-row">
+      <span><strong>{features}</strong><small>Features in model</small></span>
+      <span><strong>{targets}</strong><small>Targets assured</small></span>
+      <span><strong>{pass}</strong><small>Rules passed</small></span>
+      <span><strong>{warnings}</strong><small>Warnings</small></span>
+    </div>
   );
 }
