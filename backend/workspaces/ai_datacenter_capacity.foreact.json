@@ -3112,7 +3112,7 @@
     "description": "A utility or planning team compares forecast cycles for electricity demand where AI data-center load assumptions can cause large revisions.",
     "domain": "Energy demand forecasting",
     "id": "ai_datacenter_capacity",
-    "name": "AI Data Center Load Forecast Assurance",
+    "name": "Forecast Assurance",
     "tool_name": "ForeACT"
   },
   "schema_version": "0.6.0"
