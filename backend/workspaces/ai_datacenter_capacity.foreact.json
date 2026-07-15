@@ -2885,18 +2885,12 @@
       },
       {
         "id": "DP-003",
-        "rationale": "Signal is meaningful enough to prepare planning options.",
-        "then": "Prepare options for future",
-        "when": "Moderate variance AND Low volatility"
-      },
-      {
-        "id": "DP-004",
         "rationale": "The signal may be unstable and should be monitored before irreversible action.",
         "then": "Watch uncertainty",
         "when": "High volatility dominates"
       },
       {
-        "id": "DP-005",
+        "id": "DP-004",
         "rationale": "Movement is not material enough for action.",
         "then": "Stable / no action",
         "when": "Small variance AND Low/Medium volatility"

@@ -7,7 +7,7 @@ export function DecisionCards({ cards }: { cards: DecisionCard[] }) {
         <article className="panel decision-card" key={card.target}>
           <p className="eyebrow">Decision card</p>
           <h3>{card.headline}</h3>
-          <p>{card.rationale}</p>
+          <p style={{ background: '#fffbcc', padding: '0.6rem', borderRadius: '8px', color: '#182230' }}><strong>Recommendation:</strong> {card.rationale}</p>
           <div className="trace-box">
             {Object.entries(card.trace).map(([key, value]) => (
               <div key={key}>
