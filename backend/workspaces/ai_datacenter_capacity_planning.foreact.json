@@ -3092,10 +3092,8 @@
       "rolling_window": 4,
       "variance_method": "version_to_version_pct",
       "variance_threshold_large": 5,
-      "variance_threshold_moderate": 2,
       "volatility_method": "version_dispersion_pct",
-      "volatility_threshold_high": 4,
-      "volatility_threshold_medium": 2
+      "volatility_threshold_high": 4
     },
     "scope": {
       "baseline_version": "2026-09",

@@ -62,9 +62,7 @@ export type MethodConfig = {
   variance_method: string;
   volatility_method: string;
   variance_threshold_large: number;
-  variance_threshold_moderate: number;
   volatility_threshold_high: number;
-  volatility_threshold_medium: number;
   rolling_window: number;
   custom_variance_formula: string;
   custom_volatility_formula: string;
