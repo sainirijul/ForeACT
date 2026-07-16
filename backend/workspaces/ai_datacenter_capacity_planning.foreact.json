@@ -2881,19 +2881,19 @@
         "id": "DP-002",
         "rationale": "Large movement exists but uncertainty is elevated.",
         "then": "Monitor closely",
-        "when": "Large variance AND Medium/High volatility"
+        "when": "Large variance AND High volatility"
       },
       {
         "id": "DP-003",
         "rationale": "The signal may be unstable and should be monitored before irreversible action.",
         "then": "Watch uncertainty",
-        "when": "High volatility dominates"
+        "when": "Small variance AND High volatility"
       },
       {
         "id": "DP-004",
         "rationale": "Movement is not material enough for action.",
         "then": "Stable / no action",
-        "when": "Small variance AND Low/Medium volatility"
+        "when": "Small variance AND Low volatility"
       }
     ]
   },

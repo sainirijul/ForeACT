@@ -3,46 +3,46 @@
     "matrix_points": [
       {
         "target": "target_global_ev_sales_m",
-        "x_variance_abs_pct": 2.985,
+        "x_variance_abs_pct": 20.0,
         "y_volatility_score": 8.794,
-        "variance_class": "Small",
+        "variance_class": "Large",
         "volatility_class": "High",
-        "recommended_action": "Watch uncertainty"
+        "recommended_action": "Monitor closely"
       },
       {
         "target": "target_global_market_share_pct",
-        "x_variance_abs_pct": 2.857,
+        "x_variance_abs_pct": 23.529,
         "y_volatility_score": 8.778,
-        "variance_class": "Small",
+        "variance_class": "Large",
         "volatility_class": "High",
-        "recommended_action": "Watch uncertainty"
+        "recommended_action": "Monitor closely"
       }
     ],
     "decision_cards": [
       {
         "target": "target_global_ev_sales_m",
-        "headline": "Watch uncertainty for target_global_ev_sales_m",
-        "rationale": "Volatility dominates the signal; continue monitoring and request additional evidence.",
+        "headline": "Monitor closely for target_global_ev_sales_m",
+        "rationale": "Large movement exists but uncertainty is elevated.",
         "trace": {
           "DatasetVersion": "40 rows / 10 columns",
-          "FieldModel": "6 drivers, 2 targets",
-          "AnalysisScope": "Jun-23 \u2192 Jun-25, 2032-01 to Jan-31",
+          "FieldModel": "0 drivers, 2 targets",
+          "AnalysisScope": "Jun-25 \u2192 Jun-26, 2032-01 to Jan-31",
           "MethodSet": "version_to_version_pct + version_dispersion_pct",
           "ForecastComparisonModel": "10 aligned horizon rows",
-          "SignalModel": "variance=-2.99, volatility=8.79"
+          "SignalModel": "variance=-20.00, volatility=8.79"
         }
       },
       {
         "target": "target_global_market_share_pct",
-        "headline": "Watch uncertainty for target_global_market_share_pct",
-        "rationale": "Volatility dominates the signal; continue monitoring and request additional evidence.",
+        "headline": "Monitor closely for target_global_market_share_pct",
+        "rationale": "Large movement exists but uncertainty is elevated.",
         "trace": {
           "DatasetVersion": "40 rows / 10 columns",
-          "FieldModel": "6 drivers, 2 targets",
-          "AnalysisScope": "Jun-23 \u2192 Jun-25, 2032-01 to Jan-31",
+          "FieldModel": "0 drivers, 2 targets",
+          "AnalysisScope": "Jun-25 \u2192 Jun-26, 2032-01 to Jan-31",
           "MethodSet": "version_to_version_pct + version_dispersion_pct",
           "ForecastComparisonModel": "10 aligned horizon rows",
-          "SignalModel": "variance=-2.86, volatility=8.78"
+          "SignalModel": "variance=-23.53, volatility=8.78"
         }
       }
     ],
@@ -3185,13 +3185,13 @@
       "runtime_summary": {
         "field_count": 10,
         "target_count": 2,
-        "driver_count": 6,
+        "driver_count": 0,
         "version_field_count": 1,
         "horizon_field_count": 1,
         "variance_method": "version_to_version_pct",
         "volatility_method": "version_dispersion_pct",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
         "period_start": "2032-01",
         "period_end": "Jan-31"
       },
@@ -3278,161 +3278,161 @@
       {
         "period": "Jan-26",
         "target": "target_global_ev_sales_m",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 25.4,
-        "current": 24.5,
-        "variance_pct": -3.543307086614168,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 24.5,
+        "current": 23.3,
+        "variance_pct": -4.897959183673466,
         "volatility": 3.6048003536032
       },
       {
         "period": "Jan-27",
         "target": "target_global_ev_sales_m",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 30.4,
-        "current": 29.1,
-        "variance_pct": -4.276315789473675,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 29.1,
+        "current": 26.8,
+        "variance_pct": -7.9037800687285245,
         "volatility": 5.295236517014122
       },
       {
         "period": "Jan-28",
         "target": "target_global_ev_sales_m",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 36.4,
-        "current": 35.0,
-        "variance_pct": -3.8461538461538423,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 35.0,
+        "current": 31.2,
+        "variance_pct": -10.85714285714286,
         "volatility": 6.540336571309605
       },
       {
         "period": "Jan-29",
         "target": "target_global_ev_sales_m",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 42.8,
-        "current": 41.2,
-        "variance_pct": -3.738317757009333,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 41.2,
+        "current": 35.9,
+        "variance_pct": -12.86407766990292,
         "volatility": 7.5510689054806415
       },
       {
         "period": "Jan-30",
         "target": "target_global_ev_sales_m",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 49.5,
-        "current": 48.0,
-        "variance_pct": -3.0303030303030303,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 48.0,
+        "current": 40.0,
+        "variance_pct": -16.666666666666664,
         "volatility": 9.33688150070893
       },
       {
         "period": "Jan-31",
         "target": "target_global_ev_sales_m",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 53.5,
-        "current": 51.8,
-        "variance_pct": -3.1775700934579496,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 51.8,
+        "current": 42.2,
+        "variance_pct": -18.532818532818524,
         "volatility": 10.371136070721672
       },
       {
         "period": "2032-01",
         "target": "target_global_ev_sales_m",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 57.3,
-        "current": 55.5,
-        "variance_pct": -3.1413612565444975,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 55.5,
+        "current": 44.5,
+        "variance_pct": -19.81981981981982,
         "volatility": 11.079781501120042
       },
       {
         "period": "2033-01",
         "target": "target_global_ev_sales_m",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 60.9,
-        "current": 59.0,
-        "variance_pct": -3.119868637110014,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 59.0,
+        "current": 46.8,
+        "variance_pct": -20.67796610169492,
         "volatility": 11.520295517607298
       },
       {
         "period": "Jan-26",
         "target": "target_global_market_share_pct",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 30.5,
-        "current": 29.5,
-        "variance_pct": -3.278688524590164,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 29.5,
+        "current": 27.0,
+        "variance_pct": -8.47457627118644,
         "volatility": 5.223772232259156
       },
       {
         "period": "Jan-27",
         "target": "target_global_market_share_pct",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 35.5,
-        "current": 34.0,
-        "variance_pct": -4.225352112676056,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 34.0,
+        "current": 31.5,
+        "variance_pct": -7.352941176470589,
         "volatility": 5.023512387862764
       },
       {
         "period": "Jan-28",
         "target": "target_global_market_share_pct",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 40.5,
-        "current": 39.0,
-        "variance_pct": -3.7037037037037033,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 39.0,
+        "current": 35.0,
+        "variance_pct": -10.256410256410255,
         "volatility": 6.273323266748674
       },
       {
         "period": "Jan-29",
         "target": "target_global_market_share_pct",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 46.0,
-        "current": 44.5,
-        "variance_pct": -3.260869565217391,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 44.5,
+        "current": 39.5,
+        "variance_pct": -11.235955056179774,
         "volatility": 6.6311981659158885
       },
       {
         "period": "Jan-30",
         "target": "target_global_market_share_pct",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 52.0,
-        "current": 50.0,
-        "variance_pct": -3.8461538461538463,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 50.0,
+        "current": 44.0,
+        "variance_pct": -12.0,
         "volatility": 7.2414033690446535
       },
       {
         "period": "Jan-31",
         "target": "target_global_market_share_pct",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 56.0,
-        "current": 54.2,
-        "variance_pct": -3.214285714285709,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 54.2,
+        "current": 45.5,
+        "variance_pct": -16.05166051660517,
         "volatility": 9.137455716426908
       },
       {
         "period": "2032-01",
         "target": "target_global_market_share_pct",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 60.0,
-        "current": 58.0,
-        "variance_pct": -3.3333333333333335,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 58.0,
+        "current": 47.0,
+        "variance_pct": -18.96551724137931,
         "volatility": 10.697786034558865
       },
       {
         "period": "2033-01",
         "target": "target_global_market_share_pct",
-        "baseline_version": "Jun-23",
-        "current_version": "Jun-25",
-        "baseline": 63.5,
-        "current": 61.5,
-        "variance_pct": -3.149606299212598,
+        "baseline_version": "Jun-25",
+        "current_version": "Jun-26",
+        "baseline": 61.5,
+        "current": 48.5,
+        "variance_pct": -21.138211382113823,
         "volatility": 11.836399035894992
       }
     ]
@@ -3462,19 +3462,19 @@
         "id": "DP-002",
         "rationale": "Large movement exists but uncertainty is elevated.",
         "then": "Monitor closely",
-        "when": "Large variance AND Medium/High volatility"
+        "when": "Large variance AND High volatility"
       },
       {
         "id": "DP-003",
         "rationale": "The signal may be unstable and should be monitored before irreversible action.",
         "then": "Watch uncertainty",
-        "when": "High volatility dominates"
+        "when": "Small variance AND High volatility"
       },
       {
         "id": "DP-004",
         "rationale": "Movement is not material enough for action.",
         "then": "Stable / no action",
-        "when": "Small variance AND Low/Medium volatility"
+        "when": "Small variance AND Low volatility"
       }
     ]
   },
@@ -3586,6 +3586,7 @@
         "include_in_model": true,
         "name": "ice_efficiency_mpg",
         "role": "feature",
+
         "semantic_type": "identifier_or_text",
         "unit": ""
       },
