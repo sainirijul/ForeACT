@@ -45,11 +45,7 @@ export function MethodConfigPanel({ catalog, methods, setMethods, onAnalyze, loa
       </div>
       <div className="threshold-grid">
         <label>Rolling window<input type="number" min={2} value={methods.rolling_window} onChange={(e) => patch({ rolling_window: Number(e.target.value) })} /></label>
-        <label>Large variance ≥<input type="number" value={methods.variance_threshold_large} onChange={(e) => patch({ variance_threshold_large: Number(e.target.value) })} /></label>
-        <label>Moderate variance ≥<input type="number" value={methods.variance_threshold_moderate} onChange={(e) => patch({ variance_threshold_moderate: Number(e.target.value) })} /></label>
-        <label>High volatility ≥<input type="number" value={methods.volatility_threshold_high} onChange={(e) => patch({ volatility_threshold_high: Number(e.target.value) })} /></label>
-        <label>Medium volatility ≥<input type="number" value={methods.volatility_threshold_medium} onChange={(e) => patch({ volatility_threshold_medium: Number(e.target.value) })} /></label>
-      </div>
+        <label>Large variance ≥<input type="number" value={methods.variance_threshold_large} onChange={(e) => patch({ variance_threshold_large: Number(e.target.value) })} /></label>        <label>High volatility ≥<input type="number" value={methods.volatility_threshold_high} onChange={(e) => patch({ volatility_threshold_high: Number(e.target.value) })} /></label>      </div>
     </section>
   );
 }

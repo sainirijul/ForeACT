@@ -306,7 +306,7 @@ export function MethodologyReviewPage({
             />
           </label>
 
-          <label>
+          {/* <label>
             Moderate variance threshold
 
             <input
@@ -320,7 +320,7 @@ export function MethodologyReviewPage({
                 })
               }
             />
-          </label>
+          </label> */}
 
           <label>
             High volatility threshold
@@ -338,7 +338,7 @@ export function MethodologyReviewPage({
             />
           </label>
 
-          <label>
+          {/* <label>
             Medium volatility threshold
 
             <input
@@ -352,7 +352,7 @@ export function MethodologyReviewPage({
                 })
               }
             />
-          </label>
+          </label> */}
         </div>
 
         <details className="formula-box">
