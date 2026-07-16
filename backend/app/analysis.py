@@ -179,15 +179,23 @@ def _classify_volatility(value: float, method_spec: dict[str, Any]) -> str:
     return "Low"
 
 
-def _recommend(variance_class: str, volatility_class: str) -> tuple[str, str]:
-    if variance_class == "Large" and volatility_class == "Low":
-        return "Act / review strategy", "The forecast movement is large and the surrounding volatility is low, so the change looks decision-relevant."
-    if variance_class == "Large" and volatility_class in {"Medium", "High"}:
-        return "Monitor closely", "The movement is large, but uncertainty is elevated; avoid immediate irreversible action."
-    if variance_class == "Moderate" and volatility_class == "Low":
-        return "Prepare options", "The signal is meaningful and relatively stable; prepare planning options."
-    if volatility_class == "High":
-        return "Watch uncertainty", "Volatility dominates the signal; continue monitoring and request additional evidence."
+def _recommend(variance_class: str, volatility_class: str, rules: list[dict[str, Any]]) -> tuple[str, str]:
+    # if variance_class == "Large" and volatility_class == "Low":
+    #     return "Act / review strategy", "The forecast movement is large and the surrounding volatility is low, so the change looks decision-relevant."
+    # if variance_class == "Large" and volatility_class in {"Medium", "High"}:
+    #     return "Monitor closely", "The movement is large, but uncertainty is elevated; avoid immediate irreversible action."
+    # if variance_class == "Moderate" and volatility_class == "Low":
+    #     return "Prepare options", "The signal is meaningful and relatively stable; prepare planning options."
+    # if volatility_class == "High":
+    #     return "Watch uncertainty", "Volatility dominates the signal; continue monitoring and request additional evidence."
+    # return "Stable / no action", "Movement is small and volatility is controlled."
+
+    for rule in rules:
+        when = rule.get("when", "")
+
+        if variance_class in when and volatility_class in when:
+            return rule.get("then", "Monitor"), rule.get("rationale", "")
+            
     return "Stable / no action", "Movement is small and volatility is controlled."
 
 _ALLOWED_AST = (ast.Expression, ast.BinOp, ast.UnaryOp, ast.Num, ast.Constant, ast.Name, ast.Load, ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Pow, ast.Mod, ast.USub, ast.Call)
@@ -380,7 +388,7 @@ def _conformance(field_specs: list[dict[str, Any]], method_spec: dict[str, Any],
     return results
 
 
-def analyze_dataframe(df: pd.DataFrame, field_specs: list[dict[str, Any]] | None = None, methods: dict[str, Any] | None = None, scope: dict[str, Any] | None = None, custom_concepts: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+def analyze_dataframe(df: pd.DataFrame, field_specs: list[dict[str, Any]] | None = None, methods: dict[str, Any] | None = None, scope: dict[str, Any] | None = None, custom_concepts: list[dict[str, Any]] | None = None, policy_rules: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     profile = dataset_profile(df)
     field_specs = field_specs or profile["default_field_specs"]
     method_spec = _method_spec(methods)
@@ -506,7 +514,7 @@ def analyze_dataframe(df: pd.DataFrame, field_specs: list[dict[str, Any]] | None
         volatility_score = float(aligned["volatility"].mean()) if aligned["volatility"].notna().any() else 0.0
         variance_class = _classify_variance(latest_variance, method_spec)
         volatility_class = _classify_volatility(volatility_score, method_spec)
-        action, rationale = _recommend(variance_class, volatility_class)
+        action, rationale = _recommend(variance_class, volatility_class, policy_rules or [])
         confidence = "High" if volatility_class == "Low" and variance_class in {"Large", "Moderate"} else "Medium" if volatility_class == "Medium" else "Low" if volatility_class == "High" else "Medium"
         series = [{"period": row["period"], "baseline": None if pd.isna(row["baseline"]) else round(float(row["baseline"]), 3), "current": None if pd.isna(row["current"]) else round(float(row["current"]), 3), "variance_pct": None if pd.isna(row["variance_pct"]) else round(float(row["variance_pct"]), 3), "volatility": None if pd.isna(row["volatility"]) else round(float(row["volatility"]), 3)} for _, row in aligned.iterrows()]
         links = _top_driver_links(filtered, target, feature_cols)

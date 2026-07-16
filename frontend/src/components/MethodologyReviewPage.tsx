@@ -389,21 +389,12 @@ export function MethodologyReviewPage({
             <div className="policy-card" key={rule.id}>
               <strong>{rule.id}</strong>
 
-              <input
-                value={rule.when}
-                onChange={(event) => {
-                  const rules = [...policy.rules];
-
-                  rules[index] = {
-                    ...rule,
-                    when: event.target.value,
-                  };
-
-                  setPolicy({
-                    ...policy,
-                    rules,
-                  });
-                }}
+              <input 
+                value={rule.when} 
+                readOnly 
+                disabled 
+                title="Condition is locked to ensure stable backend analysis"
+                style={{ cursor: 'not-allowed', backgroundColor: '#eef4fb', color: '#5c6f85' }}
               />
 
               <input
