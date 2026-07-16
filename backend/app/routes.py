@@ -288,7 +288,8 @@ def _analysis_from_spec(spec: dict[str, Any]) -> dict[str, Any]:
     methods = spec.get("methodology_model", {}).get("methods")
     scope = spec.get("methodology_model", {}).get("scope")
     concepts = spec.get("metamodel_extension", {}).get("concepts", [])
-    analysis = analyze_dataframe(df, field_specs, methods, scope, concepts)
+    policy_rules = spec.get("decision_policy", {}).get("rules", [])
+    analysis = analyze_dataframe(df, field_specs, methods, scope, concepts, policy_rules)
     spec["compiled_model"] = {
         "metamodel": analysis.get("metamodel"),
         "transformations": analysis.get("transformations"),
@@ -620,7 +621,7 @@ def profile_upload():
 def analyze_demo():
     df = pd.read_csv(DEFAULT_DATASET_PATH) if DEFAULT_DATASET_PATH.exists() else make_demo_energy_data()
     payload = request.get_json(silent=True) or {}
-    return jsonify(analyze_dataframe(df, payload.get("field_specs"), payload.get("methods"), payload.get("scope"), payload.get("custom_concepts")))
+    return jsonify(analyze_dataframe(df, payload.get("field_specs"), payload.get("methods"), payload.get("scope"), payload.get("custom_concepts"), payload.get("policy_rules", [])))
 
 
 @api.post("/upload")
@@ -635,7 +636,8 @@ def upload():
     methods = _json_form("methods", None)
     scope = _json_form("scope", None)
     custom_concepts = _json_form("custom_concepts", [])
-    return jsonify(analyze_dataframe(df, field_specs, methods, scope, custom_concepts))
+    policy_rules = _json_form("policy_rules",[])
+    return jsonify(analyze_dataframe(df, field_specs, methods, scope, custom_concepts, policy_rules))
 
 
 @api.get("/metamodel")
