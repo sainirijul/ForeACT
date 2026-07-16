@@ -31,6 +31,11 @@ export default function App() {
   const [metamodel, setMetamodel] = useState<MetaModel | null>(null);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  useEffect(() => {
+  if (!status) return;
+  const timer = setTimeout(() => setStatus(null), 5000);
+  return () => clearTimeout(timer);
+}, [status]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -181,7 +186,7 @@ export default function App() {
       setProfile(uploaded.profile);
       setWorkspaceFile(uploaded.workspace_file);
       setAnalysis(null);
-      setActive('semantic');
+      //setActive('semantic');
 
       setStatus(
         'Uploaded dataset and rebuilt the dataset-specific field and scope models.',

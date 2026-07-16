@@ -1,5 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { ForeACTProjectSpec, ProfileResponse } from '../types/analysis';
+
+function AccordionRow({ title, body }: { title: string; body: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="accordion-row">
+      <button className="accordion-trigger" onClick={() => setOpen((p) => !p)}>
+        <strong>{title}</strong>
+        <span className="toggle-icon">{open ? '▲' : '▼'}</span>
+      </button>
+      {open && <p className="accordion-body">{body}</p>}
+    </div>
+  );
+}
 
 export function ProjectSpecPanel({
   spec,
@@ -18,6 +31,12 @@ export function ProjectSpecPanel({
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!uploadMessage) return;
+    const timer = setTimeout(() => setUploadMessage(null), 6000);
+    return () => clearTimeout(timer);
+  }, [uploadMessage]);
+
   const text = JSON.stringify(spec, null, 2);
 
   async function handleUpload(file: File) {
@@ -28,9 +47,9 @@ export function ProjectSpecPanel({
 
       await onUploadData(file);
 
-      setUploadMessage(
+      /*setUploadMessage(
         'CSV uploaded. The workspace JSON, field model, methodology scope, and profile were refreshed.',
-      );
+      );*/
     } catch (error) {
       setUploadError(error instanceof Error ? error.message : String(error));
     } finally {
@@ -39,17 +58,13 @@ export function ProjectSpecPanel({
   }
 
   return (
-    <section className="page-grid">
+    <section className="page-stack">
       <article className="panel hero-panel">
-        <p className="eyebrow">Central use-case specification</p>
+        <p className="eyebrow">Use-case specification</p>
         <h2>{spec.project?.name ?? 'ForeACT Project'}</h2>
-        <p>{spec.project?.description ?? 'Forecast actionability project specification.'}</p>
+        <p>{spec.project?.description ?? 'Please select the dataset with which you want to compute variance and volatilty.'}</p>
 
         <div className="metric-row">
-          <span>
-            <strong title={workspaceFile}>{workspaceFile || 'Not saved yet'}</strong>
-            <small>Workspace file</small>
-          </span>
           <span>
             <strong title={spec.dataset?.format ?? 'csv'}>
               {spec.dataset?.format ?? 'csv'}
@@ -97,7 +112,6 @@ export function ProjectSpecPanel({
 
       <article className="panel">
         <p className="eyebrow">Specification preview</p>
-        <h2>.foreact.json</h2>
         <textarea
           className="spec-editor"
           value={text}
@@ -110,31 +124,29 @@ export function ProjectSpecPanel({
           }}
         />
       </article>
+      
+    {/* ── Why this file matters (accordion) ── */}
 
-      <article className="panel full-span">
-        <p className="eyebrow">Why this file matters</p>
-        <div className="rigor-list">
-          <div>
-            <strong>Dataset-specific model memory</strong>
-            <p>
-              All pages read and write the same use-case file, so field semantics, methods,
-              metamodel extensions, and analysis scope stay connected.
-            </p>
-          </div>
-          <div>
-            <strong>Reusable modeling artifact</strong>
-            <p>
-              The file is a compact JSON representation of the DSL instance and can be versioned with the dataset.
-            </p>
-          </div>
-          <div>
-            <strong>Transformation input</strong>
-            <p>
-              The compiled model and decision cards are generated from this specification instead of hidden UI state.
-            </p>
-          </div>
-        </div>
-      </article>
-    </section>
+    <article>
+      <p className="eyebrow">Why this file matters</p>
+
+      {[
+        {
+          title: 'Dataset-specific model memory',
+          body: 'All pages read and write the same use-case file, so field semantics, methods, metamodel extensions, and analysis scope stay connected.',
+        },
+        {
+          title: 'Reusable modeling artifact',
+          body: 'The file is a compact JSON representation of the DSL instance and can be versioned with the dataset.',
+        },
+        {
+          title: 'Transformation input',
+          body: 'The compiled model and decision cards are generated from this specification instead of hidden UI state.',
+       },
+      ].map((item) => (
+    <AccordionRow key={item.title} title={item.title} body={item.body} />
+  ))}
+    </article>
+   </section>
   );
 }
