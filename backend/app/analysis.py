@@ -150,7 +150,7 @@ def _method_spec(raw: dict[str, Any] | None) -> dict[str, Any]:
             if key in raw and raw[key] is not None:
                 base[key] = raw[key]
     base["rolling_window"] = max(2, int(base.get("rolling_window") or 4))
-    for threshold in ["variance_threshold_large", "variance_threshold_moderate", "volatility_threshold_high", "volatility_threshold_medium"]:
+    for threshold in ["variance_threshold_large", "volatility_threshold_high"]:
         base[threshold] = float(base[threshold])
     return base
 
@@ -170,16 +170,12 @@ def _classify_variance(value: float, method_spec: dict[str, Any]) -> str:
     abs_value = abs(value)
     if abs_value >= method_spec["variance_threshold_large"]:
         return "Large"
-    if abs_value >= method_spec["variance_threshold_moderate"]:
-        return "Moderate"
     return "Small"
 
 
 def _classify_volatility(value: float, method_spec: dict[str, Any]) -> str:
     if value >= method_spec["volatility_threshold_high"]:
         return "High"
-    if value >= method_spec["volatility_threshold_medium"]:
-        return "Medium"
     return "Low"
 
 

@@ -5,7 +5,7 @@
         "target": "target_global_ev_sales_m",
         "x_variance_abs_pct": 2.985,
         "y_volatility_score": 8.794,
-        "variance_class": "Moderate",
+        "variance_class": "Small",
         "volatility_class": "High",
         "recommended_action": "Watch uncertainty"
       },
@@ -13,7 +13,7 @@
         "target": "target_global_market_share_pct",
         "x_variance_abs_pct": 2.857,
         "y_volatility_score": 8.778,
-        "variance_class": "Moderate",
+        "variance_class": "Small",
         "volatility_class": "High",
         "recommended_action": "Watch uncertainty"
       }
@@ -91,7 +91,7 @@
     "metamodel": {
       "name": "ForeACT Forecast Assurance Metamodel",
       "version": "1.0.0",
-      "source": "C:\\Users\\sainir\\Desktop\\ShradhaSaburi\\NAV-RS-Data\\Technical\\SpaceX\\ForeACT\\backend\\metamodel\\foreact.ecore",
+      "source": "C:\\Users\\wango\\DevWork\\ForeACT\\ForeACT\\backend\\metamodel\\foreact.ecore",
       "nsURI": "http://foreact/model",
       "intent": "Single-source Ecore metamodel for forecast-change actionability assessment.",
       "classes": [
@@ -3583,7 +3583,7 @@
     "dataset_columns": 10,
     "dataset_rows": 40,
     "dataset_updated_at": "2026-07-16T15:36:43.836310+00:00",
-    "updated_at": "2026-07-16T15:39:39Z"
+    "updated_at": "2026-07-16T18:16:00Z"
   },
   "metamodel_extension": {
     "concepts": [],
@@ -3620,7 +3620,7 @@
     "id": "ai_datacenter_capacity",
     "name": "Forecast Assurance",
     "tool_name": "ForeACT",
-    "updated_at": "2026-07-16T15:39:39.246086+00:00"
+    "updated_at": "2026-07-16T18:16:00.919629+00:00"
   },
   "schema_version": "0.6.0",
   "signal_model": {}

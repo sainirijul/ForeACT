@@ -22,9 +22,7 @@ class MethodSpec:
     variance_method: str = "version_to_version_pct"
     volatility_method: str = "version_dispersion_pct"
     variance_threshold_large: float = 5.0
-    variance_threshold_moderate: float = 2.0
     volatility_threshold_high: float = 4.0
-    volatility_threshold_medium: float = 2.0
     rolling_window: int = 4
     custom_variance_formula: str = ""
     custom_volatility_formula: str = ""
