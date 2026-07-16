@@ -248,6 +248,8 @@ export type AnalysisResponse = {
   forecast_comparison_preview: Record<string, unknown>[];
   aligned_forecast_preview?: Record<string, unknown>[];
   project_spec?: ForeACTProjectSpec;
+  profile?: ProfileResponse;
+
   workspace_file?: string;
   warnings?: string[];
 };

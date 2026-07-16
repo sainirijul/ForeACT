@@ -2,47 +2,47 @@
   "analysis_cache": {
     "matrix_points": [
       {
-        "target": "target_1_total_load_mwh",
-        "x_variance_abs_pct": 19.048,
-        "y_volatility_score": 15.055,
-        "variance_class": "Large",
+        "target": "target_global_ev_sales_m",
+        "x_variance_abs_pct": 2.985,
+        "y_volatility_score": 8.794,
+        "variance_class": "Moderate",
         "volatility_class": "High",
-        "recommended_action": "Monitor closely"
+        "recommended_action": "Watch uncertainty"
       },
       {
-        "target": "target_2_peak_load_mw",
-        "x_variance_abs_pct": 18.121,
-        "y_volatility_score": 14.618,
-        "variance_class": "Large",
+        "target": "target_global_market_share_pct",
+        "x_variance_abs_pct": 2.857,
+        "y_volatility_score": 8.778,
+        "variance_class": "Moderate",
         "volatility_class": "High",
-        "recommended_action": "Monitor closely"
+        "recommended_action": "Watch uncertainty"
       }
     ],
     "decision_cards": [
       {
-        "target": "target_1_total_load_mwh",
-        "headline": "Monitor closely for target_1_total_load_mwh",
-        "rationale": "The movement is large, but uncertainty is elevated; avoid immediate irreversible action.",
+        "target": "target_global_ev_sales_m",
+        "headline": "Watch uncertainty for target_global_ev_sales_m",
+        "rationale": "Volatility dominates the signal; continue monitoring and request additional evidence.",
         "trace": {
-          "DatasetVersion": "144 rows / 13 columns",
-          "FieldModel": "8 drivers, 2 targets",
-          "AnalysisScope": "2026-06 \u2192 2026-12, 2027-01 to 2029-12",
+          "DatasetVersion": "40 rows / 10 columns",
+          "FieldModel": "6 drivers, 2 targets",
+          "AnalysisScope": "Jun-23 \u2192 Jun-25, 2032-01 to Jan-31",
           "MethodSet": "version_to_version_pct + version_dispersion_pct",
-          "ForecastComparisonModel": "36 aligned horizon rows",
-          "SignalModel": "variance=19.05, volatility=15.06"
+          "ForecastComparisonModel": "10 aligned horizon rows",
+          "SignalModel": "variance=-2.99, volatility=8.79"
         }
       },
       {
-        "target": "target_2_peak_load_mw",
-        "headline": "Monitor closely for target_2_peak_load_mw",
-        "rationale": "The movement is large, but uncertainty is elevated; avoid immediate irreversible action.",
+        "target": "target_global_market_share_pct",
+        "headline": "Watch uncertainty for target_global_market_share_pct",
+        "rationale": "Volatility dominates the signal; continue monitoring and request additional evidence.",
         "trace": {
-          "DatasetVersion": "144 rows / 13 columns",
-          "FieldModel": "8 drivers, 2 targets",
-          "AnalysisScope": "2026-06 \u2192 2026-12, 2027-01 to 2029-12",
+          "DatasetVersion": "40 rows / 10 columns",
+          "FieldModel": "6 drivers, 2 targets",
+          "AnalysisScope": "Jun-23 \u2192 Jun-25, 2032-01 to Jan-31",
           "MethodSet": "version_to_version_pct + version_dispersion_pct",
-          "ForecastComparisonModel": "36 aligned horizon rows",
-          "SignalModel": "variance=18.12, volatility=14.62"
+          "ForecastComparisonModel": "10 aligned horizon rows",
+          "SignalModel": "variance=-2.86, volatility=8.78"
         }
       }
     ],
@@ -61,9 +61,9 @@
       },
       {
         "rule_id": "CR-003",
-        "status": "pass",
+        "status": "warning",
         "severity": "warning",
-        "message": "Decision-relevant field metadata is complete."
+        "message": "Review metadata for: target_global_ev_sales_m"
       },
       {
         "rule_id": "CR-004",
@@ -85,6 +85,8 @@
       }
     ]
   },
+  "analysis_results": {},
+  "comparison_model": {},
   "compiled_model": {
     "metamodel": {
       "name": "ForeACT Forecast Assurance Metamodel",
@@ -710,6 +712,12 @@
               "type": "EDouble",
               "lowerBound": 0,
               "upperBound": 1
+            },
+            {
+              "name": "statistic",
+              "type": "VolatilityStatisticKind",
+              "lowerBound": 0,
+              "upperBound": 1
             }
           ],
           "references": [],
@@ -752,25 +760,13 @@
           "count": 1,
           "attributes": [
             {
-              "name": "baselineVersion",
+              "name": "focusPeriodStart",
               "type": "EString",
               "lowerBound": 0,
               "upperBound": 1
             },
             {
-              "name": "currentVersion",
-              "type": "EString",
-              "lowerBound": 0,
-              "upperBound": 1
-            },
-            {
-              "name": "periodStart",
-              "type": "EString",
-              "lowerBound": 0,
-              "upperBound": 1
-            },
-            {
-              "name": "periodEnd",
+              "name": "focusPeriodEnd",
               "type": "EString",
               "lowerBound": 0,
               "upperBound": 1
@@ -778,8 +774,36 @@
           ],
           "references": [
             {
-              "name": "records",
-              "target": "ForecastComparisonRecord",
+              "name": "vintages",
+              "target": "ForecastVintage",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": "*"
+            },
+            {
+              "name": "baselineVintage",
+              "target": "ForecastVintage",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "currentVintage",
+              "target": "ForecastVintage",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "varianceRecords",
+              "target": "ForecastVarianceRecord",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": "*"
+            },
+            {
+              "name": "volatilityRecords",
+              "target": "ForecastVolatilityRecord",
               "containment": true,
               "lowerBound": 0,
               "upperBound": "*"
@@ -806,34 +830,66 @@
           "isCore": true
         },
         {
-          "id": "ForecastComparisonRecord",
-          "label": "ForecastComparisonRecord",
+          "id": "ForecastVintage",
+          "label": "ForecastVintage",
           "kind": "class",
-          "package": "Comparison",
+          "package": "Extension",
           "stereotype": "EClass",
           "abstract": false,
           "count": 1,
           "attributes": [
             {
-              "name": "period",
+              "name": "vintageDate",
               "type": "EString",
               "lowerBound": 0,
               "upperBound": 1
             },
             {
-              "name": "baselineValue",
-              "type": "EDouble",
+              "name": "sequenceNumber",
+              "type": "EInt",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "observations",
+              "target": "ForecastObservation",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": "*"
+            },
+            {
+              "name": "activeAssumptions",
+              "target": "AssumptionElement",
+              "containment": false,
+              "lowerBound": 0,
+              "upperBound": "*"
+            }
+          ],
+          "position": {
+            "x": 280,
+            "y": 3060
+          },
+          "isCore": true
+        },
+        {
+          "id": "ForecastObservation",
+          "label": "ForecastObservation",
+          "kind": "class",
+          "package": "Extension",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "targetPeriod",
+              "type": "EString",
               "lowerBound": 0,
               "upperBound": 1
             },
             {
-              "name": "currentValue",
-              "type": "EDouble",
-              "lowerBound": 0,
-              "upperBound": 1
-            },
-            {
-              "name": "delta",
+              "name": "value",
               "type": "EDouble",
               "lowerBound": 0,
               "upperBound": 1
@@ -849,8 +905,141 @@
             }
           ],
           "position": {
-            "x": 1180,
-            "y": 210
+            "x": 40,
+            "y": 3220
+          },
+          "isCore": true
+        },
+        {
+          "id": "ForecastVarianceRecord",
+          "label": "ForecastVarianceRecord",
+          "kind": "class",
+          "package": "Extension",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "targetPeriod",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "delta",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "deltaPct",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "target",
+              "target": "TargetField",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "baselineObservation",
+              "target": "ForecastObservation",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "currentObservation",
+              "target": "ForecastObservation",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "computedBy",
+              "target": "VarianceMethod",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            }
+          ],
+          "position": {
+            "x": 280,
+            "y": 3220
+          },
+          "isCore": true
+        },
+        {
+          "id": "ForecastVolatilityRecord",
+          "label": "ForecastVolatilityRecord",
+          "kind": "class",
+          "package": "Extension",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "targetPeriod",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "volatilityScore",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "stdDev",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "valueRange",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "observationCount",
+              "type": "EInt",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "target",
+              "target": "TargetField",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "observations",
+              "target": "ForecastObservation",
+              "containment": false,
+              "lowerBound": 2,
+              "upperBound": "*"
+            },
+            {
+              "name": "computedBy",
+              "target": "VolatilityMethod",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            }
+          ],
+          "position": {
+            "x": 40,
+            "y": 3380
           },
           "isCore": true
         },
@@ -938,7 +1127,15 @@
               "upperBound": 1
             }
           ],
-          "references": [],
+          "references": [
+            {
+              "name": "basedOn",
+              "target": "ForecastVarianceRecord",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            }
+          ],
           "position": {
             "x": 1220,
             "y": 470
@@ -961,7 +1158,15 @@
               "upperBound": 1
             }
           ],
-          "references": [],
+          "references": [
+            {
+              "name": "basedOn",
+              "target": "ForecastVolatilityRecord",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            }
+          ],
           "position": {
             "x": 1460,
             "y": 470
@@ -1181,6 +1386,16 @@
             "monitor",
             "review",
             "act"
+          ]
+        },
+        {
+          "name": "VolatilityStatisticKind",
+          "literals": [
+            "std_dev",
+            "coefficient_of_variation",
+            "range",
+            "mean_absolute_revision",
+            "custom"
           ]
         }
       ],
@@ -1803,6 +2018,12 @@
                 "type": "EDouble",
                 "lowerBound": 0,
                 "upperBound": 1
+              },
+              {
+                "name": "statistic",
+                "type": "VolatilityStatisticKind",
+                "lowerBound": 0,
+                "upperBound": 1
               }
             ],
             "references": [],
@@ -1845,25 +2066,13 @@
             "count": 1,
             "attributes": [
               {
-                "name": "baselineVersion",
+                "name": "focusPeriodStart",
                 "type": "EString",
                 "lowerBound": 0,
                 "upperBound": 1
               },
               {
-                "name": "currentVersion",
-                "type": "EString",
-                "lowerBound": 0,
-                "upperBound": 1
-              },
-              {
-                "name": "periodStart",
-                "type": "EString",
-                "lowerBound": 0,
-                "upperBound": 1
-              },
-              {
-                "name": "periodEnd",
+                "name": "focusPeriodEnd",
                 "type": "EString",
                 "lowerBound": 0,
                 "upperBound": 1
@@ -1871,8 +2080,36 @@
             ],
             "references": [
               {
-                "name": "records",
-                "target": "ForecastComparisonRecord",
+                "name": "vintages",
+                "target": "ForecastVintage",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": "*"
+              },
+              {
+                "name": "baselineVintage",
+                "target": "ForecastVintage",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "currentVintage",
+                "target": "ForecastVintage",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "varianceRecords",
+                "target": "ForecastVarianceRecord",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": "*"
+              },
+              {
+                "name": "volatilityRecords",
+                "target": "ForecastVolatilityRecord",
                 "containment": true,
                 "lowerBound": 0,
                 "upperBound": "*"
@@ -1899,34 +2136,66 @@
             "isCore": true
           },
           {
-            "id": "ForecastComparisonRecord",
-            "label": "ForecastComparisonRecord",
+            "id": "ForecastVintage",
+            "label": "ForecastVintage",
             "kind": "class",
-            "package": "Comparison",
+            "package": "Extension",
             "stereotype": "EClass",
             "abstract": false,
             "count": 1,
             "attributes": [
               {
-                "name": "period",
+                "name": "vintageDate",
                 "type": "EString",
                 "lowerBound": 0,
                 "upperBound": 1
               },
               {
-                "name": "baselineValue",
-                "type": "EDouble",
+                "name": "sequenceNumber",
+                "type": "EInt",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "observations",
+                "target": "ForecastObservation",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": "*"
+              },
+              {
+                "name": "activeAssumptions",
+                "target": "AssumptionElement",
+                "containment": false,
+                "lowerBound": 0,
+                "upperBound": "*"
+              }
+            ],
+            "position": {
+              "x": 280,
+              "y": 3060
+            },
+            "isCore": true
+          },
+          {
+            "id": "ForecastObservation",
+            "label": "ForecastObservation",
+            "kind": "class",
+            "package": "Extension",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "targetPeriod",
+                "type": "EString",
                 "lowerBound": 0,
                 "upperBound": 1
               },
               {
-                "name": "currentValue",
-                "type": "EDouble",
-                "lowerBound": 0,
-                "upperBound": 1
-              },
-              {
-                "name": "delta",
+                "name": "value",
                 "type": "EDouble",
                 "lowerBound": 0,
                 "upperBound": 1
@@ -1942,8 +2211,141 @@
               }
             ],
             "position": {
-              "x": 1180,
-              "y": 210
+              "x": 40,
+              "y": 3220
+            },
+            "isCore": true
+          },
+          {
+            "id": "ForecastVarianceRecord",
+            "label": "ForecastVarianceRecord",
+            "kind": "class",
+            "package": "Extension",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "targetPeriod",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "delta",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "deltaPct",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "target",
+                "target": "TargetField",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "baselineObservation",
+                "target": "ForecastObservation",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "currentObservation",
+                "target": "ForecastObservation",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "computedBy",
+                "target": "VarianceMethod",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              }
+            ],
+            "position": {
+              "x": 280,
+              "y": 3220
+            },
+            "isCore": true
+          },
+          {
+            "id": "ForecastVolatilityRecord",
+            "label": "ForecastVolatilityRecord",
+            "kind": "class",
+            "package": "Extension",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "targetPeriod",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "volatilityScore",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "stdDev",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "valueRange",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "observationCount",
+                "type": "EInt",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "target",
+                "target": "TargetField",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "observations",
+                "target": "ForecastObservation",
+                "containment": false,
+                "lowerBound": 2,
+                "upperBound": "*"
+              },
+              {
+                "name": "computedBy",
+                "target": "VolatilityMethod",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              }
+            ],
+            "position": {
+              "x": 40,
+              "y": 3380
             },
             "isCore": true
           },
@@ -2031,7 +2433,15 @@
                 "upperBound": 1
               }
             ],
-            "references": [],
+            "references": [
+              {
+                "name": "basedOn",
+                "target": "ForecastVarianceRecord",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              }
+            ],
             "position": {
               "x": 1220,
               "y": 470
@@ -2054,7 +2464,15 @@
                 "upperBound": 1
               }
             ],
-            "references": [],
+            "references": [
+              {
+                "name": "basedOn",
+                "target": "ForecastVolatilityRecord",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              }
+            ],
             "position": {
               "x": 1460,
               "y": 470
@@ -2448,8 +2866,32 @@
           },
           {
             "source": "ForecastComparisonModel",
-            "target": "ForecastComparisonRecord",
-            "label": "\u25c6 records",
+            "target": "ForecastVintage",
+            "label": "\u25c6 vintages",
+            "kind": "composition"
+          },
+          {
+            "source": "ForecastComparisonModel",
+            "target": "ForecastVintage",
+            "label": "baselineVintage",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastComparisonModel",
+            "target": "ForecastVintage",
+            "label": "currentVintage",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastComparisonModel",
+            "target": "ForecastVarianceRecord",
+            "label": "\u25c6 varianceRecords",
+            "kind": "composition"
+          },
+          {
+            "source": "ForecastComparisonModel",
+            "target": "ForecastVolatilityRecord",
+            "label": "\u25c6 volatilityRecords",
             "kind": "composition"
           },
           {
@@ -2471,13 +2913,85 @@
             "kind": "inheritance"
           },
           {
-            "source": "ForecastComparisonRecord",
+            "source": "ForecastVintage",
+            "target": "ForecastObservation",
+            "label": "\u25c6 observations",
+            "kind": "composition"
+          },
+          {
+            "source": "ForecastVintage",
+            "target": "AssumptionElement",
+            "label": "activeAssumptions",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVintage",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "ForecastObservation",
             "target": "TargetField",
             "label": "target",
             "kind": "association"
           },
           {
-            "source": "ForecastComparisonRecord",
+            "source": "ForecastObservation",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "ForecastVarianceRecord",
+            "target": "TargetField",
+            "label": "target",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVarianceRecord",
+            "target": "ForecastObservation",
+            "label": "baselineObservation",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVarianceRecord",
+            "target": "ForecastObservation",
+            "label": "currentObservation",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVarianceRecord",
+            "target": "VarianceMethod",
+            "label": "computedBy",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVarianceRecord",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "ForecastVolatilityRecord",
+            "target": "TargetField",
+            "label": "target",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVolatilityRecord",
+            "target": "ForecastObservation",
+            "label": "observations",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVolatilityRecord",
+            "target": "VolatilityMethod",
+            "label": "computedBy",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVolatilityRecord",
             "target": "ModelElement",
             "label": "extends",
             "kind": "inheritance"
@@ -2514,9 +3028,21 @@
           },
           {
             "source": "VarianceSignal",
+            "target": "ForecastVarianceRecord",
+            "label": "basedOn",
+            "kind": "association"
+          },
+          {
+            "source": "VarianceSignal",
             "target": "Signal",
             "label": "extends",
             "kind": "inheritance"
+          },
+          {
+            "source": "VolatilitySignal",
+            "target": "ForecastVolatilityRecord",
+            "label": "basedOn",
+            "kind": "association"
           },
           {
             "source": "VolatilitySignal",
@@ -2605,17 +3131,17 @@
         ]
       },
       "runtime_summary": {
-        "field_count": 13,
+        "field_count": 10,
         "target_count": 2,
-        "driver_count": 8,
+        "driver_count": 6,
         "version_field_count": 1,
         "horizon_field_count": 1,
         "variance_method": "version_to_version_pct",
         "volatility_method": "version_dispersion_pct",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "period_start": "2027-01",
-        "period_end": "2029-12"
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "period_start": "2032-01",
+        "period_end": "Jan-31"
       },
       "conformance_rules": [
         {
@@ -2698,176 +3224,179 @@
     ],
     "forecast_comparison_preview": [
       {
-        "period": "2027-01",
-        "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 146933.0,
-        "current": 195985.46,
-        "variance_pct": 33.3842363526233,
-        "volatility": 18.053344317795077
+        "period": "Jan-26",
+        "target": "target_global_ev_sales_m",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 25.4,
+        "current": 24.5,
+        "variance_pct": -3.543307086614168,
+        "volatility": 3.6048003536032
       },
       {
-        "period": "2027-02",
-        "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 154464.38,
-        "current": 209413.46,
-        "variance_pct": 35.57394915254895,
-        "volatility": 16.347293496823635
+        "period": "Jan-27",
+        "target": "target_global_ev_sales_m",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 30.4,
+        "current": 29.1,
+        "variance_pct": -4.276315789473675,
+        "volatility": 5.295236517014122
       },
       {
-        "period": "2027-03",
-        "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 171672.7,
-        "current": 229920.45,
-        "variance_pct": 33.92953568039647,
-        "volatility": 21.08118222424936
+        "period": "Jan-28",
+        "target": "target_global_ev_sales_m",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 36.4,
+        "current": 35.0,
+        "variance_pct": -3.8461538461538423,
+        "volatility": 6.540336571309605
       },
       {
-        "period": "2027-04",
-        "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 192283.16,
-        "current": 218680.43,
-        "variance_pct": 13.728331695817767,
-        "volatility": 14.861593893904217
+        "period": "Jan-29",
+        "target": "target_global_ev_sales_m",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 42.8,
+        "current": 41.2,
+        "variance_pct": -3.738317757009333,
+        "volatility": 7.5510689054806415
       },
       {
-        "period": "2027-05",
-        "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 181457.13,
-        "current": 219624.17,
-        "variance_pct": 21.033640287378073,
-        "volatility": 12.83047687367253
+        "period": "Jan-30",
+        "target": "target_global_ev_sales_m",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 49.5,
+        "current": 48.0,
+        "variance_pct": -3.0303030303030303,
+        "volatility": 9.33688150070893
       },
       {
-        "period": "2027-06",
-        "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 188299.79,
-        "current": 240720.15,
-        "variance_pct": 27.83877772779246,
-        "volatility": 15.49806673712262
+        "period": "Jan-31",
+        "target": "target_global_ev_sales_m",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 53.5,
+        "current": 51.8,
+        "variance_pct": -3.1775700934579496,
+        "volatility": 10.371136070721672
       },
       {
-        "period": "2027-07",
-        "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 185987.87,
-        "current": 229952.26,
-        "variance_pct": 23.638310390887327,
-        "volatility": 15.491205610762446
+        "period": "2032-01",
+        "target": "target_global_ev_sales_m",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 57.3,
+        "current": 55.5,
+        "variance_pct": -3.1413612565444975,
+        "volatility": 11.079781501120042
       },
       {
-        "period": "2027-08",
-        "target": "target_1_total_load_mwh",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 184039.95,
-        "current": 243830.18,
-        "variance_pct": 32.48763651587602,
-        "volatility": 17.83454279568565
+        "period": "2033-01",
+        "target": "target_global_ev_sales_m",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 60.9,
+        "current": 59.0,
+        "variance_pct": -3.119868637110014,
+        "volatility": 11.520295517607298
       },
       {
-        "period": "2027-01",
-        "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 337.81,
-        "current": 449.4,
-        "variance_pct": 33.033361949024595,
-        "volatility": 17.25558088283199
+        "period": "Jan-26",
+        "target": "target_global_market_share_pct",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 30.5,
+        "current": 29.5,
+        "variance_pct": -3.278688524590164,
+        "volatility": 5.223772232259156
       },
       {
-        "period": "2027-02",
-        "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 364.52,
-        "current": 476.44,
-        "variance_pct": 30.70339076045211,
-        "volatility": 15.9246779726573
+        "period": "Jan-27",
+        "target": "target_global_market_share_pct",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 35.5,
+        "current": 34.0,
+        "variance_pct": -4.225352112676056,
+        "volatility": 5.023512387862764
       },
       {
-        "period": "2027-03",
-        "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 389.89,
-        "current": 522.47,
-        "variance_pct": 34.00446279719922,
-        "volatility": 20.82798205339674
+        "period": "Jan-28",
+        "target": "target_global_market_share_pct",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 40.5,
+        "current": 39.0,
+        "variance_pct": -3.7037037037037033,
+        "volatility": 6.273323266748674
       },
       {
-        "period": "2027-04",
-        "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 433.56,
-        "current": 500.72,
-        "variance_pct": 15.490358889196425,
-        "volatility": 15.049131722810635
+        "period": "Jan-29",
+        "target": "target_global_market_share_pct",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 46.0,
+        "current": 44.5,
+        "variance_pct": -3.260869565217391,
+        "volatility": 6.6311981659158885
       },
       {
-        "period": "2027-05",
-        "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 415.0,
-        "current": 495.47,
-        "variance_pct": 19.39036144578314,
-        "volatility": 12.729264388428579
+        "period": "Jan-30",
+        "target": "target_global_market_share_pct",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 52.0,
+        "current": 50.0,
+        "variance_pct": -3.8461538461538463,
+        "volatility": 7.2414033690446535
       },
       {
-        "period": "2027-06",
-        "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 423.04,
-        "current": 537.28,
-        "variance_pct": 27.00453857791224,
-        "volatility": 14.652253065262327
+        "period": "Jan-31",
+        "target": "target_global_market_share_pct",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 56.0,
+        "current": 54.2,
+        "variance_pct": -3.214285714285709,
+        "volatility": 9.137455716426908
       },
       {
-        "period": "2027-07",
-        "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 427.97,
-        "current": 520.4,
-        "variance_pct": 21.59730822253895,
-        "volatility": 14.681109889113289
+        "period": "2032-01",
+        "target": "target_global_market_share_pct",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 60.0,
+        "current": 58.0,
+        "variance_pct": -3.3333333333333335,
+        "volatility": 10.697786034558865
       },
       {
-        "period": "2027-08",
-        "target": "target_2_peak_load_mw",
-        "baseline_version": "2026-06",
-        "current_version": "2026-12",
-        "baseline": 419.27,
-        "current": 553.15,
-        "variance_pct": 31.931690795907176,
-        "volatility": 17.71089596330574
+        "period": "2033-01",
+        "target": "target_global_market_share_pct",
+        "baseline_version": "Jun-23",
+        "current_version": "Jun-25",
+        "baseline": 63.5,
+        "current": 61.5,
+        "variance_pct": -3.149606299212598,
+        "volatility": 11.836399035894992
       }
     ]
   },
   "dataset": {
-    "description": "Synthetic energy-demand planning case study with several forecast cycles for the same future months.",
-    "format": "long_forecast_cycle",
+    "description": "User-uploaded dataset: research.csv",
+    "format": "csv",
     "horizon_field": "forecast_period",
-    "id": "ai_datacenter_load_forecast",
-    "path": "data/use_cases/ai_datacenter_load_forecast.csv",
-    "source_type": "local_csv",
+    "id": "ai_datacenter_capacity_dataset",
+    "original_filename": "Test.csv",
+    "path": "backend/workspaces/uploads/ai_datacenter_capacity_research_20260716T153643Z.csv",
+    "source_type": "uploaded_csv",
+    "uploaded_at": "2026-07-16T03:58:06.492781+00:00",
     "version_field": "forecast_cycle"
   },
+  "decision_model": {},
   "decision_policy": {
     "name": "Default actionability policy",
     "rules": [
@@ -2934,7 +3463,7 @@
       {
         "business_name": "Forecast Cycle",
         "data_type": "text",
-        "description": "Month when the forecast version is issued. Used to align baseline and current forecast versions.",
+        "description": "Auto-discovered. Review and refine before analysis.",
         "direction": "neutral",
         "include_in_model": true,
         "name": "forecast_cycle",
@@ -2943,9 +3472,9 @@
         "unit": ""
       },
       {
-        "business_name": "Forecast Horizon Period",
+        "business_name": "Forecast Period",
         "data_type": "text",
-        "description": "Future month for which the forecast value is predicted.",
+        "description": "Auto-discovered. Review and refine before analysis.",
         "direction": "neutral",
         "include_in_model": true,
         "name": "forecast_period",
@@ -2954,131 +3483,107 @@
         "unit": ""
       },
       {
-        "business_name": "Months Ahead",
+        "business_name": "Lithium Carbonate Usd T",
         "data_type": "numeric",
-        "description": "Lead time between forecast cycle and forecast horizon.",
+        "description": "Auto-discovered. Review and refine before analysis.",
         "direction": "neutral",
         "include_in_model": true,
-        "name": "months_ahead",
+        "name": "lithium_carbonate_usd_t",
         "role": "feature",
-        "semantic_type": "forecast_horizon_index",
-        "unit": "months"
-      },
-      {
-        "business_name": "Planning Scenario",
-        "data_type": "text",
-        "description": "Planning scenario used to represent uncertain data-center connection assumptions.",
-        "direction": "neutral",
-        "include_in_model": true,
-        "name": "scenario",
-        "role": "scenario",
-        "semantic_type": "planning_scenario",
+        "semantic_type": "identifier_or_text",
         "unit": ""
       },
       {
-        "business_name": "Committed AI Data Center Load",
+        "business_name": "Us Fed Funds Rate Pct",
         "data_type": "numeric",
-        "description": "Planned or committed data-center load that may affect future electricity demand.",
-        "direction": "higher_is_riskier",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
         "include_in_model": true,
-        "name": "feature_1_data_center_committed_mw",
+        "name": "us_fed_funds_rate_pct",
         "role": "feature",
-        "semantic_type": "external_driver",
-        "unit": "MW"
-      },
-      {
-        "business_name": "Grid Connection Probability",
-        "data_type": "numeric",
-        "description": "Estimated likelihood that proposed data-center load connects within the forecast horizon.",
-        "direction": "higher_is_riskier",
-        "include_in_model": true,
-        "name": "feature_2_grid_connection_probability_pct",
-        "role": "feature",
-        "semantic_type": "external_driver",
+        "semantic_type": "identifier_or_text",
         "unit": "%"
       },
       {
-        "business_name": "Power Price Index",
+        "business_name": "Global Public Chargers M",
         "data_type": "numeric",
-        "description": "Energy price pressure that may influence industrial and data-center demand.",
-        "direction": "higher_is_riskier",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
         "include_in_model": true,
-        "name": "feature_3_power_price_index",
+        "name": "global_public_chargers_m",
         "role": "feature",
-        "semantic_type": "external_driver",
-        "unit": "index"
+        "semantic_type": "identifier_or_text",
+        "unit": ""
       },
       {
-        "business_name": "Average Temperature",
+        "business_name": "Crude Oil Brent Usd",
         "data_type": "numeric",
-        "description": "Average monthly temperature used as a weather driver for cooling demand.",
-        "direction": "higher_is_riskier",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
         "include_in_model": true,
-        "name": "feature_4_avg_temperature_c",
+        "name": "crude_oil_brent_usd",
         "role": "feature",
-        "semantic_type": "external_driver",
-        "unit": "\u00b0C"
+        "semantic_type": "identifier_or_text",
+        "unit": ""
       },
       {
-        "business_name": "Cooling Efficiency PUE",
+        "business_name": "Ice Efficiency Mpg",
         "data_type": "numeric",
-        "description": "Power usage effectiveness assumption for data-center cooling efficiency.",
-        "direction": "higher_is_riskier",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
         "include_in_model": true,
-        "name": "feature_5_cooling_efficiency_pue",
+        "name": "ice_efficiency_mpg",
         "role": "feature",
-        "semantic_type": "external_driver",
-        "unit": "ratio"
+        "semantic_type": "identifier_or_text",
+        "unit": ""
       },
       {
-        "business_name": "Industrial Growth Index",
+        "business_name": "Eu Co2 Target G Km",
         "data_type": "numeric",
-        "description": "Industrial activity index used as an explanatory demand driver.",
-        "direction": "higher_is_riskier",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
         "include_in_model": true,
-        "name": "feature_6_industrial_growth_index",
+        "name": "eu_co2_target_g_km",
         "role": "feature",
-        "semantic_type": "external_driver",
-        "unit": "index"
+        "semantic_type": "identifier_or_text",
+        "unit": ""
       },
       {
-        "business_name": "Renewable Availability",
+        "business_name": "Target Global Ev Sales M",
         "data_type": "numeric",
-        "description": "Estimated renewable availability that may influence grid planning uncertainty.",
-        "direction": "higher_is_riskier",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
         "include_in_model": true,
-        "name": "feature_7_renewable_availability_pct",
-        "role": "feature",
-        "semantic_type": "external_driver",
+        "name": "target_global_ev_sales_m",
+        "role": "target",
+        "semantic_type": "forecast_target",
+        "unit": ""
+      },
+      {
+        "business_name": "Target Global Market Share Pct",
+        "data_type": "numeric",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
+        "include_in_model": true,
+        "name": "target_global_market_share_pct",
+        "role": "target",
+        "semantic_type": "forecast_target",
         "unit": "%"
-      },
-      {
-        "business_name": "Total Electricity Load Forecast",
-        "data_type": "numeric",
-        "description": "Forecasted total monthly electricity load for the selected planning region.",
-        "direction": "higher_is_riskier",
-        "include_in_model": true,
-        "name": "target_1_total_load_mwh",
-        "role": "target",
-        "semantic_type": "forecast_target",
-        "unit": "MWh"
-      },
-      {
-        "business_name": "Peak Electricity Load Forecast",
-        "data_type": "numeric",
-        "description": "Forecasted peak electricity load used for capacity planning.",
-        "direction": "higher_is_riskier",
-        "include_in_model": true,
-        "name": "target_2_peak_load_mw",
-        "role": "target",
-        "semantic_type": "forecast_target",
-        "unit": "MW"
       }
     ]
   },
+  "knowledge_base": {
+    "business_actions": [],
+    "business_rationale": [],
+    "traceability_records": [],
+    "updated_at": "2026-07-16T03:58:06.495540+00:00"
+  },
   "metadata": {
     "created_by": "ForeACT scaffold",
-    "updated_at": "2026-07-14T19:31:43Z"
+    "dataset_columns": 10,
+    "dataset_rows": 40,
+    "dataset_updated_at": "2026-07-16T15:36:43.836310+00:00",
+    "updated_at": "2026-07-16T15:39:39Z"
   },
   "metamodel_extension": {
     "concepts": [],
@@ -3098,14 +3603,15 @@
       "volatility_threshold_medium": 2
     },
     "scope": {
-      "baseline_version": "2026-06",
-      "current_version": "2026-12",
+      "baseline_version": "Jun-23",
+      "current_version": "Jun-25",
       "grouping_fields": [],
       "horizon_field": "forecast_period",
-      "period_end": "2029-12",
-      "period_start": "2027-01",
+      "period_end": "Jan-31",
+      "period_start": "2032-01",
       "version_field": "forecast_cycle"
-    }
+    },
+    "updated_at": "2026-07-16T03:58:06.495540+00:00"
   },
   "project": {
     "central_file": "backend/workspaces/ai_datacenter_capacity.foreact.json",
@@ -3113,7 +3619,9 @@
     "domain": "Energy demand forecasting",
     "id": "ai_datacenter_capacity",
     "name": "Forecast Assurance",
-    "tool_name": "ForeACT"
+    "tool_name": "ForeACT",
+    "updated_at": "2026-07-16T15:39:39.246086+00:00"
   },
-  "schema_version": "0.6.0"
+  "schema_version": "0.6.0",
+  "signal_model": {}
 }

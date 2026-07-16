@@ -1,7 +1,18 @@
 import { useEffect, useState } from 'react';
 import '@xyflow/react/dist/style.css';
-import { analyzeWorkspace, loadDefaultWorkspace, loadMetamodel, saveWorkspace, uploadWorkspaceData } from './api/client';
-import type { AnalysisResponse, ForeACTProjectSpec, MetaModel, ProfileResponse } from './types/analysis';
+import {
+  analyzeWorkspace,
+  loadDefaultWorkspace,
+  loadMetamodel,
+  saveWorkspace,
+  uploadWorkspaceData,
+} from './api/client';
+import type {
+  AnalysisResponse,
+  ForeACTProjectSpec,
+  MetaModel,
+  ProfileResponse,
+} from './types/analysis';
 import { AppShell, type PageId } from './components/Shell';
 import { ProjectSpecPanel } from './components/ProjectSpecPanel';
 import { SemanticFieldModelingPage } from './components/SemanticFieldModelingPage';
@@ -26,102 +37,252 @@ export default function App() {
     async function bootstrap() {
       setLoading(true);
       setError(null);
+
       try {
         const workspace = await loadDefaultWorkspace();
+
         setSpec(workspace.spec);
         setProfile(workspace.profile);
         setWorkspaceFile(workspace.workspace_file);
 
-        // The workspace endpoint now also returns the Ecore-projected metamodel.
-        // This makes the metamodel viewer work even if the separate /api/metamodel
-        // request is blocked, cached incorrectly, or fails during development.
+        /*
+         * The workspace response also includes the Ecore-projected metamodel.
+         * This provides a fallback when the standalone metamodel endpoint
+         * cannot be reached during development.
+         */
         if (workspace.metamodel) {
           setMetamodel(workspace.metamodel);
         }
 
         try {
-          const loadedMetamodel = await loadMetamodel();
+          const loadedMetamodel = await loadMetamodel(
+            workspace.spec.project.id,
+          );
           setMetamodel(loadedMetamodel);
-        } catch (metaErr) {
-          console.warn('Could not load /api/metamodel. Using workspace-provided metamodel if available.', metaErr);
+        } catch (metamodelError) {
+          console.warn(
+            'Could not load /api/metamodel. Using the workspace metamodel.',
+            metamodelError,
+          );
         }
 
         setStatus('Loaded ForeACT project specification.');
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong');
+      } catch (bootstrapError) {
+        setError(
+          bootstrapError instanceof Error
+            ? bootstrapError.message
+            : 'Unable to load the ForeACT workspace.',
+        );
       } finally {
         setLoading(false);
       }
     }
 
-    bootstrap();
+    void bootstrap();
   }, []);
 
-  async function run(action: () => Promise<void>, successMessage?: string) {
+  async function run(
+    action: () => Promise<void>,
+    successMessage?: string,
+  ): Promise<void> {
     setLoading(true);
     setError(null);
+
     try {
       await action();
-      setStatus(successMessage || null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setStatus(successMessage ?? null);
+    } catch (runError) {
+      setError(
+        runError instanceof Error
+          ? runError.message
+          : 'The requested operation failed.',
+      );
     } finally {
       setLoading(false);
     }
   }
 
+  /*
+   * This is the single update path used by all model-editing pages.
+   *
+   * Any edit invalidates the previous analysis because that analysis was
+   * generated from an older project specification.
+   */
   function updateSpec(next: ForeACTProjectSpec) {
     setSpec(next);
-    setStatus('Unsaved project changes. Save the central specification when ready.');
+    setAnalysis(null);
+    setStatus(
+      'Project model updated. Recompile to refresh derived analysis artifacts.',
+    );
   }
 
   function saveCurrentSpec() {
-    if (!spec) return;
-    run(async () => {
+    if (!spec) {
+      return;
+    }
+
+    return run(async () => {
       const saved = await saveWorkspace(spec);
+
       setSpec(saved.spec);
+      setProfile(saved.profile);
       setWorkspaceFile(saved.workspace_file);
     }, 'Saved central ForeACT project specification.');
   }
 
   function compileAndAnalyze() {
-    if (!spec) return;
-    run(async () => {
+    if (!spec) {
+      return;
+    }
+
+    return run(async () => {
+      /*
+       * Send the current in-memory specification rather than only its ID.
+       * This guarantees that unsaved semantic mappings, scope selections,
+       * method choices, and policies are included in the analysis.
+       */
       const result = await analyzeWorkspace(spec);
+
       setAnalysis(result);
-      if (result.project_spec) setSpec(result.project_spec);
-      if (result.workspace_file) setWorkspaceFile(result.workspace_file);
+
+      if (result.project_spec) {
+        setSpec(result.project_spec);
+      }
+
+      if (result.profile) {
+        setProfile(result.profile);
+      }
+
+      if (result.workspace_file) {
+        setWorkspaceFile(result.workspace_file);
+      }
+
       setActive('transformations');
-    }, 'Compiled model transformations and generated forecast assurance analysis.');
+    }, 'Saved, compiled, and analyzed the current ForeACT project model.');
   }
 
-  function uploadData(file: File) {
-    if (!spec) return;
-    run(async () => {
+  async function uploadData(file: File) {
+    if (!spec) {
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
       const uploaded = await uploadWorkspaceData(file, spec);
+
+      /*
+       * The backend returns the rebuilt canonical project specification.
+       * All pages immediately receive the uploaded dataset's mappings and
+       * forecast scope through the shared App state.
+       */
       setSpec(uploaded.spec);
       setProfile(uploaded.profile);
       setWorkspaceFile(uploaded.workspace_file);
       setAnalysis(null);
       setActive('semantic');
-    }, 'Uploaded dataset and updated the dataset-specific project specification.');
+
+      setStatus(
+        'Uploaded dataset and rebuilt the dataset-specific field and scope models.',
+      );
+    } catch (uploadError) {
+      const message =
+        uploadError instanceof Error
+          ? uploadError.message
+          : 'CSV upload failed.';
+
+      setError(message);
+
+      /*
+       * Re-throw so that UploadPanel does not display a false success state.
+       */
+      throw uploadError;
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (!spec) {
-    return <main className="loading-screen"><div className="panel">Loading ForeACT workspace...</div></main>;
+    return (
+      <main className="loading-screen">
+        <div className="panel">
+          {error ?? 'Loading ForeACT workspace...'}
+        </div>
+      </main>
+    );
   }
 
   return (
-    <AppShell active={active} setActive={setActive} projectName={spec.project.name} centralFile={workspaceFile || spec.project.central_file} onSave={saveCurrentSpec} onAnalyze={compileAndAnalyze} loading={loading}>
+    <AppShell
+      active={active}
+      setActive={setActive}
+      projectName={spec.project.name}
+      centralFile={workspaceFile || spec.project.central_file}
+      onSave={saveCurrentSpec}
+      onAnalyze={compileAndAnalyze}
+      loading={loading}
+    >
       {status && <div className="status-panel">{status}</div>}
+
       {error && <div className="error-panel">{error}</div>}
-      {loading && <div className="status-panel">Working on the current ForeACT model...</div>}
-      {active === 'semantic' && <SemanticFieldModelingPage spec={spec} profile={profile} setSpec={updateSpec} />}
-      {active === 'methodology' && <MethodologyReviewPage spec={spec} profile={profile} setSpec={updateSpec} />}
-      {active === 'metamodel' && <MetamodelExtensionPage spec={spec} setSpec={setSpec} metamodel={metamodel} />}
-      {active === 'transformations' && <TransformationAnalysisPage spec={spec} profile={profile} analysis={analysis} onAnalyze={compileAndAnalyze} />}
-      {active === 'decisions' && <DecisionAnalysisPage spec={spec} analysis={analysis} onAnalyze={compileAndAnalyze} />}
-      {active === 'spec' && <ProjectSpecPanel spec={spec} profile={profile} workspaceFile={workspaceFile || spec.project.central_file} onSpecChange={updateSpec} onUploadData={uploadData} />}
+
+      {loading && (
+        <div className="status-panel">
+          Working on the current ForeACT model...
+        </div>
+      )}
+
+      {active === 'semantic' && (
+        <SemanticFieldModelingPage
+          spec={spec}
+          profile={profile}
+          setSpec={updateSpec}
+        />
+      )}
+
+      {active === 'methodology' && (
+        <MethodologyReviewPage
+          spec={spec}
+          profile={profile}
+          setSpec={updateSpec}
+        />
+      )}
+
+      {active === 'metamodel' && (
+        <MetamodelExtensionPage
+          spec={spec}
+          setSpec={updateSpec}
+          metamodel={metamodel}
+        />
+      )}
+
+      {active === 'transformations' && (
+        <TransformationAnalysisPage
+          spec={spec}
+          profile={profile}
+          analysis={analysis}
+          onAnalyze={compileAndAnalyze}
+        />
+      )}
+
+      {active === 'decisions' && (
+        <DecisionAnalysisPage
+          spec={spec}
+          analysis={analysis}
+          onAnalyze={compileAndAnalyze}
+        />
+      )}
+
+      {active === 'spec' && (
+        <ProjectSpecPanel
+          spec={spec}
+          profile={profile}
+          workspaceFile={workspaceFile || spec.project.central_file}
+          onSpecChange={updateSpec}
+          onUploadData={uploadData}
+        />
+      )}
     </AppShell>
   );
 }

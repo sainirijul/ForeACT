@@ -389,6 +389,96 @@ def analyze_dataframe(df: pd.DataFrame, field_specs: list[dict[str, Any]] | None
     field_specs = field_specs or profile["default_field_specs"]
     method_spec = _method_spec(methods)
     scope_spec = _scope_spec(scope, profile)
+
+    required_roles = {
+        "forecast_version",
+        "forecast_horizon",
+        "target",
+    }
+
+    present_roles = {
+        field.get("role")
+        for field in field_specs
+        if field.get("include_in_model", True)
+    }
+
+    missing_roles = sorted(required_roles - present_roles)
+
+    if missing_roles:
+        raise ValueError(
+            "Semantic mapping is missing required roles: "
+            + ", ".join(missing_roles)
+        )
+
+    version_field = scope_spec.get("version_field")
+    horizon_field = scope_spec.get("horizon_field")
+    baseline_version = scope_spec.get("baseline_version")
+    current_version = scope_spec.get("current_version")
+    period_start = scope_spec.get("period_start")
+    period_end = scope_spec.get("period_end")
+
+    if not version_field:
+        raise ValueError(
+            "A forecast-version field must be selected."
+        )
+
+    if not horizon_field:
+        raise ValueError(
+            "A forecast-horizon field must be selected."
+        )
+
+    if version_field not in df.columns:
+        raise ValueError(
+            f"Forecast-version field '{version_field}' "
+            "does not exist in the dataset."
+        )
+
+    if horizon_field not in df.columns:
+        raise ValueError(
+            f"Forecast-horizon field '{horizon_field}' "
+            "does not exist in the dataset."
+        )
+
+    if not baseline_version:
+        raise ValueError(
+            "A baseline forecast version must be selected."
+        )
+
+    if not current_version:
+        raise ValueError(
+            "A current forecast version must be selected."
+        )
+
+    if str(baseline_version) == str(current_version):
+        raise ValueError(
+            "Baseline and current forecast versions must be different."
+        )
+
+    available_versions = {
+        str(value)
+        for value in df[version_field].dropna().unique()
+    }
+
+    if str(baseline_version) not in available_versions:
+        raise ValueError(
+            f"Baseline version '{baseline_version}' was not found "
+            f"in field '{version_field}'."
+        )
+
+    if str(current_version) not in available_versions:
+        raise ValueError(
+            f"Current version '{current_version}' was not found "
+            f"in field '{version_field}'."
+        )
+
+    if (
+        period_start not in (None, "")
+        and period_end not in (None, "")
+        and str(period_start) > str(period_end)
+    ):
+        raise ValueError(
+            "Forecast period start must not be after period end."
+        )
     custom_concepts = custom_concepts or []
     target_cols = _field_names(field_specs, "target")
     feature_cols = _field_names(field_specs, "feature")

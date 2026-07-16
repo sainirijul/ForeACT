@@ -2,24 +2,28 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import datetime
+from copy import deepcopy
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-
-from app.metamodel_projection import ecore_to_graph
-from app.metamodel_editor import (
-    add_class,
-    delete_class,
-    add_attribute,
-    delete_attribute,
-    add_reference,
-)
 
 import pandas as pd
 from flask import Blueprint, jsonify, request
 
-from .analysis import analyze_dataframe, dataset_profile, make_demo_energy_data, read_csv_file
+from .analysis import (
+    analyze_dataframe,
+    dataset_profile,
+    make_demo_energy_data,
+    read_csv_file,
+)
 from .domain import method_catalog
+from .metamodel_editor import (
+    add_attribute,
+    add_class,
+    add_reference,
+    delete_attribute,
+    delete_class,
+)
 from .metamodel_projection import ecore_to_graph
 
 api = Blueprint("api", __name__)
@@ -34,6 +38,136 @@ DEFAULT_DATASET_PATH = PROJECT_ROOT / "data" / "use_cases" / "ai_datacenter_load
 WORKSPACE_DIR.mkdir(parents=True, exist_ok=True)
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
+
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _workspace_id_from_request(default: str = DEFAULT_WORKSPACE_ID) -> str:
+    """
+    Resolve workspace id from request form/json/query.
+    Never trust the uploaded spec as the source of truth.
+    """
+    workspace_id = None
+
+    if request.form:
+        workspace_id = request.form.get("workspace_id")
+
+    if not workspace_id and request.is_json:
+        body = request.get_json(silent=True) or {}
+        workspace_id = body.get("workspace_id")
+
+    if not workspace_id:
+        workspace_id = request.args.get("workspace_id")
+
+    return _slug(workspace_id or default)
+
+
+def _load_workspace_for_update(workspace_id: str | None = None) -> tuple[str, dict]:
+    """
+    Always load the current workspace from disk before making changes.
+    """
+    resolved_id = _slug(workspace_id or DEFAULT_WORKSPACE_ID)
+    spec = _read_workspace(resolved_id)
+
+    spec.setdefault("project", {})
+    spec["project"]["id"] = _slug(spec["project"].get("id") or resolved_id)
+
+    return spec["project"]["id"], spec
+
+
+def _save_workspace_and_profile(spec: dict, workspace_id: str | None = None) -> dict:
+    """
+    Write the workspace JSON and return a consistent response payload.
+    """
+    resolved_id = _slug(workspace_id or spec.get("project", {}).get("id") or DEFAULT_WORKSPACE_ID)
+
+    spec.setdefault("project", {})
+    spec["project"]["id"] = resolved_id
+    spec["project"]["updated_at"] = _utc_now_iso()
+
+    path = _write_workspace(spec, resolved_id)
+    profile = _profile_for_spec(spec)
+
+    return {
+        "workspace_id": resolved_id,
+        "workspace_file": str(path.relative_to(PROJECT_ROOT)).replace("\\", "/"),
+        "spec": spec,
+        "profile": profile,
+    }
+def _reset_dataset_dependent_state(
+    spec: dict[str, Any],
+    profile: dict[str, Any],
+) -> dict[str, Any]:
+    next_spec = deepcopy(spec)
+
+    inferred_fields = deepcopy(
+        profile.get("default_field_specs", [])
+    )
+
+    inferred_scope = deepcopy(
+        profile.get("default_scope", {})
+    )
+
+    next_spec.setdefault(
+        "field_model",
+        {},
+    )["fields"] = inferred_fields
+
+    methodology = next_spec.setdefault(
+        "methodology_model",
+        {},
+    )
+
+    methodology["scope"] = inferred_scope
+
+    current_methods = methodology.get("methods")
+
+    if not current_methods:
+        methodology["methods"] = deepcopy(
+            profile.get(
+                "selected_methods",
+                {},
+            )
+        )
+
+    dataset = next_spec.setdefault(
+        "dataset",
+        {},
+    )
+
+    dataset["version_field"] = (
+        inferred_scope.get("version_field", "")
+    )
+
+    dataset["horizon_field"] = (
+        inferred_scope.get("horizon_field", "")
+    )
+
+    # These were derived from the previous dataset.
+    next_spec["compiled_model"] = {}
+    next_spec["analysis_cache"] = {}
+
+    metadata = next_spec.setdefault(
+        "metadata",
+        {},
+    )
+
+    metadata["dataset_updated_at"] = (
+        datetime.now(timezone.utc).isoformat()
+    )
+
+    metadata["dataset_rows"] = profile.get(
+        "rows",
+        0,
+    )
+
+    metadata["dataset_columns"] = profile.get(
+        "columns",
+        0,
+    )
+
+    return next_spec
 
 def _slug(value: str) -> str:
     value = value.lower().strip()
@@ -66,33 +200,87 @@ def _write_workspace(spec: dict[str, Any], workspace_id: str | None = None) -> P
     path.write_text(json.dumps(spec, indent=2), encoding="utf-8")
     return path
 
+def _ensure_demo_dataset() -> Path:
+    """
+    Materialize a deterministic demonstration dataset when the workspace
+    does not reference an existing uploaded CSV.
+    """
+
+    DEFAULT_DATASET_PATH.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    if not DEFAULT_DATASET_PATH.exists():
+        demo_df = make_demo_energy_data()
+        demo_df.to_csv(
+            DEFAULT_DATASET_PATH,
+            index=False,
+        )
+
+    return DEFAULT_DATASET_PATH
 
 def _dataset_path(spec: dict[str, Any]) -> Path:
-    raw = spec.get("dataset", {}).get("path") or str(DEFAULT_DATASET_PATH.relative_to(PROJECT_ROOT))
-    candidate = Path(raw)
-    if not candidate.is_absolute():
-        candidate = PROJECT_ROOT / candidate
-    if not candidate.exists():
-        candidate = DEFAULT_DATASET_PATH
-    return candidate
+    raw_path = spec.get("dataset", {}).get("path")
+
+    if raw_path:
+        candidate = Path(raw_path)
+
+        if not candidate.is_absolute():
+            candidate = PROJECT_ROOT / candidate
+
+        if candidate.exists() and candidate.is_file():
+            return candidate
+
+    return _ensure_demo_dataset()
 
 
-def _read_dataset_for_spec(spec: dict[str, Any]) -> pd.DataFrame:
+def _read_dataset_for_spec(
+    spec: dict[str, Any],
+) -> pd.DataFrame:
     path = _dataset_path(spec)
-    return pd.read_csv(path)
 
+    try:
+        return pd.read_csv(path)
+    except UnicodeDecodeError as exc:
+        raise ValueError(
+            f"Dataset '{path.name}' is not a UTF-8-compatible CSV."
+        ) from exc
+    except pd.errors.EmptyDataError as exc:
+        raise ValueError(
+            f"Dataset '{path.name}' does not contain data."
+        ) from exc
+    except pd.errors.ParserError as exc:
+        raise ValueError(
+            f"Dataset '{path.name}' could not be parsed as CSV."
+        ) from exc
 
-def _profile_for_spec(spec: dict[str, Any]) -> dict[str, Any]:
+def _profile_for_spec(
+    spec: dict[str, Any],
+    *,
+    use_stored_model: bool = True,
+) -> dict[str, Any]:
     df = _read_dataset_for_spec(spec)
     profile = dataset_profile(df)
-    stored_fields = spec.get("field_model", {}).get("fields")
-    if stored_fields:
-        profile["default_field_specs"] = stored_fields
-    stored_scope = spec.get("methodology_model", {}).get("scope")
-    if stored_scope:
-        profile["default_scope"] = stored_scope
-    return profile
 
+    if use_stored_model:
+        stored_fields = (
+            spec.get("field_model", {})
+            .get("fields")
+        )
+
+        if stored_fields:
+            profile["default_field_specs"] = stored_fields
+
+        stored_scope = (
+            spec.get("methodology_model", {})
+            .get("scope")
+        )
+
+        if stored_scope:
+            profile["default_scope"] = stored_scope
+
+    return profile
 
 def _analysis_from_spec(spec: dict[str, Any]) -> dict[str, Any]:
     df = _read_dataset_for_spec(spec)
@@ -135,10 +323,22 @@ def metamodel():
 
 @api.get("/workspace/default")
 def workspace_default():
-    spec = _read_workspace(DEFAULT_WORKSPACE_ID)
-    return jsonify({"spec": spec, "profile": _profile_for_spec(spec), "workspace_file": spec.get("project", {}).get("central_file"), "metamodel": ecore_to_graph(spec.get("metamodel_extension", {}).get("concepts", []))})
+    workspace_id = _slug(request.args.get("workspace_id") or DEFAULT_WORKSPACE_ID)
+    workspace_id, spec = _load_workspace_for_update(workspace_id)
+    payload = _save_workspace_and_profile(spec, workspace_id)
 
+    try:
+        metamodel = ecore_to_graph()
+    except Exception:
+        metamodel = None
 
+    return jsonify({
+        "status": "ok",
+        **payload,
+        "metamodel": metamodel,
+    })
+
+    
 @api.get("/workspace/<workspace_id>")
 def workspace_get(workspace_id: str):
     spec = _read_workspace(workspace_id)
@@ -147,43 +347,247 @@ def workspace_get(workspace_id: str):
 
 @api.post("/workspace/save")
 def workspace_save():
-    payload = request.get_json(silent=True) or {}
-    spec = payload.get("spec") or payload
-    path = _write_workspace(spec, payload.get("workspace_id"))
-    return jsonify({"status": "saved", "workspace_file": str(path.relative_to(PROJECT_ROOT)), "spec": spec})
+    """
+    Save user edits to the active workspace JSON.
+    This should be used for semantic field edits, methodology settings,
+    thresholds, and business rationale.
+    """
+    body = request.get_json(force=True) or {}
 
+    workspace_id = _slug(
+        body.get("workspace_id")
+        or body.get("spec", {}).get("project", {}).get("id")
+        or DEFAULT_WORKSPACE_ID
+    )
+
+    _, current_spec = _load_workspace_for_update(workspace_id)
+    incoming_spec = body.get("spec") or {}
+
+    if not incoming_spec:
+        return jsonify({"error": "Missing spec in request body."}), 400
+
+    # Preserve canonical project id.
+    incoming_spec.setdefault("project", {})
+    incoming_spec["project"]["id"] = workspace_id
+
+    # Keep dataset path unless explicitly changed.
+    if "dataset" not in incoming_spec:
+        incoming_spec["dataset"] = current_spec.get("dataset", {})
+
+    payload = _save_workspace_and_profile(incoming_spec, workspace_id)
+
+    return jsonify({
+        "status": "saved",
+        **payload,
+    })
 
 @api.post("/workspace/analyze")
 def workspace_analyze():
-    payload = request.get_json(silent=True) or {}
-    spec = payload.get("spec") or _read_workspace(payload.get("workspace_id", DEFAULT_WORKSPACE_ID))
-    analysis = _analysis_from_spec(spec)
-    path = _write_workspace(spec, spec.get("project", {}).get("id"))
-    analysis["workspace_file"] = str(path.relative_to(PROJECT_ROOT))
-    return jsonify(analysis)
+    """
+    Analyze exactly the project specification currently shown in the UI.
 
+    The submitted specification is persisted before the response is
+    returned, making the workspace JSON the durable source of truth.
+    """
+
+    payload = request.get_json(silent=True) or {}
+
+    submitted_spec = payload.get("spec")
+
+    workspace_id = _slug(
+        payload.get("workspace_id")
+        or (
+            submitted_spec
+            and submitted_spec
+            .get("project", {})
+            .get("id")
+        )
+        or DEFAULT_WORKSPACE_ID
+    )
+
+    spec = deepcopy(
+        submitted_spec
+        or _read_workspace(workspace_id)
+    )
+
+    spec.setdefault(
+        "project",
+        {},
+    )["id"] = workspace_id
+
+    try:
+        analysis = _analysis_from_spec(spec)
+    except (
+        KeyError,
+        ValueError,
+        TypeError,
+        pd.errors.ParserError,
+    ) as exc:
+        return jsonify({
+            "error": (
+                "Analysis configuration is invalid: "
+                f"{exc}"
+            ),
+        }), 400
+
+    saved = _save_workspace_and_profile(
+        spec,
+        workspace_id,
+    )
+
+    analysis.update({
+        "project_spec": saved["spec"],
+        "profile": saved["profile"],
+        "workspace_file": saved["workspace_file"],
+        "workspace_id": saved["workspace_id"],
+    })
+
+    return jsonify(analysis)
 
 @api.post("/workspace/upload-data")
 def workspace_upload_data():
-    if "file" not in request.files:
-        return jsonify({"error": "No file uploaded. Use multipart/form-data with a 'file' field."}), 400
-    file = request.files["file"]
-    if not file.filename.lower().endswith(".csv"):
-        return jsonify({"error": "Only CSV files are supported."}), 400
-    spec = json.loads(request.form.get("spec", "{}")) or _read_workspace(DEFAULT_WORKSPACE_ID)
-    workspace_id = _slug(spec.get("project", {}).get("id") or DEFAULT_WORKSPACE_ID)
-    filename = f"{workspace_id}_{_slug(Path(file.filename).stem)}.csv"
-    upload_path = UPLOAD_DIR / filename
-    file.save(upload_path)
-    rel = str(upload_path.relative_to(PROJECT_ROOT)).replace("\\", "/")
-    spec.setdefault("dataset", {})["path"] = rel
-    spec["dataset"]["source_type"] = "uploaded_csv"
-    profile = _profile_for_spec(spec)
-    spec.setdefault("field_model", {})["fields"] = profile["default_field_specs"]
-    spec.setdefault("methodology_model", {})["scope"] = profile["default_scope"]
-    path = _write_workspace(spec, workspace_id)
-    return jsonify({"status": "uploaded", "workspace_file": str(path.relative_to(PROJECT_ROOT)), "spec": spec, "profile": profile})
+    workspace_id = _slug(
+        request.form.get("workspace_id")
+        or DEFAULT_WORKSPACE_ID
+    )
 
+    uploaded_file = request.files.get("file")
+
+    if uploaded_file is None:
+        return jsonify({
+            "error": "No CSV file was provided.",
+        }), 400
+
+    original_name = uploaded_file.filename or ""
+
+    if not original_name.strip():
+        return jsonify({
+            "error": "The uploaded file does not have a filename.",
+        }), 400
+
+    if not original_name.lower().endswith(".csv"):
+        return jsonify({
+            "error": "ForeACT currently accepts CSV files only.",
+        }), 400
+
+    safe_name = _slug(
+        Path(original_name).stem
+    )
+
+    upload_dir = WORKSPACE_DIR / "uploads"
+    upload_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    timestamp = datetime.now(
+        timezone.utc,
+    ).strftime("%Y%m%dT%H%M%SZ")
+
+    upload_path = (
+        upload_dir
+        / f"{workspace_id}_{safe_name}_{timestamp}.csv"
+    )
+
+    uploaded_file.save(upload_path)
+
+    try:
+        uploaded_df = pd.read_csv(upload_path)
+    except (
+        UnicodeDecodeError,
+        pd.errors.EmptyDataError,
+        pd.errors.ParserError,
+    ) as exc:
+        upload_path.unlink(missing_ok=True)
+
+        return jsonify({
+            "error": (
+                "The uploaded CSV could not be parsed: "
+                f"{exc}"
+            ),
+        }), 400
+
+    if uploaded_df.empty:
+        upload_path.unlink(missing_ok=True)
+
+        return jsonify({
+            "error": (
+                "The uploaded CSV must contain at least one row."
+            ),
+        }), 400
+
+    if len(uploaded_df.columns) < 2:
+        upload_path.unlink(missing_ok=True)
+
+        return jsonify({
+            "error": (
+                "The uploaded CSV must contain at least two columns."
+            ),
+        }), 400
+
+    if uploaded_df.columns.duplicated().any():
+        upload_path.unlink(missing_ok=True)
+
+        duplicated = uploaded_df.columns[
+            uploaded_df.columns.duplicated()
+        ].tolist()
+
+        return jsonify({
+            "error": (
+                "The uploaded CSV contains duplicate column names: "
+                + ", ".join(map(str, duplicated))
+            ),
+        }), 400
+
+    try:
+        spec = deepcopy(
+            _read_workspace(workspace_id)
+        )
+    except FileNotFoundError:
+        spec = deepcopy(
+            _read_workspace(DEFAULT_WORKSPACE_ID)
+        )
+
+    relative_path = str(
+        upload_path.relative_to(PROJECT_ROOT)
+    ).replace("\\", "/")
+
+    spec.setdefault(
+        "project",
+        {},
+    )["id"] = workspace_id
+
+    spec["dataset"] = {
+        **spec.get("dataset", {}),
+        "id": f"{workspace_id}_dataset",
+        "source_type": "uploaded_csv",
+        "path": relative_path,
+        "format": "csv",
+        "description": (
+            f"User-uploaded dataset: {original_name}"
+        ),
+    }
+
+  
+    profile = _profile_for_spec(
+        spec,
+        use_stored_model=False,
+    )
+
+    spec = _reset_dataset_dependent_state(
+        spec,
+        profile,
+    )
+
+    saved = _save_workspace_and_profile(
+        spec,
+        workspace_id,
+    )
+
+    return jsonify({
+        **saved,
+        "status": "uploaded",
+    })
 
 # Backward-compatible endpoints from the earlier scaffold.
 @api.get("/demo-data")
@@ -236,7 +640,35 @@ def upload():
 
 @api.get("/metamodel")
 def get_metamodel():
-    return jsonify(ecore_to_graph())
+    workspace_id = request.args.get(
+        "workspace_id",
+        DEFAULT_WORKSPACE_ID,
+    )
+
+    runtime_summary = None
+
+    try:
+        spec = _read_workspace(workspace_id)
+        runtime_summary = {
+            "workspace_id": workspace_id,
+            "field_count": len(
+                spec.get("field_model", {})
+                .get("fields", [])
+            ),
+            "custom_concept_count": len(
+                spec.get("metamodel_extension", {})
+                .get("concepts", [])
+            ),
+        }
+    except FileNotFoundError:
+        pass
+
+    model = ecore_to_graph()
+
+    if runtime_summary is not None:
+        model["runtime_summary"] = runtime_summary
+
+    return jsonify(model)
 
 
 @api.post("/metamodel/classes")

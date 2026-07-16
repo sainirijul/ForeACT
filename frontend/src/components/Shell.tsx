@@ -4,12 +4,12 @@ import { Database, FileJson, GitBranch, LineChart, Network, Settings2, TableProp
 export type PageId = 'semantic' | 'methodology' | 'metamodel' | 'transformations' | 'decisions' | 'spec';
 
 const pages: { id: PageId; label: string; step: string; icon: typeof TableProperties; output: string }[] = [
-  { id: 'semantic', label: 'Semantic Field Modeling', step: 'DSL Step 1', icon: TableProperties, output: 'FieldModel' },
-  { id: 'methodology', label: 'Methodology Review', step: 'DSL Steps 2–3', icon: Settings2, output: 'MethodSet + Scope' },
-  { id: 'metamodel', label: 'Metamodel Extension', step: 'DSL Step 4', icon: Network, output: 'Ecore + Extension' },
+  { id: 'semantic', label: 'Semantic Field Modeling', step: 'Step 1', icon: TableProperties, output: 'FieldModel' },
+  { id: 'methodology', label: 'Methodology Review', step: 'Steps 2-3', icon: Settings2, output: 'MethodSet + Scope' },
+  { id: 'metamodel', label: 'Metamodel Extension', step: 'Step 4', icon: Network, output: 'Ecore + Extension' },
   { id: 'transformations', label: 'Model Rigor & Instance View', step: 'Compiled Model', icon: GitBranch, output: 'Assurance Instance' },
   { id: 'decisions', label: 'Variance & Volatility', step: 'Assurance', icon: LineChart, output: 'DecisionModel' },
-  { id: 'spec', label: 'Project Spec File', step: 'Central JSON', icon: FileJson, output: '.foreact.json' }
+  { id: 'spec', label: 'Project Spec File', step: 'Central JSON', icon: FileJson, output: 'Canonical Workspace' }
 ];
 
 export function AppShell({

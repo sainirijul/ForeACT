@@ -1,12 +1,24 @@
 import { Upload, Sparkles, Workflow } from 'lucide-react';
+import { useState } from 'react';
 
 type Props = {
   loading: boolean;
   onDemoProfile: () => void;
-  onUploadProfile: (file: File) => void;
+  onUploadData: (file: File) => Promise<void> | void;
 };
 
-export function UploadPanel({ loading, onDemoProfile, onUploadProfile }: Props) {
+export function UploadPanel({ loading, onDemoProfile, onUploadData }: Props) {
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  async function handleFile(file: File) {
+    try {
+      setUploadError(null);
+      await onUploadData(file);
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : String(error));
+    }
+  }
+
   return (
     <section className="panel hero-panel">
       <div>
@@ -24,19 +36,31 @@ export function UploadPanel({ loading, onDemoProfile, onUploadProfile }: Props) 
           <span>4. Inspect model</span>
           <span>5. Generate assurance insights</span>
         </div>
+
+        {uploadError && (
+          <p className="helper-text error-text">
+            {uploadError}
+          </p>
+        )}
       </div>
+
       <div className="hero-actions">
         <button disabled={loading} onClick={onDemoProfile} className="primary-btn">
           <Sparkles size={18} /> Load AI data-center case study
         </button>
+
         <label className="secondary-btn">
           <Upload size={18} /> Upload CSV
           <input
             type="file"
             accept=".csv"
+            disabled={loading}
             onChange={(event) => {
               const file = event.target.files?.[0];
-              if (file) onUploadProfile(file);
+              if (file) {
+                void handleFile(file);
+                event.target.value = '';
+              }
             }}
             hidden
           />
