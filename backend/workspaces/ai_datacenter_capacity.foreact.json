@@ -1,10 +1,4 @@
 {
-<<<<<<< HEAD
-  "analysis_cache": {},
-  "analysis_results": {},
-  "comparison_model": {},
-  "compiled_model": {},
-=======
   "analysis_cache": {
     "matrix_points": [
       {
@@ -97,7 +91,7 @@
     "metamodel": {
       "name": "ForeACT Forecast Assurance Metamodel",
       "version": "1.0.0",
-      "source": "C:\\Users\\wango\\DevWork\\ForeACT\\ForeACT\\backend\\metamodel\\foreact.ecore",
+      "source": "C:\\Users\\sainir\\Desktop\\ShradhaSaburi\\NAV-RS-Data\\Technical\\SpaceX\\ForeACT\\backend\\metamodel\\foreact.ecore",
       "nsURI": "http://foreact/model",
       "intent": "Single-source Ecore metamodel for forecast-change actionability assessment.",
       "classes": [
@@ -1355,6 +1349,29 @@
           "position": {
             "x": 1660,
             "y": 960
+          },
+          "isCore": true
+        },
+        {
+          "id": "DataCenterCommitmentExtension",
+          "label": "DataCenterCommitmentExtension",
+          "kind": "class",
+          "package": "Extension",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "name",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 40,
+            "y": 4180
           },
           "isCore": true
         }
@@ -2663,6 +2680,29 @@
               "y": 960
             },
             "isCore": true
+          },
+          {
+            "id": "DataCenterCommitmentExtension",
+            "label": "DataCenterCommitmentExtension",
+            "kind": "class",
+            "package": "Extension",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "name",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 40,
+              "y": 4180
+            },
+            "isCore": true
           }
         ],
         "edges": [
@@ -3133,6 +3173,12 @@
             "target": "ModelElement",
             "label": "extends",
             "kind": "inheritance"
+          },
+          {
+            "source": "DataCenterCommitmentExtension",
+            "target": "AssumptionElement",
+            "label": "extends",
+            "kind": "inheritance"
           }
         ]
       },
@@ -3391,14 +3437,13 @@
       }
     ]
   },
->>>>>>> 53256cbf026743e9ee91c44403046111d34b1d9b
   "dataset": {
     "description": "User-uploaded dataset: research.csv",
     "format": "csv",
     "horizon_field": "forecast_period",
     "id": "ai_datacenter_capacity_dataset",
     "original_filename": "Test.csv",
-    "path": "backend/workspaces/uploads/ai_datacenter_capacity_research_20260716T180609Z.csv",
+    "path": "backend/workspaces/uploads/ai_datacenter_capacity_research_20260716T153643Z.csv",
     "source_type": "uploaded_csv",
     "uploaded_at": "2026-07-16T03:58:06.492781+00:00",
     "version_field": "forecast_cycle"
@@ -3468,114 +3513,114 @@
   "field_model": {
     "fields": [
       {
+        "business_name": "Forecast Cycle",
+        "data_type": "text",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
+        "include_in_model": true,
         "name": "forecast_cycle",
         "role": "forecast_version",
-        "data_type": "text",
         "semantic_type": "forecast_issue_time",
-        "business_name": "Forecast Cycle",
-        "unit": "",
-        "description": "Auto-discovered. Review and refine before analysis.",
-        "direction": "neutral",
-        "include_in_model": true
+        "unit": ""
       },
       {
+        "business_name": "Forecast Period",
+        "data_type": "text",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
+        "include_in_model": true,
         "name": "forecast_period",
         "role": "forecast_horizon",
-        "data_type": "text",
         "semantic_type": "forecast_target_time",
-        "business_name": "Forecast Period",
-        "unit": "",
-        "description": "Auto-discovered. Review and refine before analysis.",
-        "direction": "neutral",
-        "include_in_model": true
+        "unit": ""
       },
       {
-        "name": "lithium_carbonate_usd_t",
-        "role": "ignore",
-        "data_type": "numeric",
-        "semantic_type": "identifier_or_text",
         "business_name": "Lithium Carbonate Usd T",
-        "unit": "",
+        "data_type": "numeric",
         "description": "Auto-discovered. Review and refine before analysis.",
         "direction": "neutral",
-        "include_in_model": false
+        "include_in_model": true,
+        "name": "lithium_carbonate_usd_t",
+        "role": "feature",
+        "semantic_type": "identifier_or_text",
+        "unit": ""
       },
       {
-        "name": "us_fed_funds_rate_pct",
-        "role": "ignore",
-        "data_type": "numeric",
-        "semantic_type": "identifier_or_text",
         "business_name": "Us Fed Funds Rate Pct",
-        "unit": "%",
+        "data_type": "numeric",
         "description": "Auto-discovered. Review and refine before analysis.",
         "direction": "neutral",
-        "include_in_model": false
+        "include_in_model": true,
+        "name": "us_fed_funds_rate_pct",
+        "role": "feature",
+        "semantic_type": "identifier_or_text",
+        "unit": "%"
       },
       {
-        "name": "global_public_chargers_m",
-        "role": "ignore",
-        "data_type": "numeric",
-        "semantic_type": "identifier_or_text",
         "business_name": "Global Public Chargers M",
-        "unit": "",
+        "data_type": "numeric",
         "description": "Auto-discovered. Review and refine before analysis.",
         "direction": "neutral",
-        "include_in_model": false
+        "include_in_model": true,
+        "name": "global_public_chargers_m",
+        "role": "feature",
+        "semantic_type": "identifier_or_text",
+        "unit": ""
       },
       {
-        "name": "crude_oil_brent_usd",
-        "role": "ignore",
-        "data_type": "numeric",
-        "semantic_type": "identifier_or_text",
         "business_name": "Crude Oil Brent Usd",
-        "unit": "",
+        "data_type": "numeric",
         "description": "Auto-discovered. Review and refine before analysis.",
         "direction": "neutral",
-        "include_in_model": false
+        "include_in_model": true,
+        "name": "crude_oil_brent_usd",
+        "role": "feature",
+        "semantic_type": "identifier_or_text",
+        "unit": ""
       },
       {
-        "name": "ice_efficiency_mpg",
-        "role": "ignore",
-        "data_type": "numeric",
-        "semantic_type": "identifier_or_text",
         "business_name": "Ice Efficiency Mpg",
-        "unit": "",
-        "description": "Auto-discovered. Review and refine before analysis.",
-        "direction": "neutral",
-        "include_in_model": false
-      },
-      {
-        "name": "eu_co2_target_g_km",
-        "role": "ignore",
         "data_type": "numeric",
-        "semantic_type": "identifier_or_text",
-        "business_name": "Eu Co2 Target G Km",
-        "unit": "",
         "description": "Auto-discovered. Review and refine before analysis.",
         "direction": "neutral",
-        "include_in_model": false
+        "include_in_model": true,
+        "name": "ice_efficiency_mpg",
+        "role": "feature",
+        "semantic_type": "identifier_or_text",
+        "unit": ""
       },
       {
+        "business_name": "Eu Co2 Target G Km",
+        "data_type": "numeric",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
+        "include_in_model": true,
+        "name": "eu_co2_target_g_km",
+        "role": "feature",
+        "semantic_type": "identifier_or_text",
+        "unit": ""
+      },
+      {
+        "business_name": "Target Global Ev Sales M",
+        "data_type": "numeric",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
+        "include_in_model": true,
         "name": "target_global_ev_sales_m",
         "role": "target",
-        "data_type": "numeric",
         "semantic_type": "forecast_target",
-        "business_name": "Target Global Ev Sales M",
-        "unit": "",
-        "description": "Auto-discovered. Review and refine before analysis.",
-        "direction": "neutral",
-        "include_in_model": true
+        "unit": ""
       },
       {
-        "name": "target_global_market_share_pct",
-        "role": "target",
-        "data_type": "numeric",
-        "semantic_type": "forecast_target",
         "business_name": "Target Global Market Share Pct",
-        "unit": "%",
+        "data_type": "numeric",
         "description": "Auto-discovered. Review and refine before analysis.",
         "direction": "neutral",
-        "include_in_model": true
+        "include_in_model": true,
+        "name": "target_global_market_share_pct",
+        "role": "target",
+        "semantic_type": "forecast_target",
+        "unit": "%"
       }
     ]
   },
@@ -3589,13 +3634,8 @@
     "created_by": "ForeACT scaffold",
     "dataset_columns": 10,
     "dataset_rows": 40,
-<<<<<<< HEAD
-    "dataset_updated_at": "2026-07-16T18:06:09.208787+00:00",
-    "updated_at": "2026-07-16T18:06:09Z"
-=======
     "dataset_updated_at": "2026-07-16T15:36:43.836310+00:00",
-    "updated_at": "2026-07-16T18:16:00Z"
->>>>>>> 53256cbf026743e9ee91c44403046111d34b1d9b
+    "updated_at": "2026-07-17T03:20:14Z"
   },
   "metamodel_extension": {
     "concepts": [],
@@ -3615,28 +3655,24 @@
       "volatility_threshold_medium": 2
     },
     "scope": {
-      "version_field": "forecast_cycle",
+      "baseline_version": "Jun-23",
+      "current_version": "Jun-25",
+      "grouping_fields": [],
       "horizon_field": "forecast_period",
-      "baseline_version": "Jun-25",
-      "current_version": "Jun-26",
-      "period_start": "2032-01",
       "period_end": "Jan-31",
-      "grouping_fields": []
+      "period_start": "2032-01",
+      "version_field": "forecast_cycle"
     },
     "updated_at": "2026-07-16T03:58:06.495540+00:00"
   },
   "project": {
     "central_file": "backend/workspaces/ai_datacenter_capacity.foreact.json",
-    "description": "Please select the dataset with which you want to compute variance and volatilty.",
+    "description": "A utility or planning team compares forecast cycles for electricity demand where AI data-center load assumptions can cause large revisions.",
     "domain": "Energy demand forecasting",
     "id": "ai_datacenter_capacity",
     "name": "Forecast Assurance",
     "tool_name": "ForeACT",
-<<<<<<< HEAD
-    "updated_at": "2026-07-16T18:06:09.208787+00:00"
-=======
-    "updated_at": "2026-07-16T18:16:00.919629+00:00"
->>>>>>> 53256cbf026743e9ee91c44403046111d34b1d9b
+    "updated_at": "2026-07-17T03:20:14.943428+00:00"
   },
   "schema_version": "0.6.0",
   "signal_model": {}
