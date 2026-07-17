@@ -9,16 +9,16 @@ export function SignalInsights({ results }: { results: TargetResult[] }) {
           <p className="eyebrow">Signal introspection</p>
           <h3>{result.target}</h3>
           <div className="signal-metrics">
-            <span><b>{result.latest_variance_pct}%</b> latest variance</span>
+            <span><b>{result.latest_revision_pct}%</b> latest revision</span>
             <span><b>{result.volatility_score}</b> volatility score</span>
             <span><b>{result.confidence}</b> confidence</span>
           </div>
-          <p className="muted"><b>Variance:</b> {result.variance_basis}</p>
+          <p className="muted"><b>Revision:</b> {result.revision_basis}</p>
           <p className="muted"><b>Volatility:</b> {result.volatility_basis}</p>
           <div style={{ minHeight: '280px', flexShrink: 0 }}>
             <Plot
               data={[
-                { x: result.series.map((p) => p.period), y: result.series.map((p) => p.variance_pct), type: 'scatter', mode: 'lines', name: 'Variance %' },
+                { x: result.series.map((p) => p.period), y: result.series.map((p) => p.signed_revision_pct), type: 'scatter', mode: 'lines', name: 'Revision %' },
                 { x: result.series.map((p) => p.period), y: result.series.map((p) => p.volatility), type: 'scatter', mode: 'lines', name: 'Volatility' }
               ]}
               layout={{ height: 280, margin: { l: 45, r: 10, t: 10, b: 80 }, legend: { orientation: 'h' } }}

@@ -39,7 +39,7 @@ export function TransformationAnalysisPage({ spec, profile, analysis, onAnalyze 
         <p className="eyebrow">MethodSet</p>
         <h2>Declared analysis methods</h2>
         <div className="policy-grid compact">
-          <div className="policy-card"><span>Variance method</span><b>{spec.methodology_model.methods.variance_method}</b></div>
+          <div className="policy-card"><span>Revision method</span><b>{spec.methodology_model.methods.revision_method}</b></div>
           <div className="policy-card"><span>Volatility method</span><b>{spec.methodology_model.methods.volatility_method}</b></div>
           <div className="policy-card"><span>Decision policy</span><b>{spec.decision_policy.name}</b></div>
         </div>

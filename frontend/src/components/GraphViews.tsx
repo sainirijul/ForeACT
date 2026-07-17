@@ -175,7 +175,7 @@ export function modelInstanceToFlow(analysis: AnalysisResponse): { nodes: Node[]
     },
     {
       id: 'MethodSetInstance', type: 'umlClass', position: { x: 680, y: 20 },
-      data: { label: 'MethodSet', packageName: 'Model Instance', stereotype: 'EObject', attributes: [`variance: ${selectedMethods.variance_method}`, `volatility: ${selectedMethods.volatility_method}`], isCore: true }
+      data: { label: 'MethodSet', packageName: 'Model Instance', stereotype: 'EObject', attributes: [`revision: ${selectedMethods.revision_method}`, `volatility: ${selectedMethods.volatility_method}`], isCore: true }
     },
     {
       id: 'ForecastComparisonModelInstance', type: 'umlClass', position: { x: 680, y: 300 },
@@ -183,7 +183,7 @@ export function modelInstanceToFlow(analysis: AnalysisResponse): { nodes: Node[]
     },
     {
       id: 'SignalModelInstance', type: 'umlClass', position: { x: 1020, y: 160 },
-      data: { label: 'SignalModel', packageName: 'Derived Model', stereotype: 'EObject', attributes: [`varianceSignals: ${targetResults.length}`, `volatilitySignals: ${targetResults.length}`, `confidenceSignals: ${targetResults.length}`], isCore: true }
+      data: { label: 'SignalModel', packageName: 'Derived Model', stereotype: 'EObject', attributes: [`revisionSignals: ${targetResults.length}`, `volatilitySignals: ${targetResults.length}`, `confidenceSignals: ${targetResults.length}`], isCore: true }
     },
     {
       id: 'DecisionModelInstance', type: 'umlClass', position: { x: 1360, y: 160 },
@@ -194,7 +194,7 @@ export function modelInstanceToFlow(analysis: AnalysisResponse): { nodes: Node[]
   targetResults.forEach((target, idx) => {
     nodes.push({
       id: `TargetSignal${idx}`, type: 'umlClass', position: { x: 1020, y: 480 + idx * 170 },
-      data: { label: target.target, packageName: 'Signal Instance', stereotype: 'EObject', attributes: [`variance: ${target.latest_variance_pct}%`, `volatility: ${target.volatility_score}`, `action: ${target.recommended_action}`], isCore: true }
+      data: { label: target.target, packageName: 'Signal Instance', stereotype: 'EObject', attributes: [`revision: ${target.latest_revision_pct}%`, `volatility: ${target.volatility_score}`, `action: ${target.recommended_action}`], isCore: true }
     });
   });
 

@@ -20,7 +20,7 @@ def make_demo_energy_data(n_horizons: int = 36, seed: int = 14) -> pd.DataFrame:
 
     Each forecast_cycle provides forecast values for the same future forecast_periods.
     This lets the tool align two forecast versions over a user-selected period and compute
-    meaningful variance and volatility for the same target horizon.
+    meaningful revision magnitude and volatility for the same target horizon.
     """
     rng = np.random.default_rng(seed)
     cycles = pd.to_datetime(["2026-03-01", "2026-06-01", "2026-09-01", "2026-12-01"])
@@ -73,14 +73,19 @@ def read_csv_file(file_storage) -> pd.DataFrame:
     return pd.read_csv(io.BytesIO(file_storage.read()))
 
 
-def _to_period_str(value: Any) -> str:
-    if pd.isna(value):
-        return ""
-    s = str(value)
-    try:
-        return pd.to_datetime(s).strftime("%Y-%m")
-    except Exception:
-        return s[:7]
+def _to_period_str(value) -> str | None:
+    if value is None or pd.isna(value):
+        return None
+
+    text = str(value).strip()
+    if not text:
+        return None
+
+    parsed = pd.to_datetime(text, errors="coerce")
+    if pd.isna(parsed):
+        return text
+
+    return parsed.strftime("%Y-%m")
 
 
 def dataset_profile(df: pd.DataFrame) -> dict[str, Any]:
@@ -100,12 +105,22 @@ def dataset_profile(df: pd.DataFrame) -> dict[str, Any]:
     version_field = role_map.get("forecast_version")
     horizon_field = role_map.get("forecast_horizon")
     forecast_versions: list[str] = []
+    forecast_periods: list[str] = []
     period_min = ""
     period_max = ""
     if version_field and version_field in df.columns:
-        forecast_versions = sorted({_to_period_str(v) for v in df[version_field].dropna().unique()})
+        forecast_versions = sorted({
+            normalized
+            for value in df[version_field].dropna().unique()
+            if (normalized := _to_period_str(value))
+        })
     if horizon_field and horizon_field in df.columns:
-        periods = sorted({_to_period_str(v) for v in df[horizon_field].dropna().unique()})
+        periods = sorted({
+            normalized
+            for value in df[horizon_field].dropna().unique()
+            if (normalized := _to_period_str(value))
+        })
+        forecast_periods = periods
         if periods:
             period_min, period_max = periods[0], periods[-1]
 
@@ -123,12 +138,14 @@ def dataset_profile(df: pd.DataFrame) -> dict[str, Any]:
         default_scope["period_start"] = period_min
         default_scope["period_end"] = period_max
 
+
     return {
         "rows": int(len(df)),
         "columns": int(len(df.columns)),
         "column_names": df.columns.tolist(),
         "numeric_columns": numeric_cols,
         "forecast_versions": forecast_versions,
+        "forecast_periods": forecast_periods,
         "period_min": period_min,
         "period_max": period_max,
         "default_scope": default_scope,
@@ -137,6 +154,7 @@ def dataset_profile(df: pd.DataFrame) -> dict[str, Any]:
         "preview": preview,
         "quality": quality,
     }
+
 
 
 def _field_names(field_specs: list[dict[str, Any]], role: str) -> list[str]:
@@ -150,25 +168,84 @@ def _method_spec(raw: dict[str, Any] | None) -> dict[str, Any]:
             if key in raw and raw[key] is not None:
                 base[key] = raw[key]
     base["rolling_window"] = max(2, int(base.get("rolling_window") or 4))
-    for threshold in ["variance_threshold_large", "volatility_threshold_high"]:
+    for threshold in ["revision_magnitude_threshold_large", "volatility_threshold_high"]:
         base[threshold] = float(base[threshold])
     return base
 
 
-def _scope_spec(raw: dict[str, Any] | None, profile: dict[str, Any]) -> dict[str, Any]:
-    base = dict(profile.get("default_scope") or asdict(AnalysisScope()))
+def _scope_spec(
+    raw: dict[str, Any] | None,
+    profile: dict[str, Any],
+) -> dict[str, Any]:
+    """Build a canonical, dataset-valid analysis scope.
+
+    All forecast versions and target periods are stored internally as YYYY-MM.
+    Selections retained from a previously uploaded dataset are replaced with
+    valid defaults from the current dataset.
+    """
+    base = dict(
+        profile.get("default_scope")
+        or asdict(AnalysisScope())
+    )
+
     if raw:
         for key, value in raw.items():
             if value is not None:
                 base[key] = value
+
     if not base.get("grouping_fields"):
         base["grouping_fields"] = []
+
+    for key in (
+        "baseline_version",
+        "current_version",
+        "period_start",
+        "period_end",
+    ):
+        normalized = _to_period_str(base.get(key))
+        if normalized:
+            base[key] = normalized
+
+    available_versions = list(profile.get("forecast_versions") or [])
+    available_periods = list(profile.get("forecast_periods") or [])
+
+    if available_versions:
+        baseline = base.get("baseline_version")
+        current = base.get("current_version")
+
+        if baseline not in available_versions:
+            base["baseline_version"] = (
+                available_versions[-2]
+                if len(available_versions) >= 2
+                else available_versions[0]
+            )
+
+        if current not in available_versions:
+            base["current_version"] = available_versions[-1]
+
+        if (
+            len(available_versions) >= 2
+            and base["baseline_version"] >= base["current_version"]
+        ):
+            base["baseline_version"] = available_versions[-2]
+            base["current_version"] = available_versions[-1]
+
+    if available_periods:
+        if base.get("period_start") not in available_periods:
+            base["period_start"] = available_periods[0]
+
+        if base.get("period_end") not in available_periods:
+            base["period_end"] = available_periods[-1]
+
+        if base["period_start"] > base["period_end"]:
+            base["period_end"] = base["period_start"]
+
     return base
 
 
-def _classify_variance(value: float, method_spec: dict[str, Any]) -> str:
+def _classify_revision_magnitude(value: float, method_spec: dict[str, Any]) -> str:
     abs_value = abs(value)
-    if abs_value >= method_spec["variance_threshold_large"]:
+    if abs_value >= method_spec["revision_magnitude_threshold_large"]:
         return "Large"
     return "Small"
 
@@ -179,12 +256,12 @@ def _classify_volatility(value: float, method_spec: dict[str, Any]) -> str:
     return "Low"
 
 
-def _recommend(variance_class: str, volatility_class: str, rules: list[dict[str, Any]]) -> tuple[str, str]:
-    # if variance_class == "Large" and volatility_class == "Low":
+def _recommend(revision_magnitude_class: str, volatility_class: str, rules: list[dict[str, Any]]) -> tuple[str, str]:
+    # if revision_magnitude_class == "Large" and volatility_class == "Low":
     #     return "Act / review strategy", "The forecast movement is large and the surrounding volatility is low, so the change looks decision-relevant."
-    # if variance_class == "Large" and volatility_class in {"Medium", "High"}:
+    # if revision_magnitude_class == "Large" and volatility_class in {"Medium", "High"}:
     #     return "Monitor closely", "The movement is large, but uncertainty is elevated; avoid immediate irreversible action."
-    # if variance_class == "Moderate" and volatility_class == "Low":
+    # if revision_magnitude_class == "Moderate" and volatility_class == "Low":
     #     return "Prepare options", "The signal is meaningful and relatively stable; prepare planning options."
     # if volatility_class == "High":
     #     return "Watch uncertainty", "Volatility dominates the signal; continue monitoring and request additional evidence."
@@ -193,7 +270,7 @@ def _recommend(variance_class: str, volatility_class: str, rules: list[dict[str,
     for rule in rules:
         when = rule.get("when", "")
 
-        if variance_class in when and volatility_class in when:
+        if revision_magnitude_class in when and volatility_class in when:
             return rule.get("then", "Monitor"), rule.get("rationale", "")
             
     return "Stable / no action", "Movement is small and volatility is controlled."
@@ -278,24 +355,24 @@ def _compute_signals(aligned: pd.DataFrame, all_versions: pd.DataFrame, filtered
     warnings: list[str] = []
     baseline = aligned["baseline"]
     current = aligned["current"]
-    method_v = method_spec["variance_method"]
+    method_v = method_spec["revision_method"]
     method_vol = method_spec["volatility_method"]
 
     if method_v == "version_to_version_pct":
-        variance = ((current - baseline) / baseline.replace(0, np.nan)) * 100
-        variance_basis = "current forecast version vs baseline forecast version over selected horizon"
+        revision = ((current - baseline) / baseline.replace(0, np.nan)) * 100
+        revision_basis = "current forecast version vs baseline forecast version over selected horizon"
     elif method_v == "version_delta_abs":
-        variance = current - baseline
-        variance_basis = "absolute current-minus-baseline forecast delta over selected horizon"
+        revision = current - baseline
+        revision_basis = "absolute current-minus-baseline forecast delta over selected horizon"
     elif method_v == "custom":
         env = {"baseline": baseline, "current": current, "all_versions_mean": all_versions.mean(axis=1).reindex(aligned["period"]).reset_index(drop=True), "all_versions_std": all_versions.std(axis=1).reindex(aligned["period"]).reset_index(drop=True)}
-        variance = pd.Series(_safe_eval_formula(str(method_spec.get("custom_variance_formula", "")), env), index=aligned.index)
-        variance_basis = "custom variance formula"
+        revision = pd.Series(_safe_eval_formula(str(method_spec.get("custom_revision_formula", "")), env), index=aligned.index)
+        revision_basis = "custom revision formula"
     else:
         hist_mean = current.mean()
-        variance = ((current - hist_mean) / hist_mean) * 100
-        variance_basis = "fallback latest vs selected-period mean"
-        warnings.append(f"Variance method {method_v} does not use forecast versions; fallback used for {target}.")
+        revision = ((current - hist_mean) / hist_mean) * 100
+        revision_basis = "fallback latest vs selected-period mean"
+        warnings.append(f"Revision method {method_v} does not use forecast versions; fallback used for {target}.")
 
     if method_vol == "version_dispersion_pct" and not all_versions.empty:
         subset = all_versions.reindex(aligned["period"].tolist())
@@ -324,10 +401,10 @@ def _compute_signals(aligned: pd.DataFrame, all_versions: pd.DataFrame, filtered
         volatility = pd.Series(_safe_eval_formula(str(method_spec.get("custom_volatility_formula", "")), env), index=aligned.index)
         volatility_basis = "custom volatility formula"
     else:
-        volatility = abs(variance).rolling(window=method_spec["rolling_window"], min_periods=2).std().fillna(0)
-        volatility_basis = "fallback rolling standard deviation of variance"
+        volatility = abs(revision).rolling(window=method_spec["rolling_window"], min_periods=2).std().fillna(0)
+        volatility_basis = "fallback rolling standard deviation of revision"
         warnings.append(f"Volatility method {method_vol} could not be applied; fallback used for {target}.")
-    return variance, volatility, variance_basis, volatility_basis, warnings
+    return revision, volatility, revision_basis, volatility_basis, warnings
 
 
 def _top_driver_links(df: pd.DataFrame, target: str, feature_cols: list[str]) -> list[dict[str, Any]]:
@@ -376,11 +453,11 @@ def _conformance(field_specs: list[dict[str, Any]], method_spec: dict[str, Any],
     aligned_ok = not any("No aligned rows" in w or "missing" in w for w in warnings)
     results.append({"rule_id": "CR-001", "status": "pass" if aligned_ok else "fail", "severity": "error", "message": "Forecast versions are aligned over the selected horizon." if aligned_ok else "Forecast version alignment is incomplete. " + "; ".join(warnings[:2])})
     missing_targets = sorted(set(targets) - {r["target"] for r in target_results})
-    results.append({"rule_id": "CR-002", "status": "pass" if not missing_targets else "fail", "severity": "error", "message": "All selected targets produce variance and volatility signals." if not missing_targets else f"Missing target signals for: {', '.join(missing_targets)}"})
+    results.append({"rule_id": "CR-002", "status": "pass" if not missing_targets else "fail", "severity": "error", "message": "All selected targets produce revision-magnitude and volatility signals." if not missing_targets else f"Missing target signals for: {', '.join(missing_targets)}"})
     incomplete = [f["name"] for f in field_specs if f.get("include_in_model") and f.get("role") in {"target", "feature", "forecast_version", "forecast_horizon"} and (not f.get("business_name") or not f.get("semantic_type") or (f.get("role") == "target" and not f.get("unit")))]
     results.append({"rule_id": "CR-003", "status": "pass" if not incomplete else "warning", "severity": "warning", "message": "Decision-relevant field metadata is complete." if not incomplete else f"Review metadata for: {', '.join(incomplete[:8])}"})
-    methods_ok = bool(method_spec.get("variance_method")) and bool(method_spec.get("volatility_method"))
-    results.append({"rule_id": "CR-004", "status": "pass" if methods_ok else "fail", "severity": "error", "message": "Variance and volatility methods are explicitly declared." if methods_ok else "Declare both variance and volatility methods before analysis."})
+    methods_ok = bool(method_spec.get("revision_method")) and bool(method_spec.get("volatility_method"))
+    results.append({"rule_id": "CR-004", "status": "pass" if methods_ok else "fail", "severity": "error", "message": "Revision and volatility methods are explicitly declared." if methods_ok else "Declare both revision and volatility methods before analysis."})
     trace_ok = bool(decision_cards) and all("ForecastComparisonModel" in c.get("trace", {}) for c in decision_cards)
     results.append({"rule_id": "CR-005", "status": "pass" if trace_ok else "fail", "severity": "error", "message": "Decision cards trace through the transformation chain." if trace_ok else "Decision card trace is incomplete."})
     invalid_custom = [c for c in custom_concepts if not c.get("name") or not c.get("description") or not c.get("connects_to")]
@@ -453,32 +530,70 @@ def analyze_dataframe(df: pd.DataFrame, field_specs: list[dict[str, Any]] | None
             "A current forecast version must be selected."
         )
 
-    if str(baseline_version) == str(current_version):
+    # Normalize both dataset values and selected versions to the same format.
+    normalized_version_series = df[version_field].apply(_to_period_str)
+
+    available_versions = {
+        version
+        for version in normalized_version_series.dropna().unique()
+        if version
+    }
+
+    normalized_baseline = _to_period_str(baseline_version)
+    normalized_current = _to_period_str(current_version)
+
+    if not normalized_baseline:
+        raise ValueError(
+            f"Baseline version '{baseline_version}' could not be interpreted "
+            f"as a valid forecast version."
+        )
+
+    if not normalized_current:
+        raise ValueError(
+            f"Current version '{current_version}' could not be interpreted "
+            f"as a valid forecast version."
+        )
+
+    if normalized_baseline == normalized_current:
         raise ValueError(
             "Baseline and current forecast versions must be different."
         )
 
-    available_versions = {
-        str(value)
-        for value in df[version_field].dropna().unique()
-    }
-
-    if str(baseline_version) not in available_versions:
+    if normalized_baseline not in available_versions:
+        available_text = ", ".join(sorted(available_versions)) or "none"
         raise ValueError(
             f"Baseline version '{baseline_version}' was not found "
-            f"in field '{version_field}'."
+            f"in field '{version_field}'. "
+            f"Available versions: {available_text}."
         )
 
-    if str(current_version) not in available_versions:
+    if normalized_current not in available_versions:
+        available_text = ", ".join(sorted(available_versions)) or "none"
         raise ValueError(
             f"Current version '{current_version}' was not found "
-            f"in field '{version_field}'."
+            f"in field '{version_field}'. "
+            f"Available versions: {available_text}."
         )
 
+    # Store canonical versions so the rest of the analysis uses one format.
+    scope_spec["baseline_version"] = normalized_baseline
+    scope_spec["current_version"] = normalized_current
+
+
+
+    normalized_period_start = _to_period_str(period_start)
+    normalized_period_end = _to_period_str(period_end)
+
+    if normalized_period_start:
+        scope_spec["period_start"] = normalized_period_start
+
+    if normalized_period_end:
+        scope_spec["period_end"] = normalized_period_end
+
     if (
-        period_start not in (None, "")
-        and period_end not in (None, "")
-        and str(period_start) > str(period_end)
+        normalized_period_start
+        and normalized_period_end
+        and normalized_period_start > normalized_period_end
     ):
         raise ValueError(
             "Forecast period start must not be after period end."
@@ -503,30 +618,31 @@ def analyze_dataframe(df: pd.DataFrame, field_specs: list[dict[str, Any]] | None
         if aligned.empty:
             continue
         all_versions = _all_versions_wide(filtered, target, scope_spec)
-        variance, volatility, variance_basis, volatility_basis, signal_warnings = _compute_signals(aligned, all_versions, filtered, target, feature_cols, method_spec)
+        revision, volatility, revision_basis, volatility_basis, signal_warnings = _compute_signals(aligned, all_versions, filtered, target, feature_cols, method_spec)
         warnings.extend(signal_warnings)
-        aligned["variance_pct"] = variance.replace([np.inf, -np.inf], np.nan)
+        aligned["signed_revision_pct"] = revision.replace([np.inf, -np.inf], np.nan)
+        aligned["revision_magnitude_pct"] = aligned["signed_revision_pct"].abs()
         aligned["volatility"] = volatility.replace([np.inf, -np.inf], np.nan)
-        aligned_preview.extend(aligned[["period", "target", "baseline_version", "current_version", "baseline", "current", "variance_pct", "volatility"]].head(8).replace({np.nan: None}).to_dict(orient="records"))
+        aligned_preview.extend(aligned[["period", "target", "baseline_version", "current_version", "baseline", "current", "signed_revision_pct", "revision_magnitude_pct", "volatility"]].head(8).replace({np.nan: None}).to_dict(orient="records"))
 
-        latest_variance = float(aligned["variance_pct"].dropna().iloc[-1]) if aligned["variance_pct"].notna().any() else 0.0
-        mean_abs_variance = float(aligned["variance_pct"].abs().mean()) if aligned["variance_pct"].notna().any() else 0.0
+        latest_revision = float(aligned["signed_revision_pct"].dropna().iloc[-1]) if aligned["signed_revision_pct"].notna().any() else 0.0
+        mean_revision_magnitude = float(aligned["signed_revision_pct"].abs().mean()) if aligned["signed_revision_pct"].notna().any() else 0.0
         volatility_score = float(aligned["volatility"].mean()) if aligned["volatility"].notna().any() else 0.0
-        variance_class = _classify_variance(latest_variance, method_spec)
+        revision_magnitude_class = _classify_revision_magnitude(latest_revision, method_spec)
         volatility_class = _classify_volatility(volatility_score, method_spec)
-        action, rationale = _recommend(variance_class, volatility_class, policy_rules or [])
-        confidence = "High" if volatility_class == "Low" and variance_class in {"Large", "Moderate"} else "Medium" if volatility_class == "Medium" else "Low" if volatility_class == "High" else "Medium"
-        series = [{"period": row["period"], "baseline": None if pd.isna(row["baseline"]) else round(float(row["baseline"]), 3), "current": None if pd.isna(row["current"]) else round(float(row["current"]), 3), "variance_pct": None if pd.isna(row["variance_pct"]) else round(float(row["variance_pct"]), 3), "volatility": None if pd.isna(row["volatility"]) else round(float(row["volatility"]), 3)} for _, row in aligned.iterrows()]
+        action, rationale = _recommend(revision_magnitude_class, volatility_class, policy_rules or [])
+        confidence = "High" if volatility_class == "Low" and revision_magnitude_class in {"Large", "Moderate"} else "Medium" if volatility_class == "Medium" else "Low" if volatility_class == "High" else "Medium"
+        series = [{"period": row["period"], "baseline": None if pd.isna(row["baseline"]) else round(float(row["baseline"]), 3), "current": None if pd.isna(row["current"]) else round(float(row["current"]), 3), "signed_revision_pct": None if pd.isna(row["signed_revision_pct"]) else round(float(row["signed_revision_pct"]), 3), "revision_magnitude_pct": None if pd.isna(row["revision_magnitude_pct"]) else round(float(row["revision_magnitude_pct"]), 3), "volatility": None if pd.isna(row["volatility"]) else round(float(row["volatility"]), 3)} for _, row in aligned.iterrows()]
         links = _top_driver_links(filtered, target, feature_cols)
 
         result = {
             "target": target,
-            "variance_basis": variance_basis,
+            "revision_basis": revision_basis,
             "volatility_basis": volatility_basis,
-            "mean_abs_variance_pct": round(mean_abs_variance, 3),
-            "latest_variance_pct": round(latest_variance, 3),
+            "mean_revision_magnitude_pct": round(mean_revision_magnitude, 3),
+            "latest_revision_pct": round(latest_revision, 3),
             "volatility_score": round(volatility_score, 3),
-            "variance_class": variance_class,
+            "revision_magnitude_class": revision_magnitude_class,
             "volatility_class": volatility_class,
             "confidence": confidence,
             "recommended_action": action,
@@ -535,7 +651,7 @@ def analyze_dataframe(df: pd.DataFrame, field_specs: list[dict[str, Any]] | None
             "series": series,
         }
         target_results.append(result)
-        matrix_points.append({"target": target, "x_variance_abs_pct": round(abs(latest_variance), 3), "y_volatility_score": round(volatility_score, 3), "variance_class": variance_class, "volatility_class": volatility_class, "recommended_action": action})
+        matrix_points.append({"target": target, "x_revision_magnitude_pct": round(abs(latest_revision), 3), "y_volatility_score": round(volatility_score, 3), "revision_magnitude_class": revision_magnitude_class, "volatility_class": volatility_class, "recommended_action": action})
         decision_cards.append({
             "target": target,
             "headline": f"{action} for {target}",
@@ -544,17 +660,17 @@ def analyze_dataframe(df: pd.DataFrame, field_specs: list[dict[str, Any]] | None
                 "DatasetVersion": f"{len(df)} rows / {len(df.columns)} columns",
                 "FieldModel": f"{len(feature_cols)} drivers, {len(target_cols)} targets",
                 "AnalysisScope": f"{scope_spec.get('baseline_version')} → {scope_spec.get('current_version')}, {scope_spec.get('period_start')} to {scope_spec.get('period_end')}",
-                "MethodSet": f"{method_spec['variance_method']} + {method_spec['volatility_method']}",
+                "MethodSet": f"{method_spec['revision_method']} + {method_spec['volatility_method']}",
                 "ForecastComparisonModel": f"{len(aligned)} aligned horizon rows",
-                "SignalModel": f"variance={latest_variance:.2f}, volatility={volatility_score:.2f}",
+                "SignalModel": f"revision={latest_revision:.2f}, volatility={volatility_score:.2f}",
             },
         })
 
     transformations = [
         {"id": "T1", "name": "ProfileToFieldModel", "input": "DatasetVersion", "output": "FieldModel", "purpose": "Convert raw CSV columns into typed, editable semantic fields.", "status": "pass"},
         {"id": "T2", "name": "ScopeBindingAndVersionAlignment", "input": "FieldModel + AnalysisScope", "output": "ForecastComparisonModel", "purpose": "Join baseline and current forecast versions for the same forecast horizon and targets.", "status": "pass" if aligned_preview else "warning"},
-        {"id": "T3", "name": "MethodSetToSignalModel", "input": "ForecastComparisonModel + MethodSet", "output": "VarianceSignal + VolatilitySignal", "purpose": "Apply declared variance and volatility methods rather than hidden calculations.", "status": "pass" if target_results else "warning"},
-        {"id": "T4", "name": "SignalModelToDecisionCard", "input": "VarianceSignal + VolatilitySignal + Thresholds", "output": "DecisionModel", "purpose": "Transform classified signals into traceable actionability recommendations.", "status": "pass" if decision_cards else "warning"},
+        {"id": "T3", "name": "MethodSetToSignalModel", "input": "ForecastComparisonModel + MethodSet", "output": "RevisionMagnitudeSignal + VolatilitySignal", "purpose": "Apply declared revision and volatility methods rather than hidden calculations.", "status": "pass" if target_results else "warning"},
+        {"id": "T4", "name": "SignalModelToDecisionCard", "input": "RevisionMagnitudeSignal + VolatilitySignal + Thresholds", "output": "DecisionModel", "purpose": "Transform classified signals into traceable actionability recommendations.", "status": "pass" if decision_cards else "warning"},
     ]
 
     return {

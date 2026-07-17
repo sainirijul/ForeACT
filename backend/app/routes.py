@@ -17,6 +17,7 @@ from .analysis import (
     read_csv_file,
 )
 from .domain import method_catalog
+from .conformance import validate_project_spec_against_metamodel
 from .metamodel_editor import (
     add_attribute,
     add_class,
@@ -314,12 +315,6 @@ def methods():
     return jsonify(method_catalog())
 
 
-@api.get("/metamodel")
-def metamodel():
-    # The core metamodel is independent of the workspace file.
-    # Keeping this endpoint workspace-free avoids a blank canvas when the
-    # workspace id and workspace filename differ during early prototyping.
-    return jsonify(ecore_to_graph([]))
 
 
 @api.get("/workspace/default")
@@ -430,6 +425,11 @@ def workspace_analyze():
                 f"{exc}"
             ),
         }), 400
+
+    compiled_ecore_model, ecore_results = validate_project_spec_against_metamodel(spec)
+    analysis["compiled_ecore_model"] = compiled_ecore_model
+    analysis["conformance_results"] = ecore_results + analysis.get("conformance_results", [])
+    spec["compiled_model"] = compiled_ecore_model
 
     saved = _save_workspace_and_profile(
         spec,
@@ -665,7 +665,8 @@ def get_metamodel():
     except FileNotFoundError:
         pass
 
-    model = ecore_to_graph()
+    concepts = spec.get("metamodel_extension", {}).get("concepts", []) if runtime_summary is not None else []
+    model = ecore_to_graph(concepts)
 
     if runtime_summary is not None:
         model["runtime_summary"] = runtime_summary

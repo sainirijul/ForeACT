@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import type {
   AnalysisScope,
   DecisionPolicy,
@@ -12,6 +13,81 @@ type Props = {
   setSpec: (spec: ForeACTProjectSpec) => void;
 };
 
+const MONTH_INDEX: Record<string, string> = {
+  jan: '01',
+  feb: '02',
+  mar: '03',
+  apr: '04',
+  may: '05',
+  jun: '06',
+  jul: '07',
+  aug: '08',
+  sep: '09',
+  oct: '10',
+  nov: '11',
+  dec: '12',
+};
+
+function normalizePeriod(value: string | null | undefined): string {
+  const text = String(value ?? '').trim();
+
+  if (!text) {
+    return '';
+  }
+
+  const canonicalMatch = /^(\d{4})-(\d{2})$/.exec(text);
+
+  if (canonicalMatch) {
+    const month = Number(canonicalMatch[2]);
+
+    return month >= 1 && month <= 12 ? text : '';
+  }
+
+  const shortMonthMatch = /^([A-Za-z]{3})[-\s](\d{2}|\d{4})$/.exec(text);
+
+  if (shortMonthMatch) {
+    const month = MONTH_INDEX[shortMonthMatch[1].toLowerCase()];
+
+    if (!month) {
+      return '';
+    }
+
+    const rawYear = shortMonthMatch[2];
+    const year = rawYear.length === 2 ? `20${rawYear}` : rawYear;
+
+    return `${year}-${month}`;
+  }
+
+  return text;
+}
+
+function formatPeriodLabel(value: string): string {
+  const normalized = normalizePeriod(value);
+  const match = /^(\d{4})-(\d{2})$/.exec(normalized);
+
+  if (!match) {
+    return value;
+  }
+
+  const [, year, month] = match;
+  const date = new Date(Number(year), Number(month) - 1, 1);
+  const monthLabel = date.toLocaleDateString('en-CA', {
+    month: 'short',
+  });
+
+  return `${monthLabel}-${year.slice(-2)}`;
+}
+
+function uniqueCanonical(values: string[]): string[] {
+  return Array.from(
+    new Set(
+      values
+        .map(normalizePeriod)
+        .filter((value): value is string => Boolean(value)),
+    ),
+  ).sort();
+}
+
 export function MethodologyReviewPage({
   spec,
   profile,
@@ -21,6 +97,13 @@ export function MethodologyReviewPage({
   const scope = spec.methodology_model.scope;
   const methods = spec.methodology_model.methods;
   const policy = spec.decision_policy;
+
+  const forecastVersions = uniqueCanonical(
+    profile?.forecast_versions ?? [],
+  );
+  const forecastPeriods = uniqueCanonical(
+    profile?.forecast_periods ?? [],
+  );
 
   function setScope(changes: Partial<AnalysisScope>) {
     setSpec({
@@ -87,7 +170,150 @@ export function MethodologyReviewPage({
     )
     .map((field) => field.name);
 
-  const forecastVersions = profile?.forecast_versions ?? [];
+  /*
+   * Reconcile stale values retained from a previous dataset.
+   * Internal values always use YYYY-MM, while labels are formatted uniformly.
+   */
+  useEffect(() => {
+    if (!profile) {
+      return;
+    }
+
+    const nextScope: AnalysisScope = {
+      ...scope,
+      baseline_version: normalizePeriod(scope.baseline_version),
+      current_version: normalizePeriod(scope.current_version),
+      period_start: normalizePeriod(scope.period_start),
+      period_end: normalizePeriod(scope.period_end),
+    };
+
+    if (forecastVersions.length > 0) {
+      if (!forecastVersions.includes(nextScope.baseline_version)) {
+        nextScope.baseline_version =
+          forecastVersions.length >= 2
+            ? forecastVersions[forecastVersions.length - 2]
+            : forecastVersions[0];
+      }
+
+      if (!forecastVersions.includes(nextScope.current_version)) {
+        nextScope.current_version =
+          forecastVersions[forecastVersions.length - 1];
+      }
+
+      if (
+        forecastVersions.length >= 2 &&
+        nextScope.baseline_version >= nextScope.current_version
+      ) {
+        nextScope.baseline_version =
+          forecastVersions[forecastVersions.length - 2];
+        nextScope.current_version =
+          forecastVersions[forecastVersions.length - 1];
+      }
+    }
+
+    if (forecastPeriods.length > 0) {
+      if (!forecastPeriods.includes(nextScope.period_start)) {
+        nextScope.period_start = forecastPeriods[0];
+      }
+
+      if (!forecastPeriods.includes(nextScope.period_end)) {
+        nextScope.period_end =
+          forecastPeriods[forecastPeriods.length - 1];
+      }
+
+      if (nextScope.period_start > nextScope.period_end) {
+        nextScope.period_end = nextScope.period_start;
+      }
+    }
+
+    const changed =
+      nextScope.baseline_version !== scope.baseline_version ||
+      nextScope.current_version !== scope.current_version ||
+      nextScope.period_start !== scope.period_start ||
+      nextScope.period_end !== scope.period_end;
+
+    if (changed) {
+      setScope(nextScope);
+    }
+  }, [
+    profile,
+    forecastVersions.join('|'),
+    forecastPeriods.join('|'),
+    scope.baseline_version,
+    scope.current_version,
+    scope.period_start,
+    scope.period_end,
+  ]);
+
+  const currentVersionOptions = forecastVersions.filter(
+    (version) =>
+      !scope.baseline_version ||
+      version > normalizePeriod(scope.baseline_version),
+  );
+
+  const endPeriodOptions = forecastPeriods.filter(
+    (period) =>
+      !scope.period_start ||
+      period >= normalizePeriod(scope.period_start),
+  );
+
+  function handleBaselineChange(nextBaseline: string) {
+    const normalizedBaseline = normalizePeriod(nextBaseline);
+    const currentIsValid =
+      scope.current_version &&
+      normalizePeriod(scope.current_version) > normalizedBaseline &&
+      forecastVersions.includes(normalizePeriod(scope.current_version));
+
+    const nextCurrent = currentIsValid
+      ? normalizePeriod(scope.current_version)
+      : forecastVersions.find(
+          (version) => version > normalizedBaseline,
+        ) ?? '';
+
+    setScope({
+      baseline_version: normalizedBaseline,
+      current_version: nextCurrent,
+    });
+  }
+
+  function handleCurrentChange(nextCurrent: string) {
+    const normalizedCurrent = normalizePeriod(nextCurrent);
+
+    if (
+      scope.baseline_version &&
+      normalizedCurrent <= normalizePeriod(scope.baseline_version)
+    ) {
+      return;
+    }
+
+    setScope({ current_version: normalizedCurrent });
+  }
+
+  function handlePeriodStartChange(nextStart: string) {
+    const normalizedStart = normalizePeriod(nextStart);
+    const normalizedEnd = normalizePeriod(scope.period_end);
+
+    setScope({
+      period_start: normalizedStart,
+      period_end:
+        !normalizedEnd || normalizedEnd < normalizedStart
+          ? normalizedStart
+          : normalizedEnd,
+    });
+  }
+
+  function handlePeriodEndChange(nextEnd: string) {
+    const normalizedEnd = normalizePeriod(nextEnd);
+
+    if (
+      scope.period_start &&
+      normalizedEnd < normalizePeriod(scope.period_start)
+    ) {
+      return;
+    }
+
+    setScope({ period_end: normalizedEnd });
+  }
 
   return (
     <section className="page-grid">
@@ -113,9 +339,7 @@ export function MethodologyReviewPage({
             <select
               value={scope.version_field}
               onChange={(event) =>
-                setScope({
-                  version_field: event.target.value,
-                })
+                setScope({ version_field: event.target.value })
               }
             >
               <option value="">Select version field</option>
@@ -134,9 +358,7 @@ export function MethodologyReviewPage({
             <select
               value={scope.horizon_field}
               onChange={(event) =>
-                setScope({
-                  horizon_field: event.target.value,
-                })
+                setScope({ horizon_field: event.target.value })
               }
             >
               <option value="">Select horizon field</option>
@@ -153,18 +375,16 @@ export function MethodologyReviewPage({
             Baseline version
 
             <select
-              value={scope.baseline_version}
+              value={normalizePeriod(scope.baseline_version)}
               onChange={(event) =>
-                setScope({
-                  baseline_version: event.target.value,
-                })
+                handleBaselineChange(event.target.value)
               }
             >
               <option value="">Select baseline</option>
 
               {forecastVersions.map((version) => (
                 <option key={version} value={version}>
-                  {version}
+                  {formatPeriodLabel(version)}
                 </option>
               ))}
             </select>
@@ -174,18 +394,16 @@ export function MethodologyReviewPage({
             Current version
 
             <select
-              value={scope.current_version}
+              value={normalizePeriod(scope.current_version)}
               onChange={(event) =>
-                setScope({
-                  current_version: event.target.value,
-                })
+                handleCurrentChange(event.target.value)
               }
             >
               <option value="">Select current version</option>
 
-              {forecastVersions.map((version) => (
+              {currentVersionOptions.map((version) => (
                 <option key={version} value={version}>
-                  {version}
+                  {formatPeriodLabel(version)}
                 </option>
               ))}
             </select>
@@ -194,29 +412,35 @@ export function MethodologyReviewPage({
           <label>
             Period start
 
-            <input
-              value={scope.period_start}
-              placeholder={profile?.period_min || 'YYYY-MM-DD'}
+            <select
+              value={normalizePeriod(scope.period_start)}
               onChange={(event) =>
-                setScope({
-                  period_start: event.target.value,
-                })
+                handlePeriodStartChange(event.target.value)
               }
-            />
+            >
+              {forecastPeriods.map((period) => (
+                <option key={period} value={period}>
+                  {formatPeriodLabel(period)}
+                </option>
+              ))}
+            </select>
           </label>
 
           <label>
             Period end
 
-            <input
-              value={scope.period_end}
-              placeholder={profile?.period_max || 'YYYY-MM-DD'}
+            <select
+              value={normalizePeriod(scope.period_end)}
               onChange={(event) =>
-                setScope({
-                  period_end: event.target.value,
-                })
+                handlePeriodEndChange(event.target.value)
               }
-            />
+            >
+              {endPeriodOptions.map((period) => (
+                <option key={period} value={period}>
+                  {formatPeriodLabel(period)}
+                </option>
+              ))}
+            </select>
           </label>
         </div>
 
@@ -238,28 +462,26 @@ export function MethodologyReviewPage({
         </div>
 
         <p className="muted">
-          Baseline and current observations are aligned using the
+          Baseline and current forecast values are aligned using the
           selected target variable and forecast period.
         </p>
       </article>
 
       <article className="panel">
         <p className="eyebrow">Method model</p>
-        <h2>Variance and volatility methods</h2>
+        <h2>Revision and volatility methods</h2>
 
         <div className="form-grid">
           <label>
-            Variance method
+            Revision method
 
             <select
-              value={methods.variance_method}
+              value={methods.revision_method}
               onChange={(event) =>
-                setMethods({
-                  variance_method: event.target.value,
-                })
+                setMethods({ revision_method: event.target.value })
               }
             >
-              {profile?.method_catalog.variance_methods.map(
+              {profile?.method_catalog.revision_methods.map(
                 (method) => (
                   <option key={method.id} value={method.id}>
                     {method.name}
@@ -275,9 +497,7 @@ export function MethodologyReviewPage({
             <select
               value={methods.volatility_method}
               onChange={(event) =>
-                setMethods({
-                  volatility_method: event.target.value,
-                })
+                setMethods({ volatility_method: event.target.value })
               }
             >
               {profile?.method_catalog.volatility_methods.map(
@@ -291,36 +511,20 @@ export function MethodologyReviewPage({
           </label>
 
           <label>
-            Large variance threshold
+            Large revision magnitude threshold
 
             <input
               type="number"
-              value={methods.variance_threshold_large}
+              value={methods.revision_magnitude_threshold_large}
               onChange={(event) =>
                 setMethods({
-                  variance_threshold_large: Number(
+                  revision_magnitude_threshold_large: Number(
                     event.target.value,
                   ),
                 })
               }
             />
           </label>
-
-          {/* <label>
-            Moderate variance threshold
-
-            <input
-              type="number"
-              value={methods.variance_threshold_moderate}
-              onChange={(event) =>
-                setMethods({
-                  variance_threshold_moderate: Number(
-                    event.target.value,
-                  ),
-                })
-              }
-            />
-          </label> */}
 
           <label>
             High volatility threshold
@@ -337,33 +541,17 @@ export function MethodologyReviewPage({
               }
             />
           </label>
-
-          {/* <label>
-            Medium volatility threshold
-
-            <input
-              type="number"
-              value={methods.volatility_threshold_medium}
-              onChange={(event) =>
-                setMethods({
-                  volatility_threshold_medium: Number(
-                    event.target.value,
-                  ),
-                })
-              }
-            />
-          </label> */}
         </div>
 
         <details className="formula-box">
           <summary>Custom method formulas</summary>
 
           <textarea
-            value={methods.custom_variance_formula}
+            value={methods.custom_revision_formula}
             placeholder="Example: ((current - baseline) / baseline) * 100"
             onChange={(event) =>
               setMethods({
-                custom_variance_formula: event.target.value,
+                custom_revision_formula: event.target.value,
               })
             }
           />
@@ -389,12 +577,18 @@ export function MethodologyReviewPage({
             <div className="policy-card" key={rule.id}>
               <strong>{rule.id}</strong>
 
-              <input 
-                value={rule.when} 
-                readOnly 
-                disabled 
-                title="Condition is locked to ensure stable backend analysis"
-                style={{ cursor: 'not-allowed', backgroundColor: '#eef4fb', color: '#5c6f85' }}
+              <input
+                value={rule.when}
+                onChange={(event) => {
+                  const rules = [...policy.rules];
+
+                  rules[index] = {
+                    ...rule,
+                    when: event.target.value,
+                  };
+
+                  setPolicy({ ...policy, rules });
+                }}
               />
 
               <input
@@ -407,10 +601,7 @@ export function MethodologyReviewPage({
                     then: event.target.value,
                   };
 
-                  setPolicy({
-                    ...policy,
-                    rules,
-                  });
+                  setPolicy({ ...policy, rules });
                 }}
               />
 
@@ -424,10 +615,7 @@ export function MethodologyReviewPage({
                     rationale: event.target.value,
                   };
 
-                  setPolicy({
-                    ...policy,
-                    rules,
-                  });
+                  setPolicy({ ...policy, rules });
                 }}
               />
             </div>
@@ -441,7 +629,7 @@ export function MethodologyReviewPage({
         <div className="catalog-grid">
           {profile
             ? [
-                ...profile.method_catalog.variance_methods,
+                ...profile.method_catalog.revision_methods,
                 ...profile.method_catalog.volatility_methods,
               ].map((method) => (
                 <div key={method.id} className="catalog-card">

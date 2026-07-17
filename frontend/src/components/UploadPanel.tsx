@@ -26,7 +26,7 @@ export function UploadPanel({ loading, onDemoProfile, onUploadData }: Props) {
         <h1>ForeACT Studio</h1>
         <p className="hero-copy">
           A graphical DSL-style workbench for modelers: profile a forecast dataset, enrich field semantics,
-          declare variance/volatility methods, inspect the compiled assurance model, and produce
+          declare revision/volatility methods, inspect the compiled assurance model, and produce
           traceable decision cards for high-impact forecast changes.
         </p>
         <div className="process-strip">

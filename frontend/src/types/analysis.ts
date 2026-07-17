@@ -59,12 +59,12 @@ export type MetaEdge = {
 };
 
 export type MethodConfig = {
-  variance_method: string;
+  revision_method: string;
   volatility_method: string;
-  variance_threshold_large: number;
+  revision_magnitude_threshold_large: number;
   volatility_threshold_high: number;
   rolling_window: number;
-  custom_variance_formula: string;
+  custom_revision_formula: string;
   custom_volatility_formula: string;
 };
 
@@ -108,6 +108,7 @@ export type DatasetProfile = {
   column_names: string[];
   numeric_columns: string[];
   forecast_versions: string[];
+  forecast_periods: string[];
   period_min: string;
   period_max: string;
   default_scope: AnalysisScope;
@@ -130,15 +131,15 @@ export type WorkspaceResponse = {
 };
 
 export type MethodCatalog = {
-  variance_methods: { id: string; name: string; formula: string; requires: string[]; interpretation: string }[];
+  revision_methods: { id: string; name: string; formula: string; requires: string[]; interpretation: string }[];
   volatility_methods: { id: string; name: string; formula: string; requires: string[]; interpretation: string }[];
 };
 
 export type MatrixPoint = {
   target: string;
-  x_variance_abs_pct: number;
+  x_revision_magnitude_pct: number;
   y_volatility_score: number;
-  variance_class: string;
+  revision_magnitude_class: string;
   volatility_class: string;
   recommended_action: string;
 };
@@ -147,18 +148,18 @@ export type TargetSeriesPoint = {
   period: string;
   baseline: number | null;
   current: number | null;
-  variance_pct: number | null;
+  signed_revision_pct: number | null;
   volatility: number | null;
 };
 
 export type TargetResult = {
   target: string;
-  variance_basis: string;
+  revision_basis: string;
   volatility_basis: string;
-  mean_abs_variance_pct: number;
-  latest_variance_pct: number;
+  mean_revision_magnitude_pct: number;
+  latest_revision_pct: number;
   volatility_score: number;
-  variance_class: string;
+  revision_magnitude_class: string;
   volatility_class: string;
   confidence: string;
   recommended_action: string;

@@ -12,7 +12,7 @@ export function MetamodelExtensionPanel({ concepts, setConcepts }: Props) {
     setConcepts(concepts.map((c, i) => i === index ? { ...c, ...update } : c));
   }
   function addConcept() {
-    setConcepts([...concepts, { name: 'DataCenterCommitment', kind: 'domain', description: 'Domain concept added by the modeler.', connects_to: 'AssumptionElement' }]);
+    setConcepts([...concepts, { name: 'DomainAssumption', kind: 'domain', description: 'Domain concept added by the modeler.', connects_to: 'AssumptionElement' }]);
   }
   function removeConcept(index: number) {
     setConcepts(concepts.filter((_, i) => i !== index));
@@ -28,7 +28,7 @@ export function MetamodelExtensionPanel({ concepts, setConcepts }: Props) {
         </div>
         <button className="secondary-btn" onClick={addConcept}>Add concept</button>
       </div>
-      {concepts.length === 0 && <p className="muted">No custom concepts yet. Add concepts such as DataCenterCommitment, RegulatoryConstraint, or PlanningDecision.</p>}
+      {concepts.length === 0 && <p className="muted">No custom concepts yet. Add concepts such as DomainAssumption, RegulatoryConstraint, or PlanningDecision.</p>}
       <div className="method-grid">
         {concepts.map((concept, index) => (
           <div className="method-card" key={`${concept.name}-${index}`}>

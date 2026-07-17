@@ -61,8 +61,8 @@ export function ProjectSpecPanel({
     <section className="page-stack">
       <article className="panel hero-panel">
         <p className="eyebrow">Use-case specification</p>
-        <h2>{spec.project?.name ?? 'ForeACT Project'}</h2>
-        <p>{spec.project?.description ?? 'Please select the dataset with which you want to compute variance and volatilty.'}</p>
+        {/* <h2>{spec.project?.name ?? 'ForeACT Project'}</h2> */}
+        <p>{spec.project?.description ?? 'Please select the dataset with which you want to compute revision and volatilty.'}</p>
 
         <div className="metric-row">
           <span>
@@ -127,7 +127,7 @@ export function ProjectSpecPanel({
       
     {/* ── Why this file matters (accordion) ── */}
 
-    <article>
+    {/* <article>
       <p className="eyebrow">Why this file matters</p>
 
       {[
@@ -146,7 +146,7 @@ export function ProjectSpecPanel({
       ].map((item) => (
     <AccordionRow key={item.title} title={item.title} body={item.body} />
   ))}
-    </article>
+    </article> */}
    </section>
   );
 }

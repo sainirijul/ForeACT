@@ -96,13 +96,6 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="statement" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
   </eClassifiers>
 
-  <eClassifiers xsi:type="ecore:EClass" name="DataCenterCommitment" eSuperTypes="#//AssumptionElement">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="committedLoadMW" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="probability" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="expectedInServiceDate" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
-    <eStructuralFeatures xsi:type="ecore:EReference" name="affects" eType="#//TargetField" upperBound="-1" />
-  </eClassifiers>
-
   <eClassifiers xsi:type="ecore:EClass" name="EvidenceArtifact" eSuperTypes="#//ModelElement">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="sourceType" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="uri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
@@ -123,8 +116,8 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="threshold" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
   </eClassifiers>
 
-  <eClassifiers xsi:type="ecore:EClass" name="VarianceMethod" eSuperTypes="#//AnalysisMethod">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="largeVarianceThreshold" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
+  <eClassifiers xsi:type="ecore:EClass" name="RevisionMethod" eSuperTypes="#//AnalysisMethod">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="largeRevisionMagnitudeThreshold" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
   </eClassifiers>
 
   <eClassifiers xsi:type="ecore:EClass" name="VolatilityMethod" eSuperTypes="#//AnalysisMethod">
@@ -154,7 +147,7 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="baselineVintage" eType="#//ForecastVintage" lowerBound="1" />
     <eStructuralFeatures xsi:type="ecore:EReference" name="currentVintage" eType="#//ForecastVintage" lowerBound="1" />
 
-    <eStructuralFeatures xsi:type="ecore:EReference" name="varianceRecords" eType="#//ForecastVarianceRecord" containment="true" upperBound="-1" />
+    <eStructuralFeatures xsi:type="ecore:EReference" name="revisionRecords" eType="#//ForecastRevisionRecord" containment="true" upperBound="-1" />
     <eStructuralFeatures xsi:type="ecore:EReference" name="volatilityRecords" eType="#//ForecastVolatilityRecord" containment="true" upperBound="-1" />
 
     <eStructuralFeatures xsi:type="ecore:EReference" name="versionField" eType="#//VersionField" lowerBound="1" />
@@ -164,24 +157,26 @@
   <eClassifiers xsi:type="ecore:EClass" name="ForecastVintage" eSuperTypes="#//ModelElement">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vintageDate" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="sequenceNumber" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" />
-    <eStructuralFeatures xsi:type="ecore:EReference" name="observations" eType="#//ForecastObservation" containment="true" upperBound="-1" />
+    <eStructuralFeatures xsi:type="ecore:EReference" name="forecastValues" eType="#//ForecastValue" containment="true" upperBound="-1" />
     <eStructuralFeatures xsi:type="ecore:EReference" name="activeAssumptions" eType="#//AssumptionElement" upperBound="-1" />
   </eClassifiers>
 
-  <eClassifiers xsi:type="ecore:EClass" name="ForecastObservation" eSuperTypes="#//ModelElement">
+  <eClassifiers xsi:type="ecore:EClass" name="ForecastValue" eSuperTypes="#//ModelElement">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="targetPeriod" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="#//TargetField" lowerBound="1" />
   </eClassifiers>
 
-  <eClassifiers xsi:type="ecore:EClass" name="ForecastVarianceRecord" eSuperTypes="#//ModelElement">
+  <eClassifiers xsi:type="ecore:EClass" name="ForecastRevisionRecord" eSuperTypes="#//ModelElement">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="targetPeriod" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="delta" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="deltaPct" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="signedRevision" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="revisionMagnitude" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="signedRevisionPct" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="revisionMagnitudePct" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="#//TargetField" lowerBound="1" />
-    <eStructuralFeatures xsi:type="ecore:EReference" name="baselineObservation" eType="#//ForecastObservation" lowerBound="1" />
-    <eStructuralFeatures xsi:type="ecore:EReference" name="currentObservation" eType="#//ForecastObservation" lowerBound="1" />
-    <eStructuralFeatures xsi:type="ecore:EReference" name="computedBy" eType="#//VarianceMethod" lowerBound="1" />
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baselineValue" eType="#//ForecastValue" lowerBound="1" />
+    <eStructuralFeatures xsi:type="ecore:EReference" name="currentValue" eType="#//ForecastValue" lowerBound="1" />
+    <eStructuralFeatures xsi:type="ecore:EReference" name="computedBy" eType="#//RevisionMethod" lowerBound="1" />
   </eClassifiers>
 
   <eClassifiers xsi:type="ecore:EClass" name="ForecastVolatilityRecord" eSuperTypes="#//ModelElement">
@@ -189,9 +184,9 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="volatilityScore" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="stdDev" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="valueRange" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="observationCount" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" />
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="forecastValueCount" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" />
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="#//TargetField" lowerBound="1" />
-    <eStructuralFeatures xsi:type="ecore:EReference" name="observations" eType="#//ForecastObservation" lowerBound="2" upperBound="-1" />
+    <eStructuralFeatures xsi:type="ecore:EReference" name="forecastValues" eType="#//ForecastValue" lowerBound="2" upperBound="-1" />
     <eStructuralFeatures xsi:type="ecore:EReference" name="computedBy" eType="#//VolatilityMethod" lowerBound="1" />
   </eClassifiers>
 
@@ -212,9 +207,10 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="computedBy" eType="#//AnalysisMethod" lowerBound="1" />
   </eClassifiers>
 
-  <eClassifiers xsi:type="ecore:EClass" name="VarianceSignal" eSuperTypes="#//Signal">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="variancePct" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
-    <eStructuralFeatures xsi:type="ecore:EReference" name="basedOn" eType="#//ForecastVarianceRecord" lowerBound="1" />
+  <eClassifiers xsi:type="ecore:EClass" name="RevisionMagnitudeSignal" eSuperTypes="#//Signal">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="revisionMagnitude" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="revisionMagnitudePct" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
+    <eStructuralFeatures xsi:type="ecore:EReference" name="basedOn" eType="#//ForecastRevisionRecord" lowerBound="1" />
   </eClassifiers>
 
   <eClassifiers xsi:type="ecore:EClass" name="VolatilitySignal" eSuperTypes="#//Signal">
@@ -293,6 +289,4 @@
     <eLiterals name="range" />
     <eLiterals name="mean_absolute_revision" />
     <eLiterals name="custom" />
-  </eClassifiers>
-
-<eClassifiers xsi:type="ecore:EClass" name="DataCenterCommitmentExtension" eSuperTypes="#//AssumptionElement"><eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" lowerBound="0" upperBound="1" /></eClassifiers></ecore:EPackage>
+  </eClassifiers></ecore:EPackage>

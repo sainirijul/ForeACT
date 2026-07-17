@@ -19,12 +19,12 @@ class FieldSpec:
 
 @dataclass
 class MethodSpec:
-    variance_method: str = "version_to_version_pct"
+    revision_method: str = "version_to_version_pct"
     volatility_method: str = "version_dispersion_pct"
-    variance_threshold_large: float = 5.0
+    revision_magnitude_threshold_large: float = 5.0
     volatility_threshold_high: float = 4.0
     rolling_window: int = 4
-    custom_variance_formula: str = ""
+    custom_revision_formula: str = ""
     custom_volatility_formula: str = ""
 
 
@@ -62,12 +62,12 @@ CANONICAL_RULES = [
         "Forecast version alignment",
         "Selected baseline and current forecast versions must be aligned over the same forecast horizon and target variables.",
         "error",
-        "Variance between forecast versions is meaningful only when both versions refer to the same future period.",
+        "Forecast revision between forecast versions is meaningful only when both versions refer to the same future period.",
     ),
     RuleSpec(
         "CR-002",
         "Target coverage",
-        "Every field with role=target must produce a VarianceSignal and VolatilitySignal for the selected analysis period.",
+        "Every field with role=target must produce a RevisionMagnitudeSignal and VolatilitySignal for the selected analysis period.",
         "error",
         "A decision card is not meaningful unless each selected target is connected to interpretable signals.",
     ),
@@ -81,7 +81,7 @@ CANONICAL_RULES = [
     RuleSpec(
         "CR-004",
         "Method declaration",
-        "Variance and volatility methods must be explicitly selected or defined before analysis.",
+        "Revision and volatility methods must be explicitly selected or defined before analysis.",
         "error",
         "Interpretability requires a named computation procedure, not hidden calculations.",
     ),
@@ -104,10 +104,10 @@ CANONICAL_RULES = [
 
 def method_catalog() -> dict[str, Any]:
     return {
-        "variance_methods": [
+        "revision_methods": [
             {
                 "id": "version_to_version_pct",
-                "name": "Version-to-version percentage variance",
+                "name": "Version-to-version percentage revision",
                 "formula": "((current_version(target,horizon) - baseline_version(target,horizon)) / baseline_version(target,horizon)) * 100",
                 "requires": ["forecast_version", "forecast_horizon", "target"],
                 "interpretation": "Best when the dataset contains multiple forecast cycles for the same future periods.",
@@ -121,7 +121,7 @@ def method_catalog() -> dict[str, Any]:
             },
             {
                 "id": "latest_vs_history_pct",
-                "name": "Latest value vs historical mean variance",
+                "name": "Latest value vs historical mean revision",
                 "formula": "((actual - mean(history)) / mean(history)) * 100",
                 "requires": ["target"],
                 "interpretation": "Fallback when the data does not provide explicit forecast versions.",
@@ -131,7 +131,7 @@ def method_catalog() -> dict[str, Any]:
                 "name": "Custom expression",
                 "formula": "User expression using baseline, current, all_versions_mean, all_versions_std",
                 "requires": ["depends on expression"],
-                "interpretation": "For project-specific variance definitions declared by the modeler.",
+                "interpretation": "For project-specific revision definitions declared by the modeler.",
             },
         ],
         "volatility_methods": [
@@ -172,7 +172,7 @@ def build_default_field_specs(columns: list[str], numeric_columns: list[str]) ->
     for col in columns:
         lower = col.lower()
         is_numeric = col in numeric_columns
-        role = "ignore"
+        role = "feature" if is_numeric else "ignore"
         semantic_type = "identifier_or_text"
         unit = ""
         direction = "neutral"
@@ -240,7 +240,7 @@ def build_metamodel(field_specs: list[dict[str, Any]], method_spec: dict[str, An
         "driver_count": len([f for f in field_specs if f.get("role") == "feature" and f.get("include_in_model", True)]),
         "version_field_count": len([f for f in field_specs if f.get("role") == "forecast_version"]),
         "horizon_field_count": len([f for f in field_specs if f.get("role") == "forecast_horizon"]),
-        "variance_method": method_spec.get("variance_method"),
+        "revision_method": method_spec.get("revision_method"),
         "volatility_method": method_spec.get("volatility_method"),
         "baseline_version": scope.get("baseline_version"),
         "current_version": scope.get("current_version"),

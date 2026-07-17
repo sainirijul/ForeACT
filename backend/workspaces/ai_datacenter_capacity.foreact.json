@@ -3,17 +3,17 @@
     "matrix_points": [
       {
         "target": "target_1_total_load_mwh",
-        "x_variance_abs_pct": 8.525,
+        "x_revision_magnitude_pct": 8.525,
         "y_volatility_score": 15.055,
-        "variance_class": "Large",
+        "revision_magnitude_class": "Large",
         "volatility_class": "High",
         "recommended_action": "Monitor closely"
       },
       {
         "target": "target_2_peak_load_mw",
-        "x_variance_abs_pct": 9.447,
+        "x_revision_magnitude_pct": 9.447,
         "y_volatility_score": 14.618,
-        "variance_class": "Large",
+        "revision_magnitude_class": "Large",
         "volatility_class": "High",
         "recommended_action": "Monitor closely"
       }
@@ -29,7 +29,7 @@
           "AnalysisScope": "2026-09 \u2192 2026-12, 2027-01 to 2029-12",
           "MethodSet": "version_to_version_pct + version_dispersion_pct",
           "ForecastComparisonModel": "36 aligned horizon rows",
-          "SignalModel": "variance=8.53, volatility=15.06"
+          "SignalModel": "revision=8.53, volatility=15.06"
         }
       },
       {
@@ -42,7 +42,7 @@
           "AnalysisScope": "2026-09 \u2192 2026-12, 2027-01 to 2029-12",
           "MethodSet": "version_to_version_pct + version_dispersion_pct",
           "ForecastComparisonModel": "36 aligned horizon rows",
-          "SignalModel": "variance=9.45, volatility=14.62"
+          "SignalModel": "revision=9.45, volatility=14.62"
         }
       }
     ],
@@ -57,7 +57,7 @@
         "rule_id": "CR-002",
         "status": "pass",
         "severity": "error",
-        "message": "All selected targets produce variance and volatility signals."
+        "message": "All selected targets produce revision-magnitude and volatility signals."
       },
       {
         "rule_id": "CR-003",
@@ -69,7 +69,7 @@
         "rule_id": "CR-004",
         "status": "pass",
         "severity": "error",
-        "message": "Variance and volatility methods are explicitly declared."
+        "message": "Revision and volatility methods are explicitly declared."
       },
       {
         "rule_id": "CR-005",
@@ -674,8 +674,8 @@
           "isCore": true
         },
         {
-          "id": "VarianceMethod",
-          "label": "VarianceMethod",
+          "id": "RevisionMethod",
+          "label": "RevisionMethod",
           "kind": "class",
           "package": "Methodology",
           "stereotype": "EClass",
@@ -683,7 +683,7 @@
           "count": 1,
           "attributes": [
             {
-              "name": "largeVarianceThreshold",
+              "name": "largeRevisionMagnitudeThreshold",
               "type": "EDouble",
               "lowerBound": 0,
               "upperBound": 1
@@ -923,8 +923,8 @@
           "isCore": true
         },
         {
-          "id": "VarianceSignal",
-          "label": "VarianceSignal",
+          "id": "RevisionMagnitudeSignal",
+          "label": "RevisionMagnitudeSignal",
           "kind": "class",
           "package": "Signals",
           "stereotype": "EClass",
@@ -932,7 +932,7 @@
           "count": 1,
           "attributes": [
             {
-              "name": "variancePct",
+              "name": "revisionMagnitudePct",
               "type": "EDouble",
               "lowerBound": 0,
               "upperBound": 1
@@ -1767,8 +1767,8 @@
             "isCore": true
           },
           {
-            "id": "VarianceMethod",
-            "label": "VarianceMethod",
+            "id": "RevisionMethod",
+            "label": "RevisionMethod",
             "kind": "class",
             "package": "Methodology",
             "stereotype": "EClass",
@@ -1776,7 +1776,7 @@
             "count": 1,
             "attributes": [
               {
-                "name": "largeVarianceThreshold",
+                "name": "largeRevisionMagnitudeThreshold",
                 "type": "EDouble",
                 "lowerBound": 0,
                 "upperBound": 1
@@ -2016,8 +2016,8 @@
             "isCore": true
           },
           {
-            "id": "VarianceSignal",
-            "label": "VarianceSignal",
+            "id": "RevisionMagnitudeSignal",
+            "label": "RevisionMagnitudeSignal",
             "kind": "class",
             "package": "Signals",
             "stereotype": "EClass",
@@ -2025,7 +2025,7 @@
             "count": 1,
             "attributes": [
               {
-                "name": "variancePct",
+                "name": "revisionMagnitudePct",
                 "type": "EDouble",
                 "lowerBound": 0,
                 "upperBound": 1
@@ -2429,7 +2429,7 @@
             "kind": "inheritance"
           },
           {
-            "source": "VarianceMethod",
+            "source": "RevisionMethod",
             "target": "AnalysisMethod",
             "label": "extends",
             "kind": "inheritance"
@@ -2513,7 +2513,7 @@
             "kind": "inheritance"
           },
           {
-            "source": "VarianceSignal",
+            "source": "RevisionMagnitudeSignal",
             "target": "Signal",
             "label": "extends",
             "kind": "inheritance"
@@ -2610,7 +2610,7 @@
         "driver_count": 8,
         "version_field_count": 1,
         "horizon_field_count": 1,
-        "variance_method": "version_to_version_pct",
+        "revision_method": "version_to_version_pct",
         "volatility_method": "version_dispersion_pct",
         "baseline_version": "2026-09",
         "current_version": "2026-12",
@@ -2623,12 +2623,12 @@
           "name": "Forecast version alignment",
           "description": "Selected baseline and current forecast versions must be aligned over the same forecast horizon and target variables.",
           "severity": "error",
-          "rationale": "Variance between forecast versions is meaningful only when both versions refer to the same future period."
+          "rationale": "Forecast revision between forecast versions is meaningful only when both versions refer to the same future period."
         },
         {
           "rule_id": "CR-002",
           "name": "Target coverage",
-          "description": "Every field with role=target must produce a VarianceSignal and VolatilitySignal for the selected analysis period.",
+          "description": "Every field with role=target must produce a RevisionMagnitudeSignal and VolatilitySignal for the selected analysis period.",
           "severity": "error",
           "rationale": "A decision card is not meaningful unless each selected target is connected to interpretable signals."
         },
@@ -2642,7 +2642,7 @@
         {
           "rule_id": "CR-004",
           "name": "Method declaration",
-          "description": "Variance and volatility methods must be explicitly selected or defined before analysis.",
+          "description": "Revision and volatility methods must be explicitly selected or defined before analysis.",
           "severity": "error",
           "rationale": "Interpretability requires a named computation procedure, not hidden calculations."
         },
@@ -2683,14 +2683,14 @@
         "id": "T3",
         "name": "MethodSetToSignalModel",
         "input": "ForecastComparisonModel + MethodSet",
-        "output": "VarianceSignal + VolatilitySignal",
-        "purpose": "Apply declared variance and volatility methods rather than hidden calculations.",
+        "output": "RevisionMagnitudeSignal + VolatilitySignal",
+        "purpose": "Apply declared revision and volatility methods rather than hidden calculations.",
         "status": "pass"
       },
       {
         "id": "T4",
         "name": "SignalModelToDecisionCard",
-        "input": "VarianceSignal + VolatilitySignal + Thresholds",
+        "input": "RevisionMagnitudeSignal + VolatilitySignal + Thresholds",
         "output": "DecisionModel",
         "purpose": "Transform classified signals into traceable actionability recommendations.",
         "status": "pass"
@@ -2704,7 +2704,7 @@
         "current_version": "2026-12",
         "baseline": 169949.74,
         "current": 195985.46,
-        "variance_pct": 15.31965862377901,
+        "signed_revision_pct": 15.31965862377901,
         "volatility": 18.053344317795077
       },
       {
@@ -2714,7 +2714,7 @@
         "current_version": "2026-12",
         "baseline": 186079.25,
         "current": 209413.46,
-        "variance_pct": 12.539931238974788,
+        "signed_revision_pct": 12.539931238974788,
         "volatility": 16.347293496823635
       },
       {
@@ -2724,7 +2724,7 @@
         "current_version": "2026-12",
         "baseline": 205217.76,
         "current": 229920.45,
-        "variance_pct": 12.037306127890686,
+        "signed_revision_pct": 12.037306127890686,
         "volatility": 21.08118222424936
       },
       {
@@ -2734,7 +2734,7 @@
         "current_version": "2026-12",
         "baseline": 203266.22,
         "current": 218680.43,
-        "variance_pct": 7.583261990113257,
+        "signed_revision_pct": 7.583261990113257,
         "volatility": 14.861593893904217
       },
       {
@@ -2744,7 +2744,7 @@
         "current_version": "2026-12",
         "baseline": 207404.33,
         "current": 219624.17,
-        "variance_pct": 5.8917959909516,
+        "signed_revision_pct": 5.8917959909516,
         "volatility": 12.83047687367253
       },
       {
@@ -2754,7 +2754,7 @@
         "current_version": "2026-12",
         "baseline": 200533.14,
         "current": 240720.15,
-        "variance_pct": 20.040084147687498,
+        "signed_revision_pct": 20.040084147687498,
         "volatility": 15.49806673712262
       },
       {
@@ -2764,7 +2764,7 @@
         "current_version": "2026-12",
         "baseline": 214820.19,
         "current": 229952.26,
-        "variance_pct": 7.044063223293866,
+        "signed_revision_pct": 7.044063223293866,
         "volatility": 15.491205610762446
       },
       {
@@ -2774,7 +2774,7 @@
         "current_version": "2026-12",
         "baseline": 196331.69,
         "current": 243830.18,
-        "variance_pct": 24.192981785059757,
+        "signed_revision_pct": 24.192981785059757,
         "volatility": 17.83454279568565
       },
       {
@@ -2784,7 +2784,7 @@
         "current_version": "2026-12",
         "baseline": 384.81,
         "current": 449.4,
-        "variance_pct": 16.7849068371404,
+        "signed_revision_pct": 16.7849068371404,
         "volatility": 17.25558088283199
       },
       {
@@ -2794,7 +2794,7 @@
         "current_version": "2026-12",
         "baseline": 426.49,
         "current": 476.44,
-        "variance_pct": 11.71188070060259,
+        "signed_revision_pct": 11.71188070060259,
         "volatility": 15.9246779726573
       },
       {
@@ -2804,7 +2804,7 @@
         "current_version": "2026-12",
         "baseline": 456.6,
         "current": 522.47,
-        "variance_pct": 14.426193604905826,
+        "signed_revision_pct": 14.426193604905826,
         "volatility": 20.82798205339674
       },
       {
@@ -2814,7 +2814,7 @@
         "current_version": "2026-12",
         "baseline": 464.44,
         "current": 500.72,
-        "variance_pct": 7.811558005339771,
+        "signed_revision_pct": 7.811558005339771,
         "volatility": 15.049131722810635
       },
       {
@@ -2824,7 +2824,7 @@
         "current_version": "2026-12",
         "baseline": 472.12,
         "current": 495.47,
-        "variance_pct": 4.94577649750064,
+        "signed_revision_pct": 4.94577649750064,
         "volatility": 12.729264388428579
       },
       {
@@ -2834,7 +2834,7 @@
         "current_version": "2026-12",
         "baseline": 463.94,
         "current": 537.28,
-        "variance_pct": 15.808078630857434,
+        "signed_revision_pct": 15.808078630857434,
         "volatility": 14.652253065262327
       },
       {
@@ -2844,7 +2844,7 @@
         "current_version": "2026-12",
         "baseline": 486.76,
         "current": 520.4,
-        "variance_pct": 6.91100336921686,
+        "signed_revision_pct": 6.91100336921686,
         "volatility": 14.681109889113289
       },
       {
@@ -2854,7 +2854,7 @@
         "current_version": "2026-12",
         "baseline": 451.33,
         "current": 553.15,
-        "variance_pct": 22.559989364766356,
+        "signed_revision_pct": 22.559989364766356,
         "volatility": 17.71089596330574
       }
     ]
@@ -2875,13 +2875,13 @@
         "id": "DP-001",
         "rationale": "Large movement under controlled volatility is likely decision-relevant.",
         "then": "Act / review strategy",
-        "when": "Large variance AND Low volatility"
+        "when": "Large revision magnitude AND Low volatility"
       },
       {
         "id": "DP-002",
         "rationale": "Large movement exists but uncertainty is elevated.",
         "then": "Monitor closely",
-        "when": "Large variance AND Medium/High volatility"
+        "when": "Large revision magnitude AND Medium/High volatility"
       },
       {
         "id": "DP-003",
@@ -2893,7 +2893,7 @@
         "id": "DP-004",
         "rationale": "Movement is not material enough for action.",
         "then": "Stable / no action",
-        "when": "Small variance AND Low/Medium volatility"
+        "when": "Small revision AND Low/Medium volatility"
       }
     ]
   },
@@ -2924,7 +2924,7 @@
       "step": 5
     },
     {
-      "name": "Variance and Volatility Analysis",
+      "name": "Revision Magnitude and Volatility Analysis",
       "output_model": "DecisionModel",
       "step": 6
     }
@@ -3087,11 +3087,11 @@
   "methodology_model": {
     "method_notes": "Methods are explicit model elements. The analysis is generated only after the selected methods and scope are declared.",
     "methods": {
-      "custom_variance_formula": "",
+      "custom_revision_formula": "",
       "custom_volatility_formula": "",
       "rolling_window": 4,
-      "variance_method": "version_to_version_pct",
-      "variance_threshold_large": 5,
+      "revision_method": "version_to_version_pct",
+      "revision_magnitude_threshold_large": 5,
       "volatility_method": "version_dispersion_pct",
       "volatility_threshold_high": 4
     },

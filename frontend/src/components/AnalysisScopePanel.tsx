@@ -12,6 +12,7 @@ export function AnalysisScopePanel({ profile, fieldSpecs, scope, setScope }: Pro
   const versionFields = fieldSpecs.filter((f) => f.role === 'forecast_version').map((f) => f.name);
   const horizonFields = fieldSpecs.filter((f) => f.role === 'forecast_horizon').map((f) => f.name);
   const versions = profile.forecast_versions || [];
+  const periods = profile.forecast_periods || [];
 
   return (
     <section className="panel">
@@ -19,7 +20,7 @@ export function AnalysisScopePanel({ profile, fieldSpecs, scope, setScope }: Pro
         <div>
           <p className="eyebrow">DSL step 2</p>
           <h2>Analysis Scope Model</h2>
-          <p className="muted">Bind forecast versions to the same forecast horizon before computing variance and volatility.</p>
+          <p className="muted">Bind forecast versions to the same forecast horizon before computing revision magnitude and volatility.</p>
         </div>
       </div>
       <div className="threshold-grid">
@@ -43,8 +44,16 @@ export function AnalysisScopePanel({ profile, fieldSpecs, scope, setScope }: Pro
             {[scope.current_version, ...versions].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).map((v) => <option key={v}>{v}</option>)}
           </select>
         </label>
-        <label>Period start<input value={scope.period_start} onChange={(e) => patch({ period_start: e.target.value })} placeholder={profile.period_min || '2027-01'} /></label>
-        <label>Period end<input value={scope.period_end} onChange={(e) => patch({ period_end: e.target.value })} placeholder={profile.period_max || '2028-12'} /></label>
+        <label>Period start
+          <select value={scope.period_start} onChange={(e) => patch({period_start:e.target.value})}>
+            {[scope.period_start, ...periods].filter(Boolean).filter((v,i,a) => a.indexOf(v) === i).map((v)=> <option key={v}>{v}</option>)}
+          </select>
+        </label>
+        <label>Period end
+          <select value={scope.period_end} onChange={(e) => patch({period_end:e.target.value})}>
+            {[scope.period_end, ...periods].filter(Boolean).filter((v,i,a) => a.indexOf(v) === i).map((v)=> <option key={v}>{v}</option>)}
+          </select>
+        </label>
       </div>
     </section>
   );

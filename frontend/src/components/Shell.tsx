@@ -8,7 +8,7 @@ const pages: { id: PageId; label: string; step: string; icon: typeof TableProper
   { id: 'methodology', label: 'Methodology Review', step: 'Steps 2-3', icon: Settings2, output: 'MethodSet + Scope' },
   { id: 'metamodel', label: 'Metamodel Extension', step: 'Step 4', icon: Network, output: 'Ecore + Extension' },
   { id: 'transformations', label: 'Model Rigor & Instance View', step: 'Compiled Model', icon: GitBranch, output: 'Assurance Instance' },
-  { id: 'decisions', label: 'Variance & Volatility', step: 'Assurance', icon: LineChart, output: 'DecisionModel' },
+  { id: 'decisions', label: 'Revision & Volatility', step: 'Assurance', icon: LineChart, output: 'DecisionModel' },
   { id: 'spec', label: 'Project Spec File', step: 'Central JSON', icon: FileJson, output: 'Canonical Workspace' }
 ];
 
@@ -37,7 +37,7 @@ export function AppShell({
           <div className="brand-mark">FA</div>
           <div>
             <strong>ForeACT</strong>
-            <span>Forecast Actionability Studio</span>
+            <span>Forecast Actionability Workbench</span>
           </div>
         </div>
         {/* <div className="workspace-chip"><Database size={15} /> AI Data-Center Capacity Planning</div> */}
@@ -60,8 +60,8 @@ export function AppShell({
       <section className="content-area">
         <header className="topbar">
           <div>
-            <p className="eyebrow">Model-driven forecast assurance project</p>
-            <h1>{projectName}</h1>
+            <p className="eyebrow" style={{ fontSize: '1.1rem', fontWeight: 600, letterSpacing: '0.04em' }}>Model-driven forecast assurance</p>
+            {/* <h1>{projectName}</h1> */}
           </div>
           <div className="topbar-actions">
             <button className="secondary" onClick={onSave} disabled={loading}>Save Project Spec</button>

@@ -46,22 +46,23 @@ def _layout_position(index: int, package_name: str, class_name: str | None = Non
         "ScenarioModel": (340, 650),
         "AssumptionElement": (640, 650),
         "ScenarioAssumption": (520, 840),
-        "DataCenterCommitment": (780, 840),
         "EvidenceArtifact": (1060, 650),
 
         # methods and comparison
         "MethodSet": (40, 650),
         "AnalysisMethod": (40, 840),
-        "VarianceMethod": (40, 1040),
+        "RevisionMethod": (40, 1040),
         "VolatilityMethod": (280, 1040),
         "ConfidenceMethod": (520, 1040),
         "ForecastComparisonModel": (940, 40),
-        "ForecastComparisonRecord": (1180, 210),
+        "ForecastValue": (940, 240),
+        "ForecastRevisionRecord": (1180, 210),
+        "ForecastVolatilityRecord": (1180, 430),
 
         # signals and decisions
         "SignalModel": (1420, 40),
         "Signal": (1420, 240),
-        "VarianceSignal": (1220, 470),
+        "RevisionMagnitudeSignal": (1220, 470),
         "VolatilitySignal": (1460, 470),
         "ConfidenceSignal": (1700, 470),
         "DecisionModel": (1420, 760),
@@ -98,13 +99,13 @@ def _package_for(name: str) -> str:
         return "Data"
     if name in {"FieldModel", "SemanticField", "VersionField", "HorizonField", "TargetField", "DriverField"}:
         return "Semantics"
-    if name in {"ScenarioModel", "AssumptionElement", "ScenarioAssumption", "DataCenterCommitment", "EvidenceArtifact"}:
+    if name in {"ScenarioModel", "AssumptionElement", "ScenarioAssumption", "EvidenceArtifact"}:
         return "Scenario"
-    if name in {"MethodSet", "AnalysisMethod", "VarianceMethod", "VolatilityMethod", "ConfidenceMethod"}:
+    if name in {"MethodSet", "AnalysisMethod", "RevisionMethod", "VolatilityMethod", "ConfidenceMethod"}:
         return "Methodology"
-    if name in {"ForecastComparisonModel", "ForecastComparisonRecord"}:
+    if name in {"ForecastComparisonModel", "ForecastVintage", "ForecastValue", "ForecastRevisionRecord", "ForecastVolatilityRecord"}:
         return "Comparison"
-    if name in {"SignalModel", "Signal", "VarianceSignal", "VolatilitySignal", "ConfidenceSignal"}:
+    if name in {"SignalModel", "Signal", "RevisionMagnitudeSignal", "VolatilitySignal", "ConfidenceSignal"}:
         return "Signals"
     if name in {"DecisionModel", "DecisionPolicy", "DecisionRule", "DecisionCard"}:
         return "Decision"
