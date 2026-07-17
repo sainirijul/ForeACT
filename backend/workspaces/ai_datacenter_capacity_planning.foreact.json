@@ -22,7 +22,7 @@
       {
         "target": "target_1_total_load_mwh",
         "headline": "Monitor closely for target_1_total_load_mwh",
-        "rationale": "The movement is large, but uncertainty is elevated; avoid immediate irreversible action.",
+        "rationale": "Large movement exists but uncertainty is elevated.",
         "trace": {
           "DatasetVersion": "144 rows / 13 columns",
           "FieldModel": "8 drivers, 2 targets",
@@ -35,7 +35,7 @@
       {
         "target": "target_2_peak_load_mw",
         "headline": "Monitor closely for target_2_peak_load_mw",
-        "rationale": "The movement is large, but uncertainty is elevated; avoid immediate irreversible action.",
+        "rationale": "Large movement exists but uncertainty is elevated.",
         "trace": {
           "DatasetVersion": "144 rows / 13 columns",
           "FieldModel": "8 drivers, 2 targets",
@@ -123,8 +123,8 @@
           ],
           "references": [],
           "position": {
-            "x": 0,
-            "y": 0
+            "x": 40,
+            "y": 40
           },
           "isCore": true
         },
@@ -196,8 +196,8 @@
             }
           ],
           "position": {
-            "x": 300,
-            "y": 0
+            "x": 40,
+            "y": 210
           },
           "isCore": true
         },
@@ -239,8 +239,8 @@
             }
           ],
           "position": {
-            "x": 600,
-            "y": 250
+            "x": 340,
+            "y": 40
           },
           "isCore": true
         },
@@ -274,8 +274,8 @@
           ],
           "references": [],
           "position": {
-            "x": 900,
-            "y": 250
+            "x": 340,
+            "y": 210
           },
           "isCore": true
         },
@@ -305,8 +305,8 @@
             }
           ],
           "position": {
-            "x": 0,
-            "y": 630
+            "x": 640,
+            "y": 40
           },
           "isCore": true
         },
@@ -354,8 +354,8 @@
             }
           ],
           "position": {
-            "x": 300,
-            "y": 630
+            "x": 640,
+            "y": 210
           },
           "isCore": true
         },
@@ -377,8 +377,8 @@
           ],
           "references": [],
           "position": {
-            "x": 600,
-            "y": 630
+            "x": 460,
+            "y": 410
           },
           "isCore": true
         },
@@ -400,8 +400,8 @@
           ],
           "references": [],
           "position": {
-            "x": 900,
-            "y": 630
+            "x": 700,
+            "y": 410
           },
           "isCore": true
         },
@@ -423,8 +423,8 @@
           ],
           "references": [],
           "position": {
-            "x": 0,
-            "y": 760
+            "x": 940,
+            "y": 410
           },
           "isCore": true
         },
@@ -446,8 +446,8 @@
           ],
           "references": [],
           "position": {
-            "x": 300,
-            "y": 760
+            "x": 1180,
+            "y": 410
           },
           "isCore": true
         },
@@ -477,8 +477,8 @@
             }
           ],
           "position": {
-            "x": 600,
-            "y": 1040
+            "x": 340,
+            "y": 650
           },
           "isCore": true
         },
@@ -514,8 +514,8 @@
             }
           ],
           "position": {
-            "x": 900,
-            "y": 1040
+            "x": 640,
+            "y": 650
           },
           "isCore": true
         },
@@ -537,8 +537,8 @@
           ],
           "references": [],
           "position": {
-            "x": 0,
-            "y": 1170
+            "x": 520,
+            "y": 840
           },
           "isCore": true
         },
@@ -580,8 +580,8 @@
             }
           ],
           "position": {
-            "x": 300,
-            "y": 1170
+            "x": 780,
+            "y": 840
           },
           "isCore": true
         },
@@ -615,8 +615,8 @@
           ],
           "references": [],
           "position": {
-            "x": 600,
-            "y": 1170
+            "x": 1060,
+            "y": 650
           },
           "isCore": true
         },
@@ -639,8 +639,8 @@
             }
           ],
           "position": {
-            "x": 900,
-            "y": 1470
+            "x": 40,
+            "y": 650
           },
           "isCore": true
         },
@@ -668,8 +668,8 @@
           ],
           "references": [],
           "position": {
-            "x": 0,
-            "y": 1600
+            "x": 40,
+            "y": 840
           },
           "isCore": true
         },
@@ -691,8 +691,8 @@
           ],
           "references": [],
           "position": {
-            "x": 300,
-            "y": 1600
+            "x": 40,
+            "y": 1040
           },
           "isCore": true
         },
@@ -710,12 +710,18 @@
               "type": "EDouble",
               "lowerBound": 0,
               "upperBound": 1
+            },
+            {
+              "name": "statistic",
+              "type": "VolatilityStatisticKind",
+              "lowerBound": 0,
+              "upperBound": 1
             }
           ],
           "references": [],
           "position": {
-            "x": 600,
-            "y": 1600
+            "x": 280,
+            "y": 1040
           },
           "isCore": true
         },
@@ -737,8 +743,8 @@
           ],
           "references": [],
           "position": {
-            "x": 900,
-            "y": 1600
+            "x": 520,
+            "y": 1040
           },
           "isCore": true
         },
@@ -752,25 +758,13 @@
           "count": 1,
           "attributes": [
             {
-              "name": "baselineVersion",
+              "name": "focusPeriodStart",
               "type": "EString",
               "lowerBound": 0,
               "upperBound": 1
             },
             {
-              "name": "currentVersion",
-              "type": "EString",
-              "lowerBound": 0,
-              "upperBound": 1
-            },
-            {
-              "name": "periodStart",
-              "type": "EString",
-              "lowerBound": 0,
-              "upperBound": 1
-            },
-            {
-              "name": "periodEnd",
+              "name": "focusPeriodEnd",
               "type": "EString",
               "lowerBound": 0,
               "upperBound": 1
@@ -778,8 +772,36 @@
           ],
           "references": [
             {
-              "name": "records",
-              "target": "ForecastComparisonRecord",
+              "name": "vintages",
+              "target": "ForecastVintage",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": "*"
+            },
+            {
+              "name": "baselineVintage",
+              "target": "ForecastVintage",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "currentVintage",
+              "target": "ForecastVintage",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "varianceRecords",
+              "target": "ForecastVarianceRecord",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": "*"
+            },
+            {
+              "name": "volatilityRecords",
+              "target": "ForecastVolatilityRecord",
               "containment": true,
               "lowerBound": 0,
               "upperBound": "*"
@@ -800,40 +822,72 @@
             }
           ],
           "position": {
-            "x": 0,
-            "y": 2000
+            "x": 940,
+            "y": 40
           },
           "isCore": true
         },
         {
-          "id": "ForecastComparisonRecord",
-          "label": "ForecastComparisonRecord",
+          "id": "ForecastVintage",
+          "label": "ForecastVintage",
           "kind": "class",
-          "package": "Comparison",
+          "package": "Extension",
           "stereotype": "EClass",
           "abstract": false,
           "count": 1,
           "attributes": [
             {
-              "name": "period",
+              "name": "vintageDate",
               "type": "EString",
               "lowerBound": 0,
               "upperBound": 1
             },
             {
-              "name": "baselineValue",
-              "type": "EDouble",
+              "name": "sequenceNumber",
+              "type": "EInt",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "observations",
+              "target": "ForecastObservation",
+              "containment": true,
+              "lowerBound": 0,
+              "upperBound": "*"
+            },
+            {
+              "name": "activeAssumptions",
+              "target": "AssumptionElement",
+              "containment": false,
+              "lowerBound": 0,
+              "upperBound": "*"
+            }
+          ],
+          "position": {
+            "x": 280,
+            "y": 3060
+          },
+          "isCore": true
+        },
+        {
+          "id": "ForecastObservation",
+          "label": "ForecastObservation",
+          "kind": "class",
+          "package": "Extension",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "targetPeriod",
+              "type": "EString",
               "lowerBound": 0,
               "upperBound": 1
             },
             {
-              "name": "currentValue",
-              "type": "EDouble",
-              "lowerBound": 0,
-              "upperBound": 1
-            },
-            {
-              "name": "delta",
+              "name": "value",
               "type": "EDouble",
               "lowerBound": 0,
               "upperBound": 1
@@ -849,8 +903,141 @@
             }
           ],
           "position": {
-            "x": 300,
-            "y": 2000
+            "x": 40,
+            "y": 3220
+          },
+          "isCore": true
+        },
+        {
+          "id": "ForecastVarianceRecord",
+          "label": "ForecastVarianceRecord",
+          "kind": "class",
+          "package": "Extension",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "targetPeriod",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "delta",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "deltaPct",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "target",
+              "target": "TargetField",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "baselineObservation",
+              "target": "ForecastObservation",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "currentObservation",
+              "target": "ForecastObservation",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "computedBy",
+              "target": "VarianceMethod",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            }
+          ],
+          "position": {
+            "x": 280,
+            "y": 3220
+          },
+          "isCore": true
+        },
+        {
+          "id": "ForecastVolatilityRecord",
+          "label": "ForecastVolatilityRecord",
+          "kind": "class",
+          "package": "Extension",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "targetPeriod",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "volatilityScore",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "stdDev",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "valueRange",
+              "type": "EDouble",
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "observationCount",
+              "type": "EInt",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [
+            {
+              "name": "target",
+              "target": "TargetField",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "observations",
+              "target": "ForecastObservation",
+              "containment": false,
+              "lowerBound": 2,
+              "upperBound": "*"
+            },
+            {
+              "name": "computedBy",
+              "target": "VolatilityMethod",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            }
+          ],
+          "position": {
+            "x": 40,
+            "y": 3380
           },
           "isCore": true
         },
@@ -873,8 +1060,8 @@
             }
           ],
           "position": {
-            "x": 600,
-            "y": 2250
+            "x": 1420,
+            "y": 40
           },
           "isCore": true
         },
@@ -917,8 +1104,8 @@
             }
           ],
           "position": {
-            "x": 900,
-            "y": 2250
+            "x": 1420,
+            "y": 240
           },
           "isCore": true
         },
@@ -938,10 +1125,18 @@
               "upperBound": 1
             }
           ],
-          "references": [],
+          "references": [
+            {
+              "name": "basedOn",
+              "target": "ForecastVarianceRecord",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            }
+          ],
           "position": {
-            "x": 0,
-            "y": 2380
+            "x": 1220,
+            "y": 470
           },
           "isCore": true
         },
@@ -961,10 +1156,18 @@
               "upperBound": 1
             }
           ],
-          "references": [],
+          "references": [
+            {
+              "name": "basedOn",
+              "target": "ForecastVolatilityRecord",
+              "containment": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            }
+          ],
           "position": {
-            "x": 300,
-            "y": 2380
+            "x": 1460,
+            "y": 470
           },
           "isCore": true
         },
@@ -994,8 +1197,8 @@
             }
           ],
           "position": {
-            "x": 600,
-            "y": 2380
+            "x": 1700,
+            "y": 470
           },
           "isCore": true
         },
@@ -1025,8 +1228,8 @@
             }
           ],
           "position": {
-            "x": 900,
-            "y": 2680
+            "x": 1420,
+            "y": 760
           },
           "isCore": true
         },
@@ -1049,8 +1252,8 @@
             }
           ],
           "position": {
-            "x": 0,
-            "y": 2810
+            "x": 1180,
+            "y": 960
           },
           "isCore": true
         },
@@ -1078,8 +1281,8 @@
           ],
           "references": [],
           "position": {
-            "x": 300,
-            "y": 2810
+            "x": 1420,
+            "y": 960
           },
           "isCore": true
         },
@@ -1142,8 +1345,31 @@
             }
           ],
           "position": {
-            "x": 600,
-            "y": 2810
+            "x": 1660,
+            "y": 960
+          },
+          "isCore": true
+        },
+        {
+          "id": "DataCenterCommitmentExtension",
+          "label": "DataCenterCommitmentExtension",
+          "kind": "class",
+          "package": "Extension",
+          "stereotype": "EClass",
+          "abstract": false,
+          "count": 1,
+          "attributes": [
+            {
+              "name": "name",
+              "type": "EString",
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "references": [],
+          "position": {
+            "x": 40,
+            "y": 4180
           },
           "isCore": true
         }
@@ -1182,6 +1408,16 @@
             "review",
             "act"
           ]
+        },
+        {
+          "name": "VolatilityStatisticKind",
+          "literals": [
+            "std_dev",
+            "coefficient_of_variation",
+            "range",
+            "mean_absolute_revision",
+            "custom"
+          ]
         }
       ],
       "graph": {
@@ -1216,8 +1452,8 @@
             ],
             "references": [],
             "position": {
-              "x": 0,
-              "y": 0
+              "x": 40,
+              "y": 40
             },
             "isCore": true
           },
@@ -1289,8 +1525,8 @@
               }
             ],
             "position": {
-              "x": 300,
-              "y": 0
+              "x": 40,
+              "y": 210
             },
             "isCore": true
           },
@@ -1332,8 +1568,8 @@
               }
             ],
             "position": {
-              "x": 600,
-              "y": 250
+              "x": 340,
+              "y": 40
             },
             "isCore": true
           },
@@ -1367,8 +1603,8 @@
             ],
             "references": [],
             "position": {
-              "x": 900,
-              "y": 250
+              "x": 340,
+              "y": 210
             },
             "isCore": true
           },
@@ -1398,8 +1634,8 @@
               }
             ],
             "position": {
-              "x": 0,
-              "y": 630
+              "x": 640,
+              "y": 40
             },
             "isCore": true
           },
@@ -1447,8 +1683,8 @@
               }
             ],
             "position": {
-              "x": 300,
-              "y": 630
+              "x": 640,
+              "y": 210
             },
             "isCore": true
           },
@@ -1470,8 +1706,8 @@
             ],
             "references": [],
             "position": {
-              "x": 600,
-              "y": 630
+              "x": 460,
+              "y": 410
             },
             "isCore": true
           },
@@ -1493,8 +1729,8 @@
             ],
             "references": [],
             "position": {
-              "x": 900,
-              "y": 630
+              "x": 700,
+              "y": 410
             },
             "isCore": true
           },
@@ -1516,8 +1752,8 @@
             ],
             "references": [],
             "position": {
-              "x": 0,
-              "y": 760
+              "x": 940,
+              "y": 410
             },
             "isCore": true
           },
@@ -1539,8 +1775,8 @@
             ],
             "references": [],
             "position": {
-              "x": 300,
-              "y": 760
+              "x": 1180,
+              "y": 410
             },
             "isCore": true
           },
@@ -1570,8 +1806,8 @@
               }
             ],
             "position": {
-              "x": 600,
-              "y": 1040
+              "x": 340,
+              "y": 650
             },
             "isCore": true
           },
@@ -1607,8 +1843,8 @@
               }
             ],
             "position": {
-              "x": 900,
-              "y": 1040
+              "x": 640,
+              "y": 650
             },
             "isCore": true
           },
@@ -1630,8 +1866,8 @@
             ],
             "references": [],
             "position": {
-              "x": 0,
-              "y": 1170
+              "x": 520,
+              "y": 840
             },
             "isCore": true
           },
@@ -1673,8 +1909,8 @@
               }
             ],
             "position": {
-              "x": 300,
-              "y": 1170
+              "x": 780,
+              "y": 840
             },
             "isCore": true
           },
@@ -1708,8 +1944,8 @@
             ],
             "references": [],
             "position": {
-              "x": 600,
-              "y": 1170
+              "x": 1060,
+              "y": 650
             },
             "isCore": true
           },
@@ -1732,8 +1968,8 @@
               }
             ],
             "position": {
-              "x": 900,
-              "y": 1470
+              "x": 40,
+              "y": 650
             },
             "isCore": true
           },
@@ -1761,8 +1997,8 @@
             ],
             "references": [],
             "position": {
-              "x": 0,
-              "y": 1600
+              "x": 40,
+              "y": 840
             },
             "isCore": true
           },
@@ -1784,8 +2020,8 @@
             ],
             "references": [],
             "position": {
-              "x": 300,
-              "y": 1600
+              "x": 40,
+              "y": 1040
             },
             "isCore": true
           },
@@ -1803,12 +2039,18 @@
                 "type": "EDouble",
                 "lowerBound": 0,
                 "upperBound": 1
+              },
+              {
+                "name": "statistic",
+                "type": "VolatilityStatisticKind",
+                "lowerBound": 0,
+                "upperBound": 1
               }
             ],
             "references": [],
             "position": {
-              "x": 600,
-              "y": 1600
+              "x": 280,
+              "y": 1040
             },
             "isCore": true
           },
@@ -1830,8 +2072,8 @@
             ],
             "references": [],
             "position": {
-              "x": 900,
-              "y": 1600
+              "x": 520,
+              "y": 1040
             },
             "isCore": true
           },
@@ -1845,25 +2087,13 @@
             "count": 1,
             "attributes": [
               {
-                "name": "baselineVersion",
+                "name": "focusPeriodStart",
                 "type": "EString",
                 "lowerBound": 0,
                 "upperBound": 1
               },
               {
-                "name": "currentVersion",
-                "type": "EString",
-                "lowerBound": 0,
-                "upperBound": 1
-              },
-              {
-                "name": "periodStart",
-                "type": "EString",
-                "lowerBound": 0,
-                "upperBound": 1
-              },
-              {
-                "name": "periodEnd",
+                "name": "focusPeriodEnd",
                 "type": "EString",
                 "lowerBound": 0,
                 "upperBound": 1
@@ -1871,8 +2101,36 @@
             ],
             "references": [
               {
-                "name": "records",
-                "target": "ForecastComparisonRecord",
+                "name": "vintages",
+                "target": "ForecastVintage",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": "*"
+              },
+              {
+                "name": "baselineVintage",
+                "target": "ForecastVintage",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "currentVintage",
+                "target": "ForecastVintage",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "varianceRecords",
+                "target": "ForecastVarianceRecord",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": "*"
+              },
+              {
+                "name": "volatilityRecords",
+                "target": "ForecastVolatilityRecord",
                 "containment": true,
                 "lowerBound": 0,
                 "upperBound": "*"
@@ -1893,40 +2151,72 @@
               }
             ],
             "position": {
-              "x": 0,
-              "y": 2000
+              "x": 940,
+              "y": 40
             },
             "isCore": true
           },
           {
-            "id": "ForecastComparisonRecord",
-            "label": "ForecastComparisonRecord",
+            "id": "ForecastVintage",
+            "label": "ForecastVintage",
             "kind": "class",
-            "package": "Comparison",
+            "package": "Extension",
             "stereotype": "EClass",
             "abstract": false,
             "count": 1,
             "attributes": [
               {
-                "name": "period",
+                "name": "vintageDate",
                 "type": "EString",
                 "lowerBound": 0,
                 "upperBound": 1
               },
               {
-                "name": "baselineValue",
-                "type": "EDouble",
+                "name": "sequenceNumber",
+                "type": "EInt",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "observations",
+                "target": "ForecastObservation",
+                "containment": true,
+                "lowerBound": 0,
+                "upperBound": "*"
+              },
+              {
+                "name": "activeAssumptions",
+                "target": "AssumptionElement",
+                "containment": false,
+                "lowerBound": 0,
+                "upperBound": "*"
+              }
+            ],
+            "position": {
+              "x": 280,
+              "y": 3060
+            },
+            "isCore": true
+          },
+          {
+            "id": "ForecastObservation",
+            "label": "ForecastObservation",
+            "kind": "class",
+            "package": "Extension",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "targetPeriod",
+                "type": "EString",
                 "lowerBound": 0,
                 "upperBound": 1
               },
               {
-                "name": "currentValue",
-                "type": "EDouble",
-                "lowerBound": 0,
-                "upperBound": 1
-              },
-              {
-                "name": "delta",
+                "name": "value",
                 "type": "EDouble",
                 "lowerBound": 0,
                 "upperBound": 1
@@ -1942,8 +2232,141 @@
               }
             ],
             "position": {
-              "x": 300,
-              "y": 2000
+              "x": 40,
+              "y": 3220
+            },
+            "isCore": true
+          },
+          {
+            "id": "ForecastVarianceRecord",
+            "label": "ForecastVarianceRecord",
+            "kind": "class",
+            "package": "Extension",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "targetPeriod",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "delta",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "deltaPct",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "target",
+                "target": "TargetField",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "baselineObservation",
+                "target": "ForecastObservation",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "currentObservation",
+                "target": "ForecastObservation",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "computedBy",
+                "target": "VarianceMethod",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              }
+            ],
+            "position": {
+              "x": 280,
+              "y": 3220
+            },
+            "isCore": true
+          },
+          {
+            "id": "ForecastVolatilityRecord",
+            "label": "ForecastVolatilityRecord",
+            "kind": "class",
+            "package": "Extension",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "targetPeriod",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "volatilityScore",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "stdDev",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "valueRange",
+                "type": "EDouble",
+                "lowerBound": 0,
+                "upperBound": 1
+              },
+              {
+                "name": "observationCount",
+                "type": "EInt",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [
+              {
+                "name": "target",
+                "target": "TargetField",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              },
+              {
+                "name": "observations",
+                "target": "ForecastObservation",
+                "containment": false,
+                "lowerBound": 2,
+                "upperBound": "*"
+              },
+              {
+                "name": "computedBy",
+                "target": "VolatilityMethod",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              }
+            ],
+            "position": {
+              "x": 40,
+              "y": 3380
             },
             "isCore": true
           },
@@ -1966,8 +2389,8 @@
               }
             ],
             "position": {
-              "x": 600,
-              "y": 2250
+              "x": 1420,
+              "y": 40
             },
             "isCore": true
           },
@@ -2010,8 +2433,8 @@
               }
             ],
             "position": {
-              "x": 900,
-              "y": 2250
+              "x": 1420,
+              "y": 240
             },
             "isCore": true
           },
@@ -2031,10 +2454,18 @@
                 "upperBound": 1
               }
             ],
-            "references": [],
+            "references": [
+              {
+                "name": "basedOn",
+                "target": "ForecastVarianceRecord",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              }
+            ],
             "position": {
-              "x": 0,
-              "y": 2380
+              "x": 1220,
+              "y": 470
             },
             "isCore": true
           },
@@ -2054,10 +2485,18 @@
                 "upperBound": 1
               }
             ],
-            "references": [],
+            "references": [
+              {
+                "name": "basedOn",
+                "target": "ForecastVolatilityRecord",
+                "containment": false,
+                "lowerBound": 1,
+                "upperBound": 1
+              }
+            ],
             "position": {
-              "x": 300,
-              "y": 2380
+              "x": 1460,
+              "y": 470
             },
             "isCore": true
           },
@@ -2087,8 +2526,8 @@
               }
             ],
             "position": {
-              "x": 600,
-              "y": 2380
+              "x": 1700,
+              "y": 470
             },
             "isCore": true
           },
@@ -2118,8 +2557,8 @@
               }
             ],
             "position": {
-              "x": 900,
-              "y": 2680
+              "x": 1420,
+              "y": 760
             },
             "isCore": true
           },
@@ -2142,8 +2581,8 @@
               }
             ],
             "position": {
-              "x": 0,
-              "y": 2810
+              "x": 1180,
+              "y": 960
             },
             "isCore": true
           },
@@ -2171,8 +2610,8 @@
             ],
             "references": [],
             "position": {
-              "x": 300,
-              "y": 2810
+              "x": 1420,
+              "y": 960
             },
             "isCore": true
           },
@@ -2235,8 +2674,31 @@
               }
             ],
             "position": {
-              "x": 600,
-              "y": 2810
+              "x": 1660,
+              "y": 960
+            },
+            "isCore": true
+          },
+          {
+            "id": "DataCenterCommitmentExtension",
+            "label": "DataCenterCommitmentExtension",
+            "kind": "class",
+            "package": "Extension",
+            "stereotype": "EClass",
+            "abstract": false,
+            "count": 1,
+            "attributes": [
+              {
+                "name": "name",
+                "type": "EString",
+                "lowerBound": 0,
+                "upperBound": 1
+              }
+            ],
+            "references": [],
+            "position": {
+              "x": 40,
+              "y": 4180
             },
             "isCore": true
           }
@@ -2448,8 +2910,32 @@
           },
           {
             "source": "ForecastComparisonModel",
-            "target": "ForecastComparisonRecord",
-            "label": "\u25c6 records",
+            "target": "ForecastVintage",
+            "label": "\u25c6 vintages",
+            "kind": "composition"
+          },
+          {
+            "source": "ForecastComparisonModel",
+            "target": "ForecastVintage",
+            "label": "baselineVintage",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastComparisonModel",
+            "target": "ForecastVintage",
+            "label": "currentVintage",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastComparisonModel",
+            "target": "ForecastVarianceRecord",
+            "label": "\u25c6 varianceRecords",
+            "kind": "composition"
+          },
+          {
+            "source": "ForecastComparisonModel",
+            "target": "ForecastVolatilityRecord",
+            "label": "\u25c6 volatilityRecords",
             "kind": "composition"
           },
           {
@@ -2471,13 +2957,85 @@
             "kind": "inheritance"
           },
           {
-            "source": "ForecastComparisonRecord",
+            "source": "ForecastVintage",
+            "target": "ForecastObservation",
+            "label": "\u25c6 observations",
+            "kind": "composition"
+          },
+          {
+            "source": "ForecastVintage",
+            "target": "AssumptionElement",
+            "label": "activeAssumptions",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVintage",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "ForecastObservation",
             "target": "TargetField",
             "label": "target",
             "kind": "association"
           },
           {
-            "source": "ForecastComparisonRecord",
+            "source": "ForecastObservation",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "ForecastVarianceRecord",
+            "target": "TargetField",
+            "label": "target",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVarianceRecord",
+            "target": "ForecastObservation",
+            "label": "baselineObservation",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVarianceRecord",
+            "target": "ForecastObservation",
+            "label": "currentObservation",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVarianceRecord",
+            "target": "VarianceMethod",
+            "label": "computedBy",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVarianceRecord",
+            "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "ForecastVolatilityRecord",
+            "target": "TargetField",
+            "label": "target",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVolatilityRecord",
+            "target": "ForecastObservation",
+            "label": "observations",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVolatilityRecord",
+            "target": "VolatilityMethod",
+            "label": "computedBy",
+            "kind": "association"
+          },
+          {
+            "source": "ForecastVolatilityRecord",
             "target": "ModelElement",
             "label": "extends",
             "kind": "inheritance"
@@ -2514,9 +3072,21 @@
           },
           {
             "source": "VarianceSignal",
+            "target": "ForecastVarianceRecord",
+            "label": "basedOn",
+            "kind": "association"
+          },
+          {
+            "source": "VarianceSignal",
             "target": "Signal",
             "label": "extends",
             "kind": "inheritance"
+          },
+          {
+            "source": "VolatilitySignal",
+            "target": "ForecastVolatilityRecord",
+            "label": "basedOn",
+            "kind": "association"
           },
           {
             "source": "VolatilitySignal",
@@ -2599,6 +3169,12 @@
           {
             "source": "DecisionCard",
             "target": "ModelElement",
+            "label": "extends",
+            "kind": "inheritance"
+          },
+          {
+            "source": "DataCenterCommitmentExtension",
+            "target": "AssumptionElement",
             "label": "extends",
             "kind": "inheritance"
           }
@@ -2881,19 +3457,19 @@
         "id": "DP-002",
         "rationale": "Large movement exists but uncertainty is elevated.",
         "then": "Monitor closely",
-        "when": "Large variance AND High volatility"
+        "when": "Large variance AND Medium/High volatility"
       },
       {
         "id": "DP-003",
         "rationale": "The signal may be unstable and should be monitored before irreversible action.",
         "then": "Watch uncertainty",
-        "when": "Small variance AND High volatility"
+        "when": "High volatility dominates"
       },
       {
         "id": "DP-004",
         "rationale": "Movement is not material enough for action.",
         "then": "Stable / no action",
-        "when": "Small variance AND Low volatility"
+        "when": "Small variance AND Low/Medium volatility"
       }
     ]
   },
@@ -3078,7 +3654,7 @@
   },
   "metadata": {
     "created_by": "ForeACT scaffold",
-    "updated_at": "2026-07-14T04:36:39Z"
+    "updated_at": "2026-07-17T03:53:00Z"
   },
   "metamodel_extension": {
     "concepts": [],
@@ -3111,7 +3687,8 @@
     "domain": "Energy demand forecasting",
     "id": "ai_datacenter_capacity_planning",
     "name": "AI Data Center Load Forecast Assurance",
-    "tool_name": "ForeACT"
+    "tool_name": "ForeACT",
+    "updated_at": "2026-07-17T03:53:00.666024+00:00"
   },
   "schema_version": "0.6.0"
 }
