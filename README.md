@@ -3,8 +3,21 @@
 ForeACT is a model-driven workbench for assessing the actionability of forecast changes. It helps users compare forecast vintages, compute forecast revisions and volatility, configure decision policies, and generate traceable decision artifacts.
 
 ## Demo
+<h2 align="center">ForeACT Demonstration</h2>
 
-![Watch the ForeACT demonstration](docs/videos/demo.mp4)
+<p align="center">
+  <a href="docs/demo/foreact-demo.mp4">
+    <img
+      src="docs/images/demo-video-placeholder.png"
+      alt="Watch the ForeACT demonstration"
+      width="800"
+    />
+  </a>
+</p>
+
+<p align="center">
+  <em>Click the preview to watch the demonstration.</em>
+</p>
 
 
 ## Main Features
