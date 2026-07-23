@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 import type {
   AnalysisScope,
   DecisionPolicy,
   ForeACTProjectSpec,
   MethodConfig,
   ProfileResponse,
-} from '../types/analysis';
+} from "../types/analysis";
 
 type Props = {
   spec: ForeACTProjectSpec;
@@ -14,25 +14,25 @@ type Props = {
 };
 
 const MONTH_INDEX: Record<string, string> = {
-  jan: '01',
-  feb: '02',
-  mar: '03',
-  apr: '04',
-  may: '05',
-  jun: '06',
-  jul: '07',
-  aug: '08',
-  sep: '09',
-  oct: '10',
-  nov: '11',
-  dec: '12',
+  jan: "01",
+  feb: "02",
+  mar: "03",
+  apr: "04",
+  may: "05",
+  jun: "06",
+  jul: "07",
+  aug: "08",
+  sep: "09",
+  oct: "10",
+  nov: "11",
+  dec: "12",
 };
 
 function normalizePeriod(value: string | null | undefined): string {
-  const text = String(value ?? '').trim();
+  const text = String(value ?? "").trim();
 
   if (!text) {
-    return '';
+    return "";
   }
 
   const canonicalMatch = /^(\d{4})-(\d{2})$/.exec(text);
@@ -40,7 +40,7 @@ function normalizePeriod(value: string | null | undefined): string {
   if (canonicalMatch) {
     const month = Number(canonicalMatch[2]);
 
-    return month >= 1 && month <= 12 ? text : '';
+    return month >= 1 && month <= 12 ? text : "";
   }
 
   const shortMonthMatch = /^([A-Za-z]{3})[-\s](\d{2}|\d{4})$/.exec(text);
@@ -49,7 +49,7 @@ function normalizePeriod(value: string | null | undefined): string {
     const month = MONTH_INDEX[shortMonthMatch[1].toLowerCase()];
 
     if (!month) {
-      return '';
+      return "";
     }
 
     const rawYear = shortMonthMatch[2];
@@ -71,8 +71,8 @@ function formatPeriodLabel(value: string): string {
 
   const [, year, month] = match;
   const date = new Date(Number(year), Number(month) - 1, 1);
-  const monthLabel = date.toLocaleDateString('en-CA', {
-    month: 'short',
+  const monthLabel = date.toLocaleDateString("en-CA", {
+    month: "short",
   });
 
   return `${monthLabel}-${year.slice(-2)}`;
@@ -88,22 +88,14 @@ function uniqueCanonical(values: string[]): string[] {
   ).sort();
 }
 
-export function MethodologyReviewPage({
-  spec,
-  profile,
-  setSpec,
-}: Props) {
+export function MethodologyReviewPage({ spec, profile, setSpec }: Props) {
   const fields = spec.field_model.fields;
   const scope = spec.methodology_model.scope;
   const methods = spec.methodology_model.methods;
   const policy = spec.decision_policy;
 
-  const forecastVersions = uniqueCanonical(
-    profile?.forecast_versions ?? [],
-  );
-  const forecastPeriods = uniqueCanonical(
-    profile?.forecast_periods ?? [],
-  );
+  const forecastVersions = uniqueCanonical(profile?.forecast_versions ?? []);
+  const forecastPeriods = uniqueCanonical(profile?.forecast_periods ?? []);
 
   function setScope(changes: Partial<AnalysisScope>) {
     setSpec({
@@ -140,34 +132,22 @@ export function MethodologyReviewPage({
 
   const versionCandidates = fields
     .filter(
-      (field) =>
-        field.role === 'forecast_version' &&
-        field.include_in_model,
+      (field) => field.role === "forecast_version" && field.include_in_model,
     )
     .map((field) => field.name);
 
   const horizonCandidates = fields
     .filter(
-      (field) =>
-        field.role === 'forecast_horizon' &&
-        field.include_in_model,
+      (field) => field.role === "forecast_horizon" && field.include_in_model,
     )
     .map((field) => field.name);
 
   const targetFields = fields
-    .filter(
-      (field) =>
-        field.role === 'target' &&
-        field.include_in_model,
-    )
+    .filter((field) => field.role === "target" && field.include_in_model)
     .map((field) => field.name);
 
   const featureFields = fields
-    .filter(
-      (field) =>
-        field.role === 'feature' &&
-        field.include_in_model,
-    )
+    .filter((field) => field.role === "feature" && field.include_in_model)
     .map((field) => field.name);
 
   /*
@@ -217,8 +197,7 @@ export function MethodologyReviewPage({
       }
 
       if (!forecastPeriods.includes(nextScope.period_end)) {
-        nextScope.period_end =
-          forecastPeriods[forecastPeriods.length - 1];
+        nextScope.period_end = forecastPeriods[forecastPeriods.length - 1];
       }
 
       if (nextScope.period_start > nextScope.period_end) {
@@ -237,8 +216,8 @@ export function MethodologyReviewPage({
     }
   }, [
     profile,
-    forecastVersions.join('|'),
-    forecastPeriods.join('|'),
+    forecastVersions.join("|"),
+    forecastPeriods.join("|"),
     scope.baseline_version,
     scope.current_version,
     scope.period_start,
@@ -253,8 +232,7 @@ export function MethodologyReviewPage({
 
   const endPeriodOptions = forecastPeriods.filter(
     (period) =>
-      !scope.period_start ||
-      period >= normalizePeriod(scope.period_start),
+      !scope.period_start || period >= normalizePeriod(scope.period_start),
   );
 
   function handleBaselineChange(nextBaseline: string) {
@@ -266,9 +244,8 @@ export function MethodologyReviewPage({
 
     const nextCurrent = currentIsValid
       ? normalizePeriod(scope.current_version)
-      : forecastVersions.find(
-          (version) => version > normalizedBaseline,
-        ) ?? '';
+      : (forecastVersions.find((version) => version > normalizedBaseline) ??
+        "");
 
     setScope({
       baseline_version: normalizedBaseline,
@@ -322,9 +299,9 @@ export function MethodologyReviewPage({
         <h1>Configure forecast comparison and actionability</h1>
 
         <p>
-          All selections on this page update the same central ForeACT
-          project specification used by semantic modeling,
-          transformation analysis, and decision-card generation.
+          All selections on this page update the same central ForeACT project
+          specification used by semantic modeling, transformation analysis, and
+          decision-card generation.
         </p>
       </article>
 
@@ -335,7 +312,6 @@ export function MethodologyReviewPage({
         <div className="form-grid">
           <label>
             Version field
-
             <select
               value={scope.version_field}
               onChange={(event) =>
@@ -354,7 +330,6 @@ export function MethodologyReviewPage({
 
           <label>
             Horizon field
-
             <select
               value={scope.horizon_field}
               onChange={(event) =>
@@ -373,12 +348,9 @@ export function MethodologyReviewPage({
 
           <label>
             Baseline version
-
             <select
               value={normalizePeriod(scope.baseline_version)}
-              onChange={(event) =>
-                handleBaselineChange(event.target.value)
-              }
+              onChange={(event) => handleBaselineChange(event.target.value)}
             >
               <option value="">Select baseline</option>
 
@@ -392,12 +364,9 @@ export function MethodologyReviewPage({
 
           <label>
             Current version
-
             <select
               value={normalizePeriod(scope.current_version)}
-              onChange={(event) =>
-                handleCurrentChange(event.target.value)
-              }
+              onChange={(event) => handleCurrentChange(event.target.value)}
             >
               <option value="">Select current version</option>
 
@@ -411,12 +380,9 @@ export function MethodologyReviewPage({
 
           <label>
             Period start
-
             <select
               value={normalizePeriod(scope.period_start)}
-              onChange={(event) =>
-                handlePeriodStartChange(event.target.value)
-              }
+              onChange={(event) => handlePeriodStartChange(event.target.value)}
             >
               {forecastPeriods.map((period) => (
                 <option key={period} value={period}>
@@ -428,12 +394,9 @@ export function MethodologyReviewPage({
 
           <label>
             Period end
-
             <select
               value={normalizePeriod(scope.period_end)}
-              onChange={(event) =>
-                handlePeriodEndChange(event.target.value)
-              }
+              onChange={(event) => handlePeriodEndChange(event.target.value)}
             >
               {endPeriodOptions.map((period) => (
                 <option key={period} value={period}>
@@ -462,8 +425,8 @@ export function MethodologyReviewPage({
         </div>
 
         <p className="muted">
-          Baseline and current forecast values are aligned using the
-          selected target variable and forecast period.
+          Baseline and current forecast values are aligned using the selected
+          target variable and forecast period.
         </p>
       </article>
 
@@ -474,45 +437,38 @@ export function MethodologyReviewPage({
         <div className="form-grid">
           <label>
             Revision method
-
             <select
               value={methods.revision_method}
               onChange={(event) =>
                 setMethods({ revision_method: event.target.value })
               }
             >
-              {profile?.method_catalog.revision_methods.map(
-                (method) => (
-                  <option key={method.id} value={method.id}>
-                    {method.name}
-                  </option>
-                ),
-              )}
+              {profile?.method_catalog.revision_methods.map((method) => (
+                <option key={method.id} value={method.id}>
+                  {method.name}
+                </option>
+              ))}
             </select>
           </label>
 
           <label>
             Volatility method
-
             <select
               value={methods.volatility_method}
               onChange={(event) =>
                 setMethods({ volatility_method: event.target.value })
               }
             >
-              {profile?.method_catalog.volatility_methods.map(
-                (method) => (
-                  <option key={method.id} value={method.id}>
-                    {method.name}
-                  </option>
-                ),
-              )}
+              {profile?.method_catalog.volatility_methods.map((method) => (
+                <option key={method.id} value={method.id}>
+                  {method.name}
+                </option>
+              ))}
             </select>
           </label>
 
           <label>
             Large revision magnitude threshold
-
             <input
               type="number"
               value={methods.revision_magnitude_threshold_large}
@@ -528,15 +484,12 @@ export function MethodologyReviewPage({
 
           <label>
             High volatility threshold
-
             <input
               type="number"
               value={methods.volatility_threshold_high}
               onChange={(event) =>
                 setMethods({
-                  volatility_threshold_high: Number(
-                    event.target.value,
-                  ),
+                  volatility_threshold_high: Number(event.target.value),
                 })
               }
             />

@@ -1,4 +1,4 @@
-import type { Edge, Node } from '@xyflow/react';
+import type { Edge, Node } from "@xyflow/react";
 
 export type ApiAttribute = {
   name: string;
@@ -35,7 +35,7 @@ export type ApiGraphEdge = {
   source: string;
   target: string;
   label: string;
-  kind?: 'inheritance' | 'composition' | 'association' | string;
+  kind?: "inheritance" | "composition" | "association" | string;
 };
 
 export type ApiMetamodel = {
@@ -69,17 +69,18 @@ export function metamodelToFlow(metamodel: ApiMetamodel | null | undefined): {
 
   const nodes: Node[] = apiNodes.map((node, index) => ({
     id: node.id,
-    type: 'umlClass',
+    type: "umlClass",
     position: node.position ?? {
       x: (index % 5) * 280,
       y: Math.floor(index / 5) * 210,
     },
     data: {
       label: node.label ?? node.id,
-      packageName: node.package ?? node.kind ?? 'ForeACT',
-      stereotype: node.stereotype ?? (node.abstract ? 'abstract EClass' : 'EClass'),
+      packageName: node.package ?? node.kind ?? "ForeACT",
+      stereotype:
+        node.stereotype ?? (node.abstract ? "abstract EClass" : "EClass"),
       abstract: Boolean(node.abstract),
-      kind: node.kind ?? 'class',
+      kind: node.kind ?? "class",
       isCore: node.isCore ?? true,
       attributes: (node.attributes ?? []).map(formatAttribute),
       references: (node.references ?? []).map(formatReference),
@@ -89,18 +90,20 @@ export function metamodelToFlow(metamodel: ApiMetamodel | null | undefined): {
   }));
 
   const edges: Edge[] = apiEdges.map((edge, index) => {
-    const isInheritance = edge.kind === 'inheritance' || edge.label === 'extends';
-    const isComposition = edge.kind === 'composition' || edge.label.startsWith('◆');
+    const isInheritance =
+      edge.kind === "inheritance" || edge.label === "extends";
+    const isComposition =
+      edge.kind === "composition" || edge.label.startsWith("◆");
 
     return {
       id: `edge-${index}-${edge.source}-${edge.target}-${edge.label}`,
       source: edge.source,
       target: edge.target,
       label: edge.label,
-      type: isInheritance ? 'straight' : 'smoothstep',
+      type: isInheritance ? "straight" : "smoothstep",
       style: {
         strokeWidth: isComposition ? 2.3 : 1.5,
-        strokeDasharray: isInheritance ? '6 4' : undefined,
+        strokeDasharray: isInheritance ? "6 4" : undefined,
       },
     };
   });

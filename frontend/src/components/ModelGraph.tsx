@@ -1,4 +1,4 @@
-import type { MetaModelGraph } from '../types/analysis';
+import type { MetaModelGraph } from "../types/analysis";
 
 export function ModelGraph({ graph }: { graph: MetaModelGraph }) {
   return (
@@ -15,7 +15,11 @@ export function ModelGraph({ graph }: { graph: MetaModelGraph }) {
         ))}
       </div>
       <div className="edge-list">
-        {graph.edges.map((edge) => <span key={`${edge.source}-${edge.target}`}>{edge.source} → {edge.target} <b>{edge.label}</b></span>)}
+        {graph.edges.map((edge) => (
+          <span key={`${edge.source}-${edge.target}`}>
+            {edge.source} → {edge.target} <b>{edge.label}</b>
+          </span>
+        ))}
       </div>
     </section>
   );

@@ -167,7 +167,9 @@ def method_catalog() -> dict[str, Any]:
     }
 
 
-def build_default_field_specs(columns: list[str], numeric_columns: list[str]) -> list[dict[str, Any]]:
+def build_default_field_specs(
+    columns: list[str], numeric_columns: list[str]
+) -> list[dict[str, Any]]:
     specs: list[FieldSpec] = []
     for col in columns:
         lower = col.lower()
@@ -176,19 +178,53 @@ def build_default_field_specs(columns: list[str], numeric_columns: list[str]) ->
         semantic_type = "identifier_or_text"
         unit = ""
         direction = "neutral"
-        if lower in {"forecast_cycle", "forecast_version", "issue_date", "issue_month", "forecast_issue"}:
+        if lower in {
+            "forecast_cycle",
+            "forecast_version",
+            "issue_date",
+            "issue_month",
+            "forecast_issue",
+        }:
             role = "forecast_version"
             semantic_type = "forecast_issue_time"
-        elif lower in {"forecast_period", "horizon", "target_period", "period", "month", "date"} or "forecast_period" in lower:
+        elif (
+            lower
+            in {
+                "forecast_period",
+                "horizon",
+                "target_period",
+                "period",
+                "month",
+                "date",
+            }
+            or "forecast_period" in lower
+        ):
             role = "forecast_horizon"
             semantic_type = "forecast_target_time"
         elif lower in {"scenario", "case", "planning_scenario"}:
             role = "scenario"
             semantic_type = "planning_scenario"
-        elif lower.startswith("feature") or any(token in lower for token in ["gdp", "temp", "industrial", "price", "weather", "income", "probability", "commitment", "renewable", "pue"]):
+        elif lower.startswith("feature") or any(
+            token in lower
+            for token in [
+                "gdp",
+                "temp",
+                "industrial",
+                "price",
+                "weather",
+                "income",
+                "probability",
+                "commitment",
+                "renewable",
+                "pue",
+            ]
+        ):
             role = "feature" if is_numeric else "scenario"
             semantic_type = "external_driver"
-        elif lower.startswith("target") or any(token in lower for token in ["demand", "peak", "load", "revenue", "wcu", "mwh", "mw"]):
+        elif lower.startswith("target") or any(
+            token in lower
+            for token in ["demand", "peak", "load", "revenue", "wcu", "mwh", "mw"]
+        ):
             role = "target" if is_numeric and "forecast" not in lower else "ignore"
             semantic_type = "forecast_target"
         elif lower.startswith("previous_forecast"):
@@ -219,27 +255,56 @@ def build_default_field_specs(columns: list[str], numeric_columns: list[str]) ->
                 unit=unit,
                 description="Auto-discovered. Review and refine before analysis.",
                 direction=direction,
-                include_in_model=role in {"feature", "target", "forecast_version", "forecast_horizon", "scenario", "previous_forecast", "current_forecast"},
+                include_in_model=role
+                in {
+                    "feature",
+                    "target",
+                    "forecast_version",
+                    "forecast_horizon",
+                    "scenario",
+                    "previous_forecast",
+                    "current_forecast",
+                },
             )
         )
     return [asdict(spec) for spec in specs]
 
 
-def build_metamodel(field_specs: list[dict[str, Any]], method_spec: dict[str, Any], scope: dict[str, Any], custom_concepts: list[dict[str, Any]] | None = None) -> dict[str, Any]:
-    """Return the ForeACT metamodel projected from the single Ecore source.
+def build_metamodel(
+    field_specs: list[dict[str, Any]],
+    method_spec: dict[str, Any],
+    scope: dict[str, Any],
+    custom_concepts: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Return the ForeACT metamodel transformed from the single Ecore source.
 
-    The core metamodel is no longer duplicated here. It is maintained in
-    backend/metamodel/foreact.ecore and projected into JSON at runtime.
+    It is maintained in backend/metamodel/foreact.ecore and transformed into JSON at runtime.
     """
     from .metamodel_projection import ecore_to_graph
 
     metamodel = ecore_to_graph(custom_concepts or [])
     metamodel["runtime_summary"] = {
         "field_count": len(field_specs),
-        "target_count": len([f for f in field_specs if f.get("role") == "target" and f.get("include_in_model", True)]),
-        "driver_count": len([f for f in field_specs if f.get("role") == "feature" and f.get("include_in_model", True)]),
-        "version_field_count": len([f for f in field_specs if f.get("role") == "forecast_version"]),
-        "horizon_field_count": len([f for f in field_specs if f.get("role") == "forecast_horizon"]),
+        "target_count": len(
+            [
+                f
+                for f in field_specs
+                if f.get("role") == "target" and f.get("include_in_model", True)
+            ]
+        ),
+        "driver_count": len(
+            [
+                f
+                for f in field_specs
+                if f.get("role") == "feature" and f.get("include_in_model", True)
+            ]
+        ),
+        "version_field_count": len(
+            [f for f in field_specs if f.get("role") == "forecast_version"]
+        ),
+        "horizon_field_count": len(
+            [f for f in field_specs if f.get("role") == "forecast_horizon"]
+        ),
         "revision_method": method_spec.get("revision_method"),
         "volatility_method": method_spec.get("volatility_method"),
         "baseline_version": scope.get("baseline_version"),

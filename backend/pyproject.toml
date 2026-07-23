@@ -2,7 +2,7 @@
 name = "foreact-studio-backend"
 version = "0.1.0"
 description = "ForeACT model-driven forecast actionability backend"
-authors = ["Your Name <you@example.com>"]
+authors = ["Rijul Saini et al."]
 packages = [{ include = "app" }]
 
 [tool.poetry.dependencies]
@@ -18,6 +18,8 @@ pyecore = "^0.15.2"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"
 ruff = "^0.5.0"
+pre-commit = "<4"
+black = "^26.5.1"
 
 [build-system]
 requires = ["poetry-core"]

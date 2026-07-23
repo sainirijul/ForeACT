@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import type { ForeACTProjectSpec, ProfileResponse } from '../types/analysis';
+import { useState, useEffect } from "react";
+import type { ForeACTProjectSpec, ProfileResponse } from "../types/analysis";
 
 function AccordionRow({ title, body }: { title: string; body: string }) {
   const [open, setOpen] = useState(false);
@@ -7,7 +7,7 @@ function AccordionRow({ title, body }: { title: string; body: string }) {
     <div className="accordion-row">
       <button className="accordion-trigger" onClick={() => setOpen((p) => !p)}>
         <strong>{title}</strong>
-        <span className="toggle-icon">{open ? '▲' : '▼'}</span>
+        <span className="toggle-icon">{open ? "▲" : "▼"}</span>
       </button>
       {open && <p className="accordion-body">{body}</p>}
     </div>
@@ -61,13 +61,15 @@ export function ProjectSpecPanel({
     <section className="page-stack">
       <article className="panel hero-panel">
         <p className="eyebrow">Use-case specification</p>
-        {/* <h2>{spec.project?.name ?? 'ForeACT Project'}</h2> */}
-        <p>{spec.project?.description ?? 'Please select the dataset with which you want to compute revision and volatilty.'}</p>
+        <p>
+          {spec.project?.description ??
+            "Please select the dataset with which you want to compute revision and volatilty."}
+        </p>
 
         <div className="metric-row">
           <span>
-            <strong title={spec.dataset?.format ?? 'csv'}>
-              {spec.dataset?.format ?? 'csv'}
+            <strong title={spec.dataset?.format ?? "csv"}>
+              {spec.dataset?.format ?? "csv"}
             </strong>
             <small>Dataset format</small>
           </span>
@@ -82,7 +84,7 @@ export function ProjectSpecPanel({
         </div>
 
         <label className="upload-inline">
-          {uploading ? 'Uploading CSV...' : 'Upload CSV for this use case'}
+          {uploading ? "Uploading CSV..." : "Upload CSV for this use case"}
           <input
             type="file"
             accept=".csv"
@@ -91,23 +93,17 @@ export function ProjectSpecPanel({
               const file = event.target.files?.[0];
               if (file) {
                 void handleUpload(file);
-                event.target.value = '';
+                event.target.value = "";
               }
             }}
           />
         </label>
 
         {uploadMessage && (
-          <p className="helper-text success-text">
-            {uploadMessage}
-          </p>
+          <p className="helper-text success-text">{uploadMessage}</p>
         )}
 
-        {uploadError && (
-          <p className="helper-text error-text">
-            {uploadError}
-          </p>
-        )}
+        {uploadError && <p className="helper-text error-text">{uploadError}</p>}
       </article>
 
       <article className="panel">
@@ -119,34 +115,11 @@ export function ProjectSpecPanel({
             try {
               onSpecChange(JSON.parse(event.target.value));
             } catch {
-              // keep editor non-blocking; invalid JSON is ignored until user fixes it
+              // keep editor non-blocking;
             }
           }}
         />
       </article>
-      
-    {/* ── Why this file matters (accordion) ── */}
-
-    {/* <article>
-      <p className="eyebrow">Why this file matters</p>
-
-      {[
-        {
-          title: 'Dataset-specific model memory',
-          body: 'All pages read and write the same use-case file, so field semantics, methods, metamodel extensions, and analysis scope stay connected.',
-        },
-        {
-          title: 'Reusable modeling artifact',
-          body: 'The file is a compact JSON representation of the DSL instance and can be versioned with the dataset.',
-        },
-        {
-          title: 'Transformation input',
-          body: 'The compiled model and decision cards are generated from this specification instead of hidden UI state.',
-       },
-      ].map((item) => (
-    <AccordionRow key={item.title} title={item.title} body={item.body} />
-  ))}
-    </article> */}
-   </section>
+    </section>
   );
 }

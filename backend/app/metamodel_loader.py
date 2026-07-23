@@ -5,6 +5,7 @@ from pathlib import Path
 
 METAMODEL_PATH = Path(__file__).resolve().parents[1] / "metamodel" / "foreact.ecore"
 
+
 @lru_cache(maxsize=4)
 def _load_foreact_package_for_mtime(modified_ns: int):
     try:
@@ -17,9 +18,11 @@ def _load_foreact_package_for_mtime(modified_ns: int):
     resource_set.metamodel_registry[package.nsURI] = package
     return package
 
+
 def load_foreact_package():
     """Load the current Ecore package, automatically invalidating on file changes."""
     return _load_foreact_package_for_mtime(METAMODEL_PATH.stat().st_mtime_ns)
+
 
 def clear_metamodel_cache() -> None:
     _load_foreact_package_for_mtime.cache_clear()

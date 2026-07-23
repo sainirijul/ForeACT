@@ -19,19 +19,14 @@ def _type_name(etype: Any) -> str:
     return _safe_name(etype)
 
 
-def _layout_position(index: int, package_name: str, class_name: str | None = None) -> dict[str, int]:
-    """Deterministic readable layout for the ForeACT metamodel canvas.
-
-    The previous layout stacked packages vertically over ~2000px. React Flow
-    then fit the whole graph into the viewport and the metamodel looked almost
-    invisible. This layout keeps the core language in a compact left-to-right
-    modeling view so users can read classes and associations immediately.
-    """
+def _layout_position(
+    index: int, package_name: str, class_name: str | None = None
+) -> dict[str, int]:
+    """Deterministic readable layout for the ForeACT metamodel canvas."""
     positions = {
         # core/root
         "ModelElement": (40, 40),
         "ForecastAssuranceProject": (40, 210),
-
         # data and semantic field modeling
         "DatasetVersion": (340, 40),
         "RawField": (340, 210),
@@ -41,13 +36,11 @@ def _layout_position(index: int, package_name: str, class_name: str | None = Non
         "HorizonField": (700, 410),
         "TargetField": (940, 410),
         "DriverField": (1180, 410),
-
         # scenario and evidence
         "ScenarioModel": (340, 650),
         "AssumptionElement": (640, 650),
         "ScenarioAssumption": (520, 840),
         "EvidenceArtifact": (1060, 650),
-
         # methods and comparison
         "MethodSet": (40, 650),
         "AnalysisMethod": (40, 840),
@@ -58,7 +51,6 @@ def _layout_position(index: int, package_name: str, class_name: str | None = Non
         "ForecastValue": (940, 240),
         "ForecastRevisionRecord": (1180, 210),
         "ForecastVolatilityRecord": (1180, 430),
-
         # signals and decisions
         "SignalModel": (1420, 40),
         "Signal": (1420, 240),
@@ -97,29 +89,60 @@ def _package_for(name: str) -> str:
         return "Project"
     if name in {"DatasetVersion", "RawField"}:
         return "Data"
-    if name in {"FieldModel", "SemanticField", "VersionField", "HorizonField", "TargetField", "DriverField"}:
+    if name in {
+        "FieldModel",
+        "SemanticField",
+        "VersionField",
+        "HorizonField",
+        "TargetField",
+        "DriverField",
+    }:
         return "Semantics"
-    if name in {"ScenarioModel", "AssumptionElement", "ScenarioAssumption", "EvidenceArtifact"}:
+    if name in {
+        "ScenarioModel",
+        "AssumptionElement",
+        "ScenarioAssumption",
+        "EvidenceArtifact",
+    }:
         return "Scenario"
-    if name in {"MethodSet", "AnalysisMethod", "RevisionMethod", "VolatilityMethod", "ConfidenceMethod"}:
+    if name in {
+        "MethodSet",
+        "AnalysisMethod",
+        "RevisionMethod",
+        "VolatilityMethod",
+        "ConfidenceMethod",
+    }:
         return "Methodology"
-    if name in {"ForecastComparisonModel", "ForecastVintage", "ForecastValue", "ForecastRevisionRecord", "ForecastVolatilityRecord"}:
+    if name in {
+        "ForecastComparisonModel",
+        "ForecastVintage",
+        "ForecastValue",
+        "ForecastRevisionRecord",
+        "ForecastVolatilityRecord",
+    }:
         return "Comparison"
-    if name in {"SignalModel", "Signal", "RevisionMagnitudeSignal", "VolatilitySignal", "ConfidenceSignal"}:
+    if name in {
+        "SignalModel",
+        "Signal",
+        "RevisionMagnitudeSignal",
+        "VolatilitySignal",
+        "ConfidenceSignal",
+    }:
         return "Signals"
     if name in {"DecisionModel", "DecisionPolicy", "DecisionRule", "DecisionCard"}:
         return "Decision"
     return "Extension"
 
 
-
-def _ecore_to_graph_without_pyecore(custom_concepts: list[dict[str, Any]] | None = None) -> dict[str, Any]:
-    """Small XML fallback so the demo can still render before Poetry installs PyEcore."""
+def _ecore_to_graph_without_pyecore(
+    custom_concepts: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Small XML fallback so the demo can still render before Poetry installs PyEcore (TODO for prod deployment)."""
     import xml.etree.ElementTree as ET
 
     tree = ET.parse(METAMODEL_PATH)
     root = tree.getroot()
-    ns = {"xsi": "http://www.w3.org/2001/XMLSchema-instance"}
+    # ns = {"xsi": "http://www.w3.org/2001/XMLSchema-instance"}
     nodes: list[dict[str, Any]] = []
     edges: list[dict[str, Any]] = []
     enums: list[dict[str, Any]] = []
@@ -128,12 +151,22 @@ def _ecore_to_graph_without_pyecore(custom_concepts: list[dict[str, Any]] | None
     classifiers = list(root.findall("eClassifiers"))
     index = 0
     for classifier in classifiers:
-        xtype = classifier.attrib.get("{http://www.w3.org/2001/XMLSchema-instance}type", "")
+        xtype = classifier.attrib.get(
+            "{http://www.w3.org/2001/XMLSchema-instance}type", ""
+        )
         name = classifier.attrib.get("name", "")
         if not name:
             continue
         if xtype.endswith("EEnum"):
-            enums.append({"name": name, "literals": [lit.attrib.get("name", "") for lit in classifier.findall("eLiterals")]})
+            enums.append(
+                {
+                    "name": name,
+                    "literals": [
+                        lit.attrib.get("name", "")
+                        for lit in classifier.findall("eLiterals")
+                    ],
+                }
+            )
             continue
         if not xtype.endswith("EClass"):
             continue
@@ -141,43 +174,141 @@ def _ecore_to_graph_without_pyecore(custom_concepts: list[dict[str, Any]] | None
         package_name = _package_for(name)
         abstract = classifier.attrib.get("abstract") == "true"
         for feature in classifier.findall("eStructuralFeatures"):
-            ftype = feature.attrib.get("{http://www.w3.org/2001/XMLSchema-instance}type", "")
+            ftype = feature.attrib.get(
+                "{http://www.w3.org/2001/XMLSchema-instance}type", ""
+            )
             fname = feature.attrib.get("name", "")
-            etype = feature.attrib.get("eType", "EObject").split("#//")[-1].split("//")[-1]
+            etype = (
+                feature.attrib.get("eType", "EObject").split("#//")[-1].split("//")[-1]
+            )
             lb = int(feature.attrib.get("lowerBound", "0"))
             ub = int(feature.attrib.get("upperBound", "1"))
             if ftype.endswith("EAttribute"):
-                attrs.append({"name": fname, "type": etype, "lowerBound": lb, "upperBound": _upper_bound(ub)})
+                attrs.append(
+                    {
+                        "name": fname,
+                        "type": etype,
+                        "lowerBound": lb,
+                        "upperBound": _upper_bound(ub),
+                    }
+                )
             elif ftype.endswith("EReference"):
                 containment = feature.attrib.get("containment") == "true"
-                refs.append({"name": fname, "target": etype, "containment": containment, "lowerBound": lb, "upperBound": _upper_bound(ub)})
-                edges.append({"source": name, "target": etype, "label": ("◆ " if containment else "") + fname, "kind": "composition" if containment else "association"})
+                refs.append(
+                    {
+                        "name": fname,
+                        "target": etype,
+                        "containment": containment,
+                        "lowerBound": lb,
+                        "upperBound": _upper_bound(ub),
+                    }
+                )
+                edges.append(
+                    {
+                        "source": name,
+                        "target": etype,
+                        "label": ("◆ " if containment else "") + fname,
+                        "kind": "composition" if containment else "association",
+                    }
+                )
         for super_ref in classifier.attrib.get("eSuperTypes", "").split():
             super_name = super_ref.split("#//")[-1]
             if super_name:
-                edges.append({"source": name, "target": super_name, "label": "extends", "kind": "inheritance"})
-        node = {"id": name, "label": name, "kind": "abstract" if abstract else "class", "package": package_name, "stereotype": "abstract EClass" if abstract else "EClass", "abstract": abstract, "count": 1, "attributes": attrs, "references": refs, "position": _layout_position(index, package_name, name), "isCore": True}
-        nodes.append(node); classes.append(node); index += 1
+                edges.append(
+                    {
+                        "source": name,
+                        "target": super_name,
+                        "label": "extends",
+                        "kind": "inheritance",
+                    }
+                )
+        node = {
+            "id": name,
+            "label": name,
+            "kind": "abstract" if abstract else "class",
+            "package": package_name,
+            "stereotype": "abstract EClass" if abstract else "EClass",
+            "abstract": abstract,
+            "count": 1,
+            "attributes": attrs,
+            "references": refs,
+            "position": _layout_position(index, package_name, name),
+            "isCore": True,
+        }
+        nodes.append(node)
+        classes.append(node)
+        index += 1
 
     for i, concept in enumerate(custom_concepts or []):
-        name = str(concept.get("name") or f"ExtensionConcept{i+1}").strip().replace(" ", "")
-        attrs = concept.get("attributes") or [{"name": "name", "type": "EString", "lowerBound": 0, "upperBound": 1}]
+        name = (
+            str(concept.get("name") or f"ExtensionConcept{i+1}")
+            .strip()
+            .replace(" ", "")
+        )
+        attrs = concept.get("attributes") or [
+            {"name": "name", "type": "EString", "lowerBound": 0, "upperBound": 1}
+        ]
         refs = concept.get("references") or []
-        nodes.append({"id": name, "label": concept.get("name") or name, "kind": concept.get("kind") or "extension", "package": "Use-case Extension", "stereotype": concept.get("stereotype") or "EClass", "abstract": bool(concept.get("abstract")), "count": 1, "attributes": attrs, "references": refs, "position": {"x": concept.get("x", 40 + (i % 3) * 320), "y": concept.get("y", 2200 + (i // 3) * 170)}, "isCore": False})
-        connects_to = str(concept.get("connects_to") or "AssumptionElement").replace(" ", "")
-        edges.append({"source": name, "target": connects_to, "label": "extends", "kind": "inheritance"})
+        nodes.append(
+            {
+                "id": name,
+                "label": concept.get("name") or name,
+                "kind": concept.get("kind") or "extension",
+                "package": "Use-case Extension",
+                "stereotype": concept.get("stereotype") or "EClass",
+                "abstract": bool(concept.get("abstract")),
+                "count": 1,
+                "attributes": attrs,
+                "references": refs,
+                "position": {
+                    "x": concept.get("x", 40 + (i % 3) * 320),
+                    "y": concept.get("y", 2200 + (i // 3) * 170),
+                },
+                "isCore": False,
+            }
+        )
+        connects_to = str(concept.get("connects_to") or "AssumptionElement").replace(
+            " ", ""
+        )
+        edges.append(
+            {
+                "source": name,
+                "target": connects_to,
+                "label": "extends",
+                "kind": "inheritance",
+            }
+        )
         for ref in refs:
             target = str(ref.get("target") or "").replace(" ", "")
             if target:
-                edges.append({"source": name, "target": target, "label": ref.get("name", "relatesTo"), "kind": "association"})
+                edges.append(
+                    {
+                        "source": name,
+                        "target": target,
+                        "label": ref.get("name", "relatesTo"),
+                        "kind": "association",
+                    }
+                )
 
-    return {"name": "ForeACT Forecast Assurance Metamodel", "version": "1.0.0", "source": str(METAMODEL_PATH), "nsURI": "http://foreact/model", "intent": "Single-source Ecore metamodel for forecast-change actionability assessment.", "classes": classes, "enums": enums, "graph": {"nodes": nodes, "edges": edges}}
+    return {
+        "name": "ForeACT Forecast Assurance Metamodel",
+        "version": "1.0.0",
+        "source": str(METAMODEL_PATH),
+        "nsURI": "http://foreact/model",
+        "intent": "Single-source Ecore metamodel for forecast-change actionability assessment.",
+        "classes": classes,
+        "enums": enums,
+        "graph": {"nodes": nodes, "edges": edges},
+    }
 
 
-def ecore_to_graph(custom_concepts: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+def ecore_to_graph(
+    custom_concepts: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     """Project the single Ecore metamodel into frontend-friendly graph JSON."""
     try:
         from pyecore.ecore import EAttribute, EClass, EEnum, EReference
+
         package = load_foreact_package()
     except Exception:
         return _ecore_to_graph_without_pyecore(custom_concepts)
@@ -189,7 +320,12 @@ def ecore_to_graph(custom_concepts: list[dict[str, Any]] | None = None) -> dict[
     class_index = 0
     for classifier in package.eClassifiers:
         if isinstance(classifier, EEnum):
-            enums.append({"name": classifier.name, "literals": [literal.name for literal in classifier.eLiterals]})
+            enums.append(
+                {
+                    "name": classifier.name,
+                    "literals": [literal.name for literal in classifier.eLiterals],
+                }
+            )
             continue
         if not isinstance(classifier, EClass):
             continue
@@ -199,34 +335,42 @@ def ecore_to_graph(custom_concepts: list[dict[str, Any]] | None = None) -> dict[
         refs = []
         for feature in classifier.eStructuralFeatures:
             if isinstance(feature, EAttribute):
-                attrs.append({
-                    "name": feature.name,
-                    "type": _type_name(feature.eType),
-                    "lowerBound": int(feature.lowerBound),
-                    "upperBound": _upper_bound(int(feature.upperBound)),
-                })
+                attrs.append(
+                    {
+                        "name": feature.name,
+                        "type": _type_name(feature.eType),
+                        "lowerBound": int(feature.lowerBound),
+                        "upperBound": _upper_bound(int(feature.upperBound)),
+                    }
+                )
             elif isinstance(feature, EReference):
-                refs.append({
-                    "name": feature.name,
-                    "target": _type_name(feature.eType),
-                    "containment": bool(feature.containment),
-                    "lowerBound": int(feature.lowerBound),
-                    "upperBound": _upper_bound(int(feature.upperBound)),
-                })
-                edges.append({
-                    "source": classifier.name,
-                    "target": _type_name(feature.eType),
-                    "label": ("◆ " if feature.containment else "") + feature.name,
-                    "kind": "composition" if feature.containment else "association",
-                })
+                refs.append(
+                    {
+                        "name": feature.name,
+                        "target": _type_name(feature.eType),
+                        "containment": bool(feature.containment),
+                        "lowerBound": int(feature.lowerBound),
+                        "upperBound": _upper_bound(int(feature.upperBound)),
+                    }
+                )
+                edges.append(
+                    {
+                        "source": classifier.name,
+                        "target": _type_name(feature.eType),
+                        "label": ("◆ " if feature.containment else "") + feature.name,
+                        "kind": "composition" if feature.containment else "association",
+                    }
+                )
 
         for super_type in classifier.eSuperTypes:
-            edges.append({
-                "source": classifier.name,
-                "target": super_type.name,
-                "label": "extends",
-                "kind": "inheritance",
-            })
+            edges.append(
+                {
+                    "source": classifier.name,
+                    "target": super_type.name,
+                    "label": "extends",
+                    "kind": "inheritance",
+                }
+            )
 
         node = {
             "id": classifier.name,
@@ -246,29 +390,56 @@ def ecore_to_graph(custom_concepts: list[dict[str, Any]] | None = None) -> dict[
         class_index += 1
 
     for i, concept in enumerate(custom_concepts or []):
-        name = str(concept.get("name") or f"ExtensionConcept{i+1}").strip().replace(" ", "")
-        attrs = concept.get("attributes") or [{"name": "name", "type": "EString", "lowerBound": 0, "upperBound": 1}]
+        name = (
+            str(concept.get("name") or f"ExtensionConcept{i+1}")
+            .strip()
+            .replace(" ", "")
+        )
+        attrs = concept.get("attributes") or [
+            {"name": "name", "type": "EString", "lowerBound": 0, "upperBound": 1}
+        ]
         refs = concept.get("references") or []
-        nodes.append({
-            "id": name,
-            "label": concept.get("name") or name,
-            "kind": concept.get("kind") or "extension",
-            "package": "Use-case Extension",
-            "stereotype": concept.get("stereotype") or "EClass",
-            "abstract": bool(concept.get("abstract")),
-            "count": 1,
-            "attributes": attrs,
-            "references": refs,
-            "position": {"x": concept.get("x", 40 + (i % 3) * 320), "y": concept.get("y", 2200 + (i // 3) * 170)},
-            "isCore": False,
-        })
-        connects_to = str(concept.get("connects_to") or "AssumptionElement").replace(" ", "")
+        nodes.append(
+            {
+                "id": name,
+                "label": concept.get("name") or name,
+                "kind": concept.get("kind") or "extension",
+                "package": "Use-case Extension",
+                "stereotype": concept.get("stereotype") or "EClass",
+                "abstract": bool(concept.get("abstract")),
+                "count": 1,
+                "attributes": attrs,
+                "references": refs,
+                "position": {
+                    "x": concept.get("x", 40 + (i % 3) * 320),
+                    "y": concept.get("y", 2200 + (i // 3) * 170),
+                },
+                "isCore": False,
+            }
+        )
+        connects_to = str(concept.get("connects_to") or "AssumptionElement").replace(
+            " ", ""
+        )
         if connects_to:
-            edges.append({"source": name, "target": connects_to, "label": "extends", "kind": "inheritance"})
+            edges.append(
+                {
+                    "source": name,
+                    "target": connects_to,
+                    "label": "extends",
+                    "kind": "inheritance",
+                }
+            )
         for ref in refs:
             target = str(ref.get("target") or "").replace(" ", "")
             if target:
-                edges.append({"source": name, "target": target, "label": ref.get("name", "relatesTo"), "kind": "association"})
+                edges.append(
+                    {
+                        "source": name,
+                        "target": target,
+                        "label": ref.get("name", "relatesTo"),
+                        "kind": "association",
+                    }
+                )
 
     return {
         "name": "ForeACT Forecast Assurance Metamodel",

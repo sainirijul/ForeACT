@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError } from "axios";
 import type {
   AnalysisResponse,
   AnalysisScope,
@@ -9,7 +9,7 @@ import type {
   MetaModel,
   ProfileResponse,
   WorkspaceResponse,
-} from '../types/analysis';
+} from "../types/analysis";
 
 type ApiErrorResponse = {
   error?: string;
@@ -17,7 +17,7 @@ type ApiErrorResponse = {
 };
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: "/api",
   timeout: 30000,
 });
 
@@ -29,7 +29,7 @@ function getApiErrorMessage(error: unknown): string {
       payload?.error ||
       payload?.message ||
       error.message ||
-      'The backend request failed.'
+      "The backend request failed."
     );
   }
 
@@ -37,7 +37,7 @@ function getApiErrorMessage(error: unknown): string {
     return error.message;
   }
 
-  return 'The backend request failed.';
+  return "The backend request failed.";
 }
 
 async function request<T>(operation: () => Promise<T>): Promise<T> {
@@ -52,24 +52,21 @@ function resolveWorkspaceId(
   specOrWorkspaceId?: ForeACTProjectSpec | string | null,
 ): string {
   if (!specOrWorkspaceId) {
-    return 'ai_datacenter_capacity';
+    return "ai_datacenter_capacity";
   }
 
-  if (typeof specOrWorkspaceId === 'string') {
-    return specOrWorkspaceId || 'ai_datacenter_capacity';
+  if (typeof specOrWorkspaceId === "string") {
+    return specOrWorkspaceId || "ai_datacenter_capacity";
   }
 
-  return (
-    specOrWorkspaceId.project?.id ||
-    'ai_datacenter_capacity'
-  );
+  return specOrWorkspaceId.project?.id || "ai_datacenter_capacity";
 }
 
 export async function loadMetamodel(
-  workspaceId = 'ai_datacenter_capacity',
+  workspaceId = "ai_datacenter_capacity",
 ): Promise<MetaModel> {
   return request(async () => {
-    const response = await api.get<MetaModel>('/metamodel', {
+    const response = await api.get<MetaModel>("/metamodel", {
       params: {
         workspace_id: workspaceId,
       },
@@ -80,17 +77,14 @@ export async function loadMetamodel(
 }
 
 export async function loadDefaultWorkspace(
-  workspaceId = 'ai_datacenter_capacity',
+  workspaceId = "ai_datacenter_capacity",
 ): Promise<WorkspaceResponse> {
   return request(async () => {
-    const response = await api.get<WorkspaceResponse>(
-      '/workspace/default',
-      {
-        params: {
-          workspace_id: workspaceId,
-        },
+    const response = await api.get<WorkspaceResponse>("/workspace/default", {
+      params: {
+        workspace_id: workspaceId,
       },
-    );
+    });
 
     return response.data;
   });
@@ -102,12 +96,13 @@ export async function saveWorkspace(
   const workspaceId = resolveWorkspaceId(spec);
 
   return request(async () => {
-    const response = await api.post<
-      WorkspaceResponse & { status: string }
-    >('/workspace/save', {
-      workspace_id: workspaceId,
-      spec,
-    });
+    const response = await api.post<WorkspaceResponse & { status: string }>(
+      "/workspace/save",
+      {
+        workspace_id: workspaceId,
+        spec,
+      },
+    );
 
     return response.data;
   });
@@ -118,12 +113,12 @@ export async function saveWorkspace(
  * last persisted specification.
  */
 export async function analyzeWorkspaceById(
-  workspaceId = 'ai_datacenter_capacity',
+  workspaceId = "ai_datacenter_capacity",
 ): Promise<AnalysisResponse & Partial<WorkspaceResponse>> {
   return request(async () => {
     const response = await api.post<
       AnalysisResponse & Partial<WorkspaceResponse>
-    >('/workspace/analyze', {
+    >("/workspace/analyze", {
       workspace_id: workspaceId,
     });
 
@@ -144,7 +139,7 @@ export async function analyzeWorkspace(
   return request(async () => {
     const response = await api.post<
       AnalysisResponse & Partial<WorkspaceResponse>
-    >('/workspace/analyze', {
+    >("/workspace/analyze", {
       workspace_id: resolveWorkspaceId(spec),
       spec,
     });
@@ -170,13 +165,14 @@ export async function uploadWorkspaceData(
   const workspaceId = resolveWorkspaceId(specOrWorkspaceId);
 
   const form = new FormData();
-  form.append('file', file);
-  form.append('workspace_id', workspaceId);
+  form.append("file", file);
+  form.append("workspace_id", workspaceId);
 
   return request(async () => {
-    const response = await api.post<
-      WorkspaceResponse & { status: string }
-    >('/workspace/upload-data', form);
+    const response = await api.post<WorkspaceResponse & { status: string }>(
+      "/workspace/upload-data",
+      form,
+    );
 
     return response.data;
   });
@@ -187,7 +183,7 @@ export async function uploadWorkspaceData(
  */
 export async function profileDemo(): Promise<ProfileResponse> {
   return request(async () => {
-    const response = await api.post<ProfileResponse>('/profile-demo');
+    const response = await api.post<ProfileResponse>("/profile-demo");
     return response.data;
   });
 }
@@ -196,17 +192,12 @@ export async function profileDemo(): Promise<ProfileResponse> {
  * Legacy endpoint that profiles a file without updating the workspace.
  * Use uploadWorkspaceData for the integrated application.
  */
-export async function profileUpload(
-  file: File,
-): Promise<ProfileResponse> {
+export async function profileUpload(file: File): Promise<ProfileResponse> {
   const form = new FormData();
-  form.append('file', file);
+  form.append("file", file);
 
   return request(async () => {
-    const response = await api.post<ProfileResponse>(
-      '/profile-upload',
-      form,
-    );
+    const response = await api.post<ProfileResponse>("/profile-upload", form);
 
     return response.data;
   });
@@ -224,17 +215,14 @@ export async function analyzeUploadedData(
 ): Promise<AnalysisResponse> {
   const form = new FormData();
 
-  form.append('file', file);
-  form.append('fields', JSON.stringify(fields));
-  form.append('methods', JSON.stringify(methods));
-  form.append('scope', JSON.stringify(scope));
-  form.append('custom_concepts', JSON.stringify(customConcepts));
+  form.append("file", file);
+  form.append("fields", JSON.stringify(fields));
+  form.append("methods", JSON.stringify(methods));
+  form.append("scope", JSON.stringify(scope));
+  form.append("custom_concepts", JSON.stringify(customConcepts));
 
   return request(async () => {
-    const response = await api.post<AnalysisResponse>(
-      '/analyze-upload',
-      form,
-    );
+    const response = await api.post<AnalysisResponse>("/analyze-upload", form);
 
     return response.data;
   });

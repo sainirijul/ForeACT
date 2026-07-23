@@ -7,7 +7,6 @@ import xml.etree.ElementTree as ET
 
 from app.metamodel_loader import METAMODEL_PATH, clear_metamodel_cache
 
-
 ECORE_NS = "http://www.eclipse.org/emf/2002/Ecore"
 XMI_NS = "http://www.omg.org/XMI"
 XSI_NS = "http://www.w3.org/2001/XMLSchema-instance"
@@ -161,9 +160,7 @@ def delete_class(class_name: str) -> dict[str, Any]:
         super_types = classifier.get("eSuperTypes")
         if super_types:
             remaining = [
-                item
-                for item in super_types.split()
-                if item != f"#//{class_name}"
+                item for item in super_types.split() if item != f"#//{class_name}"
             ]
             if remaining:
                 classifier.set("eSuperTypes", " ".join(remaining))
@@ -179,7 +176,9 @@ def delete_class(class_name: str) -> dict[str, Any]:
     }
 
 
-def add_attribute_to_class_element(class_element: ET.Element, attr: dict[str, Any]) -> None:
+def add_attribute_to_class_element(
+    class_element: ET.Element, attr: dict[str, Any]
+) -> None:
     attr_name = _safe_name(attr.get("name", ""))
     attr_type = attr.get("type") or "EString"
 

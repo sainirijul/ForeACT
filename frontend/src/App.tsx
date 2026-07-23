@@ -1,41 +1,41 @@
-import { useEffect, useState } from 'react';
-import '@xyflow/react/dist/style.css';
+import { useEffect, useState } from "react";
+import "@xyflow/react/dist/style.css";
 import {
   analyzeWorkspace,
   loadDefaultWorkspace,
   loadMetamodel,
   saveWorkspace,
   uploadWorkspaceData,
-} from './api/client';
+} from "./api/client";
 import type {
   AnalysisResponse,
   ForeACTProjectSpec,
   MetaModel,
   ProfileResponse,
-} from './types/analysis';
-import { AppShell, type PageId } from './components/Shell';
-import { ProjectSpecPanel } from './components/ProjectSpecPanel';
-import { SemanticFieldModelingPage } from './components/SemanticFieldModelingPage';
-import { MethodologyReviewPage } from './components/MethodologyReviewPage';
-import { MetamodelExtensionPage } from './components/MetamodelExtensionPage';
-import { TransformationAnalysisPage } from './components/TransformationAnalysisPage';
-import { DecisionAnalysisPage } from './components/DecisionAnalysisPage';
-import './styles/app.css';
+} from "./types/analysis";
+import { AppShell, type PageId } from "./components/Shell";
+import { ProjectSpecPanel } from "./components/ProjectSpecPanel";
+import { SemanticFieldModelingPage } from "./components/SemanticFieldModelingPage";
+import { MethodologyReviewPage } from "./components/MethodologyReviewPage";
+import { MetamodelExtensionPage } from "./components/MetamodelExtensionPage";
+import { TransformationAnalysisPage } from "./components/TransformationAnalysisPage";
+import { DecisionAnalysisPage } from "./components/DecisionAnalysisPage";
+import "./styles/app.css";
 
 export default function App() {
-  const [active, setActive] = useState<PageId>('semantic');
+  const [active, setActive] = useState<PageId>("semantic");
   const [spec, setSpec] = useState<ForeACTProjectSpec | null>(null);
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
-  const [workspaceFile, setWorkspaceFile] = useState('');
+  const [workspaceFile, setWorkspaceFile] = useState("");
   const [metamodel, setMetamodel] = useState<MetaModel | null>(null);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   useEffect(() => {
-  if (!status) return;
-  const timer = setTimeout(() => setStatus(null), 5000);
-  return () => clearTimeout(timer);
-}, [status]);
+    if (!status) return;
+    const timer = setTimeout(() => setStatus(null), 5000);
+    return () => clearTimeout(timer);
+  }, [status]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -66,17 +66,17 @@ export default function App() {
           setMetamodel(loadedMetamodel);
         } catch (metamodelError) {
           console.warn(
-            'Could not load /api/metamodel. Using the workspace metamodel.',
+            "Could not load /api/metamodel. Using the workspace metamodel.",
             metamodelError,
           );
         }
 
-        setStatus('Loaded ForeACT project specification.');
+        setStatus("Loaded ForeACT project specification.");
       } catch (bootstrapError) {
         setError(
           bootstrapError instanceof Error
             ? bootstrapError.message
-            : 'Unable to load the ForeACT workspace.',
+            : "Unable to load the ForeACT workspace.",
         );
       } finally {
         setLoading(false);
@@ -100,7 +100,7 @@ export default function App() {
       setError(
         runError instanceof Error
           ? runError.message
-          : 'The requested operation failed.',
+          : "The requested operation failed.",
       );
     } finally {
       setLoading(false);
@@ -117,7 +117,7 @@ export default function App() {
     setSpec(next);
     setAnalysis(null);
     setStatus(
-      'Project model updated. Recompile to refresh derived analysis artifacts.',
+      "Project model updated. Recompile to refresh derived analysis artifacts.",
     );
   }
 
@@ -132,7 +132,7 @@ export default function App() {
       setSpec(saved.spec);
       setProfile(saved.profile);
       setWorkspaceFile(saved.workspace_file);
-    }, 'Saved central ForeACT project specification.');
+    }, "Saved central ForeACT project specification.");
   }
 
   function compileAndAnalyze() {
@@ -162,8 +162,8 @@ export default function App() {
         setWorkspaceFile(result.workspace_file);
       }
 
-      setActive('transformations');
-    }, 'Saved, compiled, and analyzed the current ForeACT project model.');
+      setActive("transformations");
+    }, "Saved, compiled, and analyzed the current ForeACT project model.");
   }
 
   async function uploadData(file: File) {
@@ -189,13 +189,13 @@ export default function App() {
       //setActive('semantic');
 
       setStatus(
-        'Uploaded dataset and rebuilt the dataset-specific field and scope models.',
+        "Uploaded dataset and rebuilt the dataset-specific field and scope models.",
       );
     } catch (uploadError) {
       const message =
         uploadError instanceof Error
           ? uploadError.message
-          : 'CSV upload failed.';
+          : "CSV upload failed.";
 
       setError(message);
 
@@ -211,9 +211,7 @@ export default function App() {
   if (!spec) {
     return (
       <main className="loading-screen">
-        <div className="panel">
-          {error ?? 'Loading ForeACT workspace...'}
-        </div>
+        <div className="panel">{error ?? "Loading ForeACT workspace..."}</div>
       </main>
     );
   }
@@ -238,7 +236,7 @@ export default function App() {
         </div>
       )}
 
-      {active === 'semantic' && (
+      {active === "semantic" && (
         <SemanticFieldModelingPage
           spec={spec}
           profile={profile}
@@ -246,7 +244,7 @@ export default function App() {
         />
       )}
 
-      {active === 'methodology' && (
+      {active === "methodology" && (
         <MethodologyReviewPage
           spec={spec}
           profile={profile}
@@ -254,7 +252,7 @@ export default function App() {
         />
       )}
 
-      {active === 'metamodel' && (
+      {active === "metamodel" && (
         <MetamodelExtensionPage
           spec={spec}
           setSpec={updateSpec}
@@ -262,7 +260,7 @@ export default function App() {
         />
       )}
 
-      {active === 'transformations' && (
+      {active === "transformations" && (
         <TransformationAnalysisPage
           spec={spec}
           profile={profile}
@@ -271,7 +269,7 @@ export default function App() {
         />
       )}
 
-      {active === 'decisions' && (
+      {active === "decisions" && (
         <DecisionAnalysisPage
           spec={spec}
           analysis={analysis}
@@ -279,7 +277,7 @@ export default function App() {
         />
       )}
 
-      {active === 'spec' && (
+      {active === "spec" && (
         <ProjectSpecPanel
           spec={spec}
           profile={profile}

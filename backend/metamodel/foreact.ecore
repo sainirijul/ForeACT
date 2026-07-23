@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <ecore:EPackage xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmi:version="2.0" name="foreact" nsURI="http://foreact/model" nsPrefix="foreact">
 
-  
-  
-  
+
+
+
 
   <eClassifiers xsi:type="ecore:EClass" name="ModelElement" abstract="true">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
@@ -23,9 +23,8 @@
   </eClassifiers>
 
 
-  
-  
-  
+
+
 
   <eClassifiers xsi:type="ecore:EClass" name="DatasetVersion" eSuperTypes="#//ModelElement">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="sourcePath" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
@@ -41,11 +40,8 @@
   </eClassifiers>
 
 
-  
-  
-  
-  
-  
+
+
 
   <eClassifiers xsi:type="ecore:EClass" name="FieldModel" eSuperTypes="#//ModelElement">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="completenessScore" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
@@ -77,10 +73,6 @@
   </eClassifiers>
 
 
-  
-  
-  
-
   <eClassifiers xsi:type="ecore:EClass" name="ScenarioModel" eSuperTypes="#//ModelElement">
     <eStructuralFeatures xsi:type="ecore:EReference" name="assumptions" eType="#//AssumptionElement" containment="true" upperBound="-1" />
     <eStructuralFeatures xsi:type="ecore:EReference" name="evidence" eType="#//EvidenceArtifact" containment="true" upperBound="-1" />
@@ -101,11 +93,6 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="uri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="confidence" eType="#//ConfidenceKind" />
   </eClassifiers>
-
-
-  
-  
-  
 
   <eClassifiers xsi:type="ecore:EClass" name="MethodSet" eSuperTypes="#//ModelElement">
     <eStructuralFeatures xsi:type="ecore:EReference" name="methods" eType="#//AnalysisMethod" containment="true" upperBound="-1" />
@@ -130,14 +117,14 @@
   </eClassifiers>
 
 
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
 
   <eClassifiers xsi:type="ecore:EClass" name="ForecastComparisonModel" eSuperTypes="#//ModelElement">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="focusPeriodStart" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
@@ -191,10 +178,10 @@
   </eClassifiers>
 
 
-  
-  
-  
-  
+
+
+
+
 
   <eClassifiers xsi:type="ecore:EClass" name="SignalModel" eSuperTypes="#//ModelElement">
     <eStructuralFeatures xsi:type="ecore:EReference" name="signals" eType="#//Signal" containment="true" upperBound="-1" />
@@ -224,9 +211,9 @@
   </eClassifiers>
 
 
-  
-  
-  
+
+
+
 
   <eClassifiers xsi:type="ecore:EClass" name="DecisionModel" eSuperTypes="#//ModelElement">
     <eStructuralFeatures xsi:type="ecore:EReference" name="policy" eType="#//DecisionPolicy" containment="true" lowerBound="1" />
@@ -253,9 +240,9 @@
   </eClassifiers>
 
 
-  
-  
-  
+
+
+
 
   <eClassifiers xsi:type="ecore:EEnum" name="DirectionKind">
     <eLiterals name="increase" />

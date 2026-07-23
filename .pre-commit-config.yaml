@@ -1,0 +1,41 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.20
+    hooks:
+      - id: ruff-check
+        name: Ruff backend lint
+        args: ["--fix"]
+        files: ^backend/.*\.py$
+
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 26.3.1
+    hooks:
+      - id: black
+        name: Black backend formatting
+        files: ^backend/.*\.py$
+
+  # - repo: local
+  #   hooks:
+  #     - id: frontend-prettier
+  #       name: Prettier frontend formatting
+  #       entry: bash -c 'cd frontend && npm run format'
+  #       language: system
+  #       pass_filenames: false
+  #       files: ^frontend/.*\.(js|jsx|ts|tsx|json|css|scss|html)$
+
+      # - id: frontend-eslint
+      #   name: ESLint frontend
+      #   entry: bash -c 'cd frontend && npm run lint'
+      #   language: system
+      #   pass_filenames: false
+      #   files: ^frontend/.*\.(js|jsx|ts|tsx)$

@@ -1,12 +1,21 @@
 export type FieldSpec = {
   name: string;
-  role: 'forecast_version' | 'forecast_horizon' | 'scenario' | 'feature' | 'target' | 'previous_forecast' | 'current_forecast' | 'ignore' | string;
+  role:
+    | "forecast_version"
+    | "forecast_horizon"
+    | "scenario"
+    | "feature"
+    | "target"
+    | "previous_forecast"
+    | "current_forecast"
+    | "ignore"
+    | string;
   data_type: string;
   semantic_type: string;
   business_name: string;
   unit: string;
   description: string;
-  direction: 'higher_is_riskier' | 'lower_is_riskier' | 'neutral' | string;
+  direction: "higher_is_riskier" | "lower_is_riskier" | "neutral" | string;
   include_in_model: boolean;
 };
 
@@ -24,7 +33,7 @@ export type MetaAttribute = {
   name: string;
   type: string;
   lowerBound?: number;
-  upperBound?: number | '*';
+  upperBound?: number | "*";
   description?: string;
 };
 
@@ -32,14 +41,20 @@ export type MetaReference = {
   name: string;
   target: string;
   lowerBound?: number;
-  upperBound?: number | '*';
+  upperBound?: number | "*";
   containment?: boolean;
   description?: string;
 };
 
 export type CustomConcept = {
   name: string;
-  kind: 'business_concept' | 'planning_constraint' | 'planning_decision' | 'evidence_source' | 'extension' | string;
+  kind:
+    | "business_concept"
+    | "planning_constraint"
+    | "planning_decision"
+    | "evidence_source"
+    | "extension"
+    | string;
   stereotype?: string;
   abstract?: boolean;
   description: string;
@@ -94,7 +109,11 @@ export type ForeACTProjectSpec = {
   };
   dsl_steps: { step: number; name: string; output_model: string }[];
   field_model: { fields: FieldSpec[] };
-  methodology_model: { scope: AnalysisScope; methods: MethodConfig; method_notes?: string };
+  methodology_model: {
+    scope: AnalysisScope;
+    methods: MethodConfig;
+    method_notes?: string;
+  };
   decision_policy: DecisionPolicy;
   metamodel_extension: { concepts: CustomConcept[]; edges: MetaEdge[] };
   compiled_model?: Record<string, unknown>;
@@ -118,10 +137,18 @@ export type DatasetProfile = {
   selected_scope: AnalysisScope;
   method_catalog: MethodCatalog;
   preview: Record<string, string | number | null>[];
-  quality: { name: string; data_type: string; missing_pct: number; distinct_values: number }[];
+  quality: {
+    name: string;
+    data_type: string;
+    missing_pct: number;
+    distinct_values: number;
+  }[];
 };
 
-export type ProfileResponse = Omit<DatasetProfile, 'field_specs' | 'selected_methods' | 'selected_scope'>;
+export type ProfileResponse = Omit<
+  DatasetProfile,
+  "field_specs" | "selected_methods" | "selected_scope"
+>;
 
 export type WorkspaceResponse = {
   spec: ForeACTProjectSpec;
@@ -131,8 +158,20 @@ export type WorkspaceResponse = {
 };
 
 export type MethodCatalog = {
-  revision_methods: { id: string; name: string; formula: string; requires: string[]; interpretation: string }[];
-  volatility_methods: { id: string; name: string; formula: string; requires: string[]; interpretation: string }[];
+  revision_methods: {
+    id: string;
+    name: string;
+    formula: string;
+    requires: string[];
+    interpretation: string;
+  }[];
+  volatility_methods: {
+    id: string;
+    name: string;
+    formula: string;
+    requires: string[];
+    interpretation: string;
+  }[];
 };
 
 export type MatrixPoint = {
@@ -164,7 +203,11 @@ export type TargetResult = {
   confidence: string;
   recommended_action: string;
   rationale: string;
-  top_driver_links: { feature: string; correlation: number | null; absolute_strength: number | null }[];
+  top_driver_links: {
+    feature: string;
+    correlation: number | null;
+    absolute_strength: number | null;
+  }[];
   series: TargetSeriesPoint[];
 };
 
