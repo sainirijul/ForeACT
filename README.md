@@ -4,7 +4,7 @@ ForeACT is a model-driven workbench for assessing the actionability of forecast 
 
 ## Demo
 
-![Watch the ForeACT demonstration](docs/images/demo-video-placeholder.png)
+![Watch the ForeACT demonstration](docs/videos/demo.mp4)
 
 
 ## Main Features
