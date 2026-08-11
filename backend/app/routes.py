@@ -26,6 +26,7 @@ from .metamodel_editor import (
     delete_class,
 )
 from .metamodel_projection import ecore_to_graph
+import time
 
 api = Blueprint("api", __name__)
 
@@ -429,7 +430,10 @@ def workspace_analyze():
             400,
         )
 
+    validate_start = time.perf_counter()
     compiled_ecore_model, ecore_results = validate_project_spec_against_metamodel(spec)
+    validate_end = time.perf_counter()
+    print(f"Validation time: {validate_end - validate_start}")
     analysis["compiled_ecore_model"] = compiled_ecore_model
     analysis["conformance_results"] = ecore_results + analysis.get(
         "conformance_results", []

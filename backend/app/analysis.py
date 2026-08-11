@@ -12,6 +12,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
+import time
+
 from .domain import (
     AnalysisScope,
     MethodSpec,
@@ -774,6 +776,7 @@ def analyze_dataframe(
     custom_concepts: list[dict[str, Any]] | None = None,
     policy_rules: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    compile_start = time.perf_counter()
     profile = dataset_profile(df)
     field_specs = field_specs or profile["default_field_specs"]
     method_spec = _method_spec(methods)
@@ -900,7 +903,13 @@ def analyze_dataframe(
     decision_cards: list[dict[str, Any]] = []
     aligned_preview: list[dict[str, Any]] = []
 
+    compile_end = time.perf_counter()
+    print(f"Compile time: {compile_end - compile_start}", flush=True)
+
+    time_dict = {"Analysis": [], "Decision": []}
+
     for target in target_cols:
+        analysis_start = time.perf_counter()
         if target not in filtered.columns:
             warnings.append(f"Target {target} is not present in filtered data.")
             continue
@@ -914,7 +923,11 @@ def analyze_dataframe(
                 aligned, all_versions, filtered, target, feature_cols, method_spec
             )
         )
+        analysis_end = time.perf_counter()
+        time_dict["Analysis"].append(analysis_end - analysis_start)
+
         warnings.extend(signal_warnings)
+        decision_start = time.perf_counter()
         aligned["signed_revision_pct"] = revision.replace([np.inf, -np.inf], np.nan)
         aligned["revision_magnitude_pct"] = aligned["signed_revision_pct"].abs()
         aligned["volatility"] = volatility.replace([np.inf, -np.inf], np.nan)
@@ -959,6 +972,8 @@ def analyze_dataframe(
         action, rationale = _recommend(
             revision_magnitude_class, volatility_class, policy_rules or []
         )
+        decision_end = time.perf_counter()
+        time_dict["Decision"].append(decision_end - decision_start)
         confidence = (
             "High"
             if volatility_class == "Low"
@@ -1041,6 +1056,12 @@ def analyze_dataframe(
                 },
             }
         )
+
+    analysis_total = sum(time_dict["Analysis"])
+    decision_total = sum(time_dict["Decision"])
+
+    print(f"Analysis time: {analysis_total}", flush=True)
+    print(f"Decision time: {decision_total}", flush=True)
 
     transformations = [
         {
