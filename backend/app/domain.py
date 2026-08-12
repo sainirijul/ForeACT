@@ -56,6 +56,58 @@ class RuleSpec:
     rationale: str
 
 
+SEMANTIC_RULES = [
+    RuleSpec(
+        "SEM-001",
+        "Distinct forecast vintages",
+        "Baseline and current forecast vintages must be different.",
+        "error",
+        "A forecast revision requires two distinct forecast versions.",
+    ),
+    RuleSpec(
+        "SEM-002",
+        "Vintage membership",
+        "Selected baseline and current vintages must belong to ForecastComparisonModel.vintages.",
+        "error",
+        "The selected versions must be part of the comparison model being evaluated.",
+    ),
+    RuleSpec(
+        "SEM-003",
+        "Field reference consistency",
+        "The version and horizon fields referenced by ForecastComparisonModel must belong to FieldModel.fields.",
+        "error",
+        "References should resolve to fields declared by the same field model.",
+    ),
+    RuleSpec(
+        "SEM-004",
+        "Target membership",
+        "Every target referenced by FieldModel.targets must belong to FieldModel.fields.",
+        "error",
+        "Targets should be selected from the fields declared by the field model.",
+    ),
+    RuleSpec(
+        "SEM-005",
+        "Source-column membership",
+        "Each modeled field's source column must belong to DatasetVersion.rawFields.",
+        "error",
+        "Semantic fields must resolve to columns in the analyzed dataset.",
+    ),
+    RuleSpec(
+        "SEM-006",
+        "Unique forecast version field",
+        "At most one VersionField should be present in the compiled field model.",
+        "error",
+        "Multiple version fields would make the comparison configuration ambiguous.",
+    ),
+    RuleSpec(
+        "SEM-007",
+        "Unique forecast horizon field",
+        "At most one HorizonField should be present in the compiled field model.",
+        "error",
+        "Multiple horizon fields would make the comparison configuration ambiguous.",
+    ),
+]
+
 CANONICAL_RULES = [
     RuleSpec(
         "CR-001",
@@ -312,5 +364,7 @@ def build_metamodel(
         "period_start": scope.get("period_start"),
         "period_end": scope.get("period_end"),
     }
-    metamodel["conformance_rules"] = [asdict(rule) for rule in CANONICAL_RULES]
+    metamodel["conformance_rules"] = [
+        asdict(rule) for rule in CANONICAL_RULES + SEMANTIC_RULES
+    ]
     return metamodel

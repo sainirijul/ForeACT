@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Any
 from .structural_validation import check_structural_conformance
+from .semantic_validation import check_semantic_conformance
 
 ROLE_TO_CLASSIFIER = {
     "forecast_version": "VersionField",
@@ -93,17 +94,24 @@ def build_comparison_scope(
 
     version_fields = by_role.get("forecast_version", [])
     horizon_fields = by_role.get("forecast_horizon", [])
+
+    if len(version_fields) > 1:
+        raise ValueError(
+            "Multiple forecast_version fields are configured; "
+            "exactly one VersionField must be selected."
+        )
+
+    if len(horizon_fields) > 1:
+        raise ValueError(
+            "Multiple forecast_horizon fields are configured; "
+            "exactly one HorizonField must be selected."
+        )
+
     if version_fields:
         fcm.versionField = version_fields[0]
     if horizon_fields:
         fcm.horizonField = horizon_fields[0]
 
-    # Baseline/current vintages: at spec-validation time we only know which
-    # forecast-version *values* were selected, not yet their ForecastValue
-    # contents (those are populated once the dataset rows are analyzed).
-    # A selected version string is modeled as a ForecastVintage stand-in so
-    # that "a baseline and current vintage have been selected" is genuinely
-    # checked, matching what the paper claims is validated at this stage.
     baseline_version = scope.get("baseline_version")
     current_version = scope.get("current_version")
     if baseline_version:
@@ -139,26 +147,48 @@ def compile_and_validate(
     method_set = build_method_set(package, method_spec)
     comparison_scope = build_comparison_scope(package, by_role, scope)
 
-    violations = []
-    violations += check_structural_conformance(dataset_version, path="DatasetVersion")
-    violations += check_structural_conformance(field_model, path="FieldModel")
-    violations += check_structural_conformance(method_set, path="MethodSet")
-    violations += check_structural_conformance(
-        comparison_scope, path="ForecastComparisonModel"
+    structural_violations = []
+
+    structural_violations += check_structural_conformance(
+        dataset_version,
+        path="DatasetVersion",
+    )
+    structural_violations += check_structural_conformance(
+        field_model,
+        path="FieldModel",
+    )
+    structural_violations += check_structural_conformance(
+        method_set,
+        path="MethodSet",
+    )
+    structural_violations += check_structural_conformance(
+        comparison_scope,
+        path="ForecastComparisonModel",
     )
 
-    results = (
-        list(violations)
-        if violations
-        else [
+    semantic_results = check_semantic_conformance(
+        dataset_version=dataset_version,
+        field_model=field_model,
+        method_set=method_set,
+        comparison_model=comparison_scope,
+    )
+
+    results = list(structural_violations)
+
+    if not structural_violations:
+        results.append(
             {
                 "rule_id": "ECORE-STRUCT-001",
                 "status": "pass",
                 "severity": "error",
-                "message": "All structural multiplicities declared in foreact.ecore are satisfied.",
+                "message": (
+                    "All structural multiplicities declared in "
+                    "foreact.ecore are satisfied."
+                ),
             }
-        ]
-    )
+        )
+
+    results.extend(semantic_results)
 
     summary = {
         "instances": {
@@ -171,4 +201,8 @@ def compile_and_validate(
             "RawField": len(raw_by_name),
         }
     }
-    return {"summary": summary, "conformance_results": results}
+
+    return {
+        "summary": summary,
+        "conformance_results": results,
+    }

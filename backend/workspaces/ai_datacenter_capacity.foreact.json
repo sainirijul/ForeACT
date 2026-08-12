@@ -2610,7 +2610,7 @@
         "driver_count": 8,
         "version_field_count": 1,
         "horizon_field_count": 1,
-        "revision_method": "version_to_version_pct",
+        "revision_method": "",
         "volatility_method": "version_dispersion_pct",
         "baseline_version": "2026-09",
         "current_version": "2026-12",
@@ -3090,7 +3090,7 @@
       "custom_revision_formula": "",
       "custom_volatility_formula": "",
       "rolling_window": 4,
-      "revision_method": "version_to_version_pct",
+      "revision_method": "",
       "revision_magnitude_threshold_large": 5,
       "volatility_method": "version_dispersion_pct",
       "volatility_threshold_high": 4
