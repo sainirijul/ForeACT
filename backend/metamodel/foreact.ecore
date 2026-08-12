@@ -46,6 +46,7 @@
   <eClassifiers xsi:type="ecore:EClass" name="FieldModel" eSuperTypes="#//ModelElement">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="completenessScore" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" />
     <eStructuralFeatures xsi:type="ecore:EReference" name="fields" eType="#//SemanticField" containment="true" upperBound="-1" />
+    <eStructuralFeatures xsi:type="ecore:EReference" name="targets" eType="#//TargetField" lowerBound="1" upperBound="-1" />
   </eClassifiers>
 
   <eClassifiers xsi:type="ecore:EClass" name="SemanticField" abstract="true" eSuperTypes="#//ModelElement">
@@ -96,6 +97,9 @@
 
   <eClassifiers xsi:type="ecore:EClass" name="MethodSet" eSuperTypes="#//ModelElement">
     <eStructuralFeatures xsi:type="ecore:EReference" name="methods" eType="#//AnalysisMethod" containment="true" upperBound="-1" />
+    <eStructuralFeatures xsi:type="ecore:EReference" name="revisionMethod" eType="#//RevisionMethod" containment="true" lowerBound="1" />
+    <eStructuralFeatures xsi:type="ecore:EReference" name="volatilityMethod" eType="#//VolatilityMethod" containment="true" lowerBound="1" />
+    <eStructuralFeatures xsi:type="ecore:EReference" name="confidenceMethod" eType="#//ConfidenceMethod" containment="true" lowerBound="0" />
   </eClassifiers>
 
   <eClassifiers xsi:type="ecore:EClass" name="AnalysisMethod" abstract="true" eSuperTypes="#//ModelElement">

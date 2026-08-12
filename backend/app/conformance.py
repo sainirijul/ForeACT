@@ -1,22 +1,19 @@
 from __future__ import annotations
 from typing import Any
-from .model_compiler import compile_project_model
+
+from .metamodel_loader import load_foreact_package
+from .model_compiler import compile_and_validate
 
 
 def validate_project_spec_against_metamodel(
     spec: dict[str, Any],
+    dataset_columns: list[str] | None = None,
+    row_count: int = 0,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     results: list[dict[str, Any]] = []
+
     try:
-        compiled = compile_project_model(spec)
-        results.append(
-            {
-                "rule_id": "ECORE-001",
-                "status": "pass",
-                "severity": "error",
-                "message": "All required project types resolve against the active Ecore metamodel.",
-            }
-        )
+        package = load_foreact_package()
     except Exception as exc:
         return {}, [
             {
@@ -26,28 +23,30 @@ def validate_project_spec_against_metamodel(
                 "message": str(exc),
             }
         ]
-    counts = compiled["instances"]
-    required = {
-        "DatasetVersion": 1,
-        "VersionField": 1,
-        "HorizonField": 1,
-        "TargetField": 1,
-        "RevisionMethod": 1,
-        "VolatilityMethod": 1,
-    }
-    missing = [
-        name for name, minimum in required.items() if counts.get(name, 0) < minimum
-    ]
+
     results.append(
         {
-            "rule_id": "ECORE-002",
-            "status": "pass" if not missing else "fail",
+            "rule_id": "ECORE-001",
+            "status": "pass",
             "severity": "error",
-            "message": (
-                "Required model elements are present."
-                if not missing
-                else "Missing required model elements: " + ", ".join(missing)
-            ),
+            "message": "All required project types resolve against the active Ecore metamodel.",
         }
     )
-    return compiled, results
+
+    try:
+        compiled = compile_and_validate(
+            package, spec, dataset_columns=dataset_columns, row_count=row_count
+        )
+    except Exception as exc:
+        results.append(
+            {
+                "rule_id": "ECORE-002",
+                "status": "fail",
+                "severity": "error",
+                "message": f"Project specification could not be compiled against the metamodel: {exc}",
+            }
+        )
+        return {}, results
+
+    results.extend(compiled["conformance_results"])
+    return compiled["summary"], results
