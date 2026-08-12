@@ -431,11 +431,14 @@ def workspace_analyze():
         )
 
     _profile = analysis.get("dataset_profile", {})
+    validate_start = time.perf_counter()
     compiled_ecore_model, ecore_results = validate_project_spec_against_metamodel(
         spec,
         dataset_columns=_profile.get("column_names"),
         row_count=_profile.get("rows", 0),
     )
+    validate_end = time.perf_counter()
+    print(f"Validation time: {validate_end - validate_start}", flush = True)
     analysis["compiled_ecore_model"] = compiled_ecore_model
     analysis["conformance_results"] = ecore_results + analysis.get(
         "conformance_results", []
