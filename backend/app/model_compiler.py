@@ -61,6 +61,7 @@ def build_method_set(package, method_spec: dict[str, Any] | None):
     MethodSet = package.getEClassifier("MethodSet")
     RevisionMethod = package.getEClassifier("RevisionMethod")
     VolatilityMethod = package.getEClassifier("VolatilityMethod")
+    ConfidenceMethod = package.getEClassifier("ConfidenceMethod")
 
     ms = MethodSet()
     method_spec = method_spec or {}
@@ -80,6 +81,10 @@ def build_method_set(package, method_spec: dict[str, Any] | None):
             method_spec.get("volatility_threshold_high", 0.0) or 0.0
         )
         ms.volatilityMethod = vm
+
+    if method_spec.get("confidence_method"):
+        cm = ConfidenceMethod(name=method_spec["confidence_method"])
+        ms.confidenceMethod = cm
 
     return ms
 
@@ -130,6 +135,27 @@ def build_comparison_scope(
     return fcm
 
 
+def _count_eobjects(roots: list) -> tuple[int, dict[str, int]]:
+    counts: dict[str, int] = {}
+    visited: set[int] = set()
+
+    def visit(obj):
+        if obj is None or id(obj) in visited:
+            return
+
+        visited.add(id(obj))
+        class_name = obj.eClass.name
+        counts[class_name] = counts.get(class_name, 0) + 1
+
+        for child in obj.eContents:
+            visit(child)
+
+    for root in roots:
+        visit(root)
+
+    return sum(counts.values()), counts
+
+
 def compile_and_validate(
     package,
     spec: dict[str, Any],
@@ -146,6 +172,15 @@ def compile_and_validate(
     field_model, by_role = build_field_model(package, field_specs, raw_by_name)
     method_set = build_method_set(package, method_spec)
     comparison_scope = build_comparison_scope(package, by_role, scope)
+
+    ecore_instance_count, ecore_instance_breakdown = _count_eobjects(
+        [
+            dataset_version,
+            field_model,
+            method_set,
+            comparison_scope,
+        ]
+    )
 
     structural_violations = []
 
@@ -190,7 +225,12 @@ def compile_and_validate(
 
     results.extend(semantic_results)
 
+    print(f"Compiled Ecore instance count: {ecore_instance_count}")
+    print(f"Compiled Ecore instance breakdown: {ecore_instance_breakdown}")
+
     summary = {
+        "ecore_instance_count": ecore_instance_count,
+        "ecore_instance_breakdown": ecore_instance_breakdown,
         "instances": {
             "TargetField": len(by_role.get("target", [])),
             "DriverField": len(by_role.get("feature", [])),
@@ -199,7 +239,7 @@ def compile_and_validate(
             "RevisionMethod": 1 if method_set.revisionMethod else 0,
             "VolatilityMethod": 1 if method_set.volatilityMethod else 0,
             "RawField": len(raw_by_name),
-        }
+        },
     }
 
     return {

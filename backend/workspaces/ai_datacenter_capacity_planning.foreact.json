@@ -3,16 +3,8 @@
     "matrix_points": [
       {
         "target": "target_1_total_load_mwh",
-        "x_revision_magnitude_pct": 32.232,
+        "x_revision_magnitude_pct": 19.883,
         "y_volatility_score": 15.055,
-        "revision_magnitude_class": "Large",
-        "volatility_class": "High",
-        "recommended_action": "Monitor closely"
-      },
-      {
-        "target": "target_2_peak_load_mw",
-        "x_revision_magnitude_pct": 32.497,
-        "y_volatility_score": 14.618,
         "revision_magnitude_class": "Large",
         "volatility_class": "High",
         "recommended_action": "Monitor closely"
@@ -24,25 +16,12 @@
         "headline": "Monitor closely for target_1_total_load_mwh",
         "rationale": "Large movement exists but uncertainty is elevated.",
         "trace": {
-          "DatasetVersion": "144 rows / 13 columns",
-          "FieldModel": "8 drivers, 2 targets",
-          "AnalysisScope": "2026-09 \u2192 2026-12, 2027-01 to 2029-12",
-          "MethodSet": " + version_dispersion_pct",
+          "DatasetVersion": "144 rows / 12 columns",
+          "FieldModel": "8 drivers, 1 targets",
+          "AnalysisScope": "Mar-26 \u2192 Sep-26, Apr-27 to Sep-29",
+          "MethodSet": "version_to_version_pct + version_dispersion_pct",
           "ForecastComparisonModel": "36 aligned horizon rows",
-          "SignalModel": "revision=32.23, volatility=15.06"
-        }
-      },
-      {
-        "target": "target_2_peak_load_mw",
-        "headline": "Monitor closely for target_2_peak_load_mw",
-        "rationale": "Large movement exists but uncertainty is elevated.",
-        "trace": {
-          "DatasetVersion": "144 rows / 13 columns",
-          "FieldModel": "8 drivers, 2 targets",
-          "AnalysisScope": "2026-09 \u2192 2026-12, 2027-01 to 2029-12",
-          "MethodSet": " + version_dispersion_pct",
-          "ForecastComparisonModel": "36 aligned horizon rows",
-          "SignalModel": "revision=32.50, volatility=14.62"
+          "SignalModel": "revision=19.88, volatility=15.06"
         }
       }
     ],
@@ -67,9 +46,9 @@
       },
       {
         "rule_id": "CR-004",
-        "status": "fail",
+        "status": "pass",
         "severity": "error",
-        "message": "Declare both revision and volatility methods before analysis."
+        "message": "Revision and volatility methods are explicitly declared."
       },
       {
         "rule_id": "CR-005",
@@ -86,23 +65,38 @@
     ]
   },
   "compiled_model": {
+    "ecore_instance_count": 31,
+    "ecore_instance_breakdown": {
+      "DatasetVersion": 1,
+      "RawField": 12,
+      "FieldModel": 1,
+      "VersionField": 1,
+      "HorizonField": 1,
+      "DriverField": 8,
+      "TargetField": 1,
+      "MethodSet": 1,
+      "RevisionMethod": 1,
+      "VolatilityMethod": 1,
+      "ForecastComparisonModel": 1,
+      "ForecastVintage": 2
+    },
     "instances": {
-      "TargetField": 2,
+      "TargetField": 1,
       "DriverField": 8,
       "VersionField": 1,
       "HorizonField": 1,
-      "RevisionMethod": 0,
+      "RevisionMethod": 1,
       "VolatilityMethod": 1,
-      "RawField": 13
+      "RawField": 12
     }
   },
   "dataset": {
-    "description": "Synthetic energy-demand planning case study with several forecast cycles for the same future months.",
-    "format": "long_forecast_cycle",
+    "description": "User-uploaded dataset: demo_data_1targets_36horizons.csv",
+    "format": "csv",
     "horizon_field": "forecast_period",
-    "id": "ai_datacenter_load_forecast",
-    "path": "data/use_cases/ai_datacenter_load_forecast.csv",
-    "source_type": "local_csv",
+    "id": "ai_datacenter_capacity_planning_dataset",
+    "path": "backend/workspaces/uploads/ai_datacenter_capacity_planning_demo_data_1targets_36horizons_20260813T145657Z.csv",
+    "source_type": "uploaded_csv",
     "version_field": "forecast_cycle"
   },
   "decision_policy": {
@@ -171,7 +165,7 @@
       {
         "business_name": "Forecast Cycle",
         "data_type": "text",
-        "description": "Month when the forecast version is issued. Used to align baseline and current forecast versions.",
+        "description": "Auto-discovered. Review and refine before analysis.",
         "direction": "neutral",
         "include_in_model": true,
         "name": "forecast_cycle",
@@ -180,9 +174,9 @@
         "unit": ""
       },
       {
-        "business_name": "Forecast Horizon Period",
+        "business_name": "Forecast Period",
         "data_type": "text",
-        "description": "Future month for which the forecast value is predicted.",
+        "description": "Auto-discovered. Review and refine before analysis.",
         "direction": "neutral",
         "include_in_model": true,
         "name": "forecast_period",
@@ -193,18 +187,18 @@
       {
         "business_name": "Months Ahead",
         "data_type": "numeric",
-        "description": "Lead time between forecast cycle and forecast horizon.",
+        "description": "Auto-discovered. Review and refine before analysis.",
         "direction": "neutral",
         "include_in_model": true,
         "name": "months_ahead",
         "role": "feature",
-        "semantic_type": "forecast_horizon_index",
-        "unit": "months"
+        "semantic_type": "identifier_or_text",
+        "unit": ""
       },
       {
-        "business_name": "Planning Scenario",
+        "business_name": "Scenario",
         "data_type": "text",
-        "description": "Planning scenario used to represent uncertain data-center connection assumptions.",
+        "description": "Auto-discovered. Review and refine before analysis.",
         "direction": "neutral",
         "include_in_model": true,
         "name": "scenario",
@@ -213,10 +207,10 @@
         "unit": ""
       },
       {
-        "business_name": "Committed AI Data Center Load",
+        "business_name": "Feature 1 Data Center Committed Mw",
         "data_type": "numeric",
-        "description": "Planned or committed data-center load that may affect future electricity demand.",
-        "direction": "higher_is_riskier",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
         "include_in_model": true,
         "name": "feature_1_data_center_committed_mw",
         "role": "feature",
@@ -224,10 +218,10 @@
         "unit": "MW"
       },
       {
-        "business_name": "Grid Connection Probability",
+        "business_name": "Feature 2 Grid Connection Probability Pct",
         "data_type": "numeric",
-        "description": "Estimated likelihood that proposed data-center load connects within the forecast horizon.",
-        "direction": "higher_is_riskier",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
         "include_in_model": true,
         "name": "feature_2_grid_connection_probability_pct",
         "role": "feature",
@@ -235,10 +229,10 @@
         "unit": "%"
       },
       {
-        "business_name": "Power Price Index",
+        "business_name": "Feature 3 Power Price Index",
         "data_type": "numeric",
-        "description": "Energy price pressure that may influence industrial and data-center demand.",
-        "direction": "higher_is_riskier",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
         "include_in_model": true,
         "name": "feature_3_power_price_index",
         "role": "feature",
@@ -246,10 +240,10 @@
         "unit": "index"
       },
       {
-        "business_name": "Average Temperature",
+        "business_name": "Feature 4 Avg Temperature C",
         "data_type": "numeric",
-        "description": "Average monthly temperature used as a weather driver for cooling demand.",
-        "direction": "higher_is_riskier",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
         "include_in_model": true,
         "name": "feature_4_avg_temperature_c",
         "role": "feature",
@@ -257,21 +251,21 @@
         "unit": "\u00b0C"
       },
       {
-        "business_name": "Cooling Efficiency PUE",
+        "business_name": "Feature 5 Cooling Efficiency Pue",
         "data_type": "numeric",
-        "description": "Power usage effectiveness assumption for data-center cooling efficiency.",
-        "direction": "higher_is_riskier",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
         "include_in_model": true,
         "name": "feature_5_cooling_efficiency_pue",
         "role": "feature",
         "semantic_type": "external_driver",
-        "unit": "ratio"
+        "unit": ""
       },
       {
-        "business_name": "Industrial Growth Index",
+        "business_name": "Feature 6 Industrial Growth Index",
         "data_type": "numeric",
-        "description": "Industrial activity index used as an explanatory demand driver.",
-        "direction": "higher_is_riskier",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
         "include_in_model": true,
         "name": "feature_6_industrial_growth_index",
         "role": "feature",
@@ -279,10 +273,10 @@
         "unit": "index"
       },
       {
-        "business_name": "Renewable Availability",
+        "business_name": "Feature 7 Renewable Availability Pct",
         "data_type": "numeric",
-        "description": "Estimated renewable availability that may influence grid planning uncertainty.",
-        "direction": "higher_is_riskier",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
         "include_in_model": true,
         "name": "feature_7_renewable_availability_pct",
         "role": "feature",
@@ -290,32 +284,24 @@
         "unit": "%"
       },
       {
-        "business_name": "Total Electricity Load Forecast",
+        "business_name": "Target 1 Total Load Mwh",
         "data_type": "numeric",
-        "description": "Forecasted total monthly electricity load for the selected planning region.",
-        "direction": "higher_is_riskier",
+        "description": "Auto-discovered. Review and refine before analysis.",
+        "direction": "neutral",
         "include_in_model": true,
         "name": "target_1_total_load_mwh",
         "role": "target",
         "semantic_type": "forecast_target",
         "unit": "MWh"
-      },
-      {
-        "business_name": "Peak Electricity Load Forecast",
-        "data_type": "numeric",
-        "description": "Forecasted peak electricity load used for capacity planning.",
-        "direction": "higher_is_riskier",
-        "include_in_model": true,
-        "name": "target_2_peak_load_mw",
-        "role": "target",
-        "semantic_type": "forecast_target",
-        "unit": "MW"
       }
     ]
   },
   "metadata": {
     "created_by": "ForeACT scaffold",
-    "updated_at": "2026-08-12T17:29:26Z"
+    "dataset_columns": 12,
+    "dataset_rows": 144,
+    "dataset_updated_at": "2026-08-13T14:56:57.697696+00:00",
+    "updated_at": "2026-08-13T14:57:01Z"
   },
   "metamodel_extension": {
     "concepts": [],
@@ -327,18 +313,18 @@
       "custom_revision_formula": "",
       "custom_volatility_formula": "",
       "revision_magnitude_threshold_large": 5,
-      "revision_method": "",
+      "revision_method": "version_to_version_pct",
       "rolling_window": 4,
       "volatility_method": "version_dispersion_pct",
       "volatility_threshold_high": 4
     },
     "scope": {
-      "baseline_version": "2026-09",
-      "current_version": "2026-12",
+      "baseline_version": "Mar-26",
+      "current_version": "Sep-26",
       "grouping_fields": [],
       "horizon_field": "forecast_period",
-      "period_end": "2029-12",
-      "period_start": "2027-01",
+      "period_end": "Sep-29",
+      "period_start": "Apr-27",
       "version_field": "forecast_cycle"
     }
   },
@@ -349,7 +335,7 @@
     "id": "ai_datacenter_capacity_planning",
     "name": "AI Data Center Load Forecast Assurance",
     "tool_name": "ForeACT",
-    "updated_at": "2026-08-12T17:29:26.239798+00:00"
+    "updated_at": "2026-08-13T14:57:01.411726+00:00"
   },
   "schema_version": "0.6.0"
 }

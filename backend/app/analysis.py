@@ -478,6 +478,112 @@ def _driver_volatility(df: pd.DataFrame, feature_cols: list[str]) -> pd.Series:
     return pd.Series(vols) if vols else pd.Series([0.0])
 
 
+def _compute_revision_confidence(
+    all_versions: pd.DataFrame,
+    target_period: str,
+    baseline_version: str,
+    current_version: str,
+    current_revision_pct: float,
+    method_spec: dict[str, Any],
+) -> tuple[str, float | None, float | None, float | None, int]:
+    """
+    Assess how unusual the current percentage revision is relative to
+    prior vintage-to-vintage revisions for the same target period.
+
+    For the selected target period h:
+
+        z = |r_c - mu_r| / sigma_r
+
+    where:
+      r_c     = current baseline-to-current percentage revision,
+      mu_r    = mean of prior percentage revisions for the same period,
+      sigma_r = standard deviation of those prior revisions.
+
+    Returns:
+        confidence_class,
+        z_score,
+        historical_mean_revision_pct,
+        historical_std_revision_pct,
+        historical_revision_count
+    """
+
+    if all_versions.empty:
+        return "Insufficient", None, None, None, 0
+
+    # The pivot table uses target periods as its index.
+    if target_period not in all_versions.index:
+        return "Insufficient", None, None, None, 0
+
+    period_values = pd.to_numeric(
+        all_versions.loc[target_period],
+        errors="coerce",
+    ).dropna()
+
+    if period_values.empty:
+        return "Insufficient", None, None, None, 0
+
+    # Forecast-version labels from the pivot table.
+    available_versions = [str(v) for v in period_values.index]
+
+    if str(baseline_version) not in available_versions:
+        return "Insufficient", None, None, None, 0
+
+    if str(current_version) not in available_versions:
+        return "Insufficient", None, None, None, 0
+
+    current_position = available_versions.index(str(current_version))
+
+    # Only vintages strictly before the selected current vintage can
+    # contribute to the historical reference distribution.
+    historical_values = period_values.iloc[:current_position]
+
+    # At least three historical forecast values are required to obtain
+    # two prior successive revisions and estimate a standard deviation.
+    if len(historical_values) < 3:
+        return "Insufficient", None, None, None, 0
+
+    prior_revisions = historical_values.pct_change(fill_method=None).iloc[1:] * 100
+
+    prior_revisions = (
+        prior_revisions.replace([np.inf, -np.inf], np.nan).dropna().astype(float)
+    )
+
+    if len(prior_revisions) < 2:
+        return "Insufficient", None, None, None, len(prior_revisions)
+
+    mu_r = float(prior_revisions.mean())
+    sigma_r = float(prior_revisions.std(ddof=1))
+
+    if not np.isfinite(sigma_r) or sigma_r <= 1e-12:
+        return (
+            "Insufficient",
+            None,
+            mu_r,
+            sigma_r,
+            len(prior_revisions),
+        )
+
+    z_score = abs(float(current_revision_pct) - mu_r) / sigma_r
+
+    medium_threshold = float(method_spec.get("confidence_threshold_medium", 1.645))
+    high_threshold = float(method_spec.get("confidence_threshold_high", 1.96))
+
+    if z_score >= high_threshold:
+        confidence = "High"
+    elif z_score >= medium_threshold:
+        confidence = "Medium"
+    else:
+        confidence = "Low"
+
+    return (
+        confidence,
+        float(z_score),
+        mu_r,
+        sigma_r,
+        len(prior_revisions),
+    )
+
+
 def _compute_signals(
     aligned: pd.DataFrame,
     all_versions: pd.DataFrame,
@@ -768,6 +874,42 @@ def _conformance(
     return results
 
 
+def _analytical_artifact_summary(
+    target_results: list[dict[str, Any]],
+    matrix_points: list[dict[str, Any]],
+    decision_cards: list[dict[str, Any]],
+) -> dict[str, Any]:
+    analytical_records = sum(len(result.get("series", [])) for result in target_results)
+
+    target_count = len(target_results)
+
+    revision_signals = target_count
+    volatility_signals = target_count
+    confidence_signals = target_count
+
+    matrix_point_count = len(matrix_points)
+    decision_card_count = len(decision_cards)
+
+    total = (
+        analytical_records
+        + revision_signals
+        + volatility_signals
+        + confidence_signals
+        + matrix_point_count
+        + decision_card_count
+    )
+
+    return {
+        "total": total,
+        "analytical_records": analytical_records,
+        "revision_signals": revision_signals,
+        "volatility_signals": volatility_signals,
+        "confidence_signals": confidence_signals,
+        "matrix_points": matrix_point_count,
+        "decision_cards": decision_card_count,
+    }
+
+
 def analyze_dataframe(
     df: pd.DataFrame,
     field_specs: list[dict[str, Any]] | None = None,
@@ -955,6 +1097,17 @@ def analyze_dataframe(
             if aligned["signed_revision_pct"].notna().any()
             else 0.0
         )
+
+        valid_revision_rows = aligned[aligned["signed_revision_pct"].notna()]
+
+        if not valid_revision_rows.empty:
+            decision_row = valid_revision_rows.iloc[-1]
+            latest_revision = float(decision_row["signed_revision_pct"])
+            confidence_target_period = str(decision_row["period"])
+        else:
+            latest_revision = 0.0
+            confidence_target_period = ""
+
         mean_revision_magnitude = (
             float(aligned["signed_revision_pct"].abs().mean())
             if aligned["signed_revision_pct"].notna().any()
@@ -974,15 +1127,20 @@ def analyze_dataframe(
         )
         decision_end = time.perf_counter()
         time_dict["Decision"].append(decision_end - decision_start)
-        confidence = (
-            "High"
-            if volatility_class == "Low"
-            and revision_magnitude_class in {"Large", "Moderate"}
-            else (
-                "Medium"
-                if volatility_class == "Medium"
-                else "Low" if volatility_class == "High" else "Medium"
-            )
+
+        (
+            confidence,
+            confidence_z,
+            confidence_reference_mean,
+            confidence_reference_std,
+            confidence_reference_count,
+        ) = _compute_revision_confidence(
+            all_versions=all_versions,
+            target_period=confidence_target_period,
+            baseline_version=str(scope_spec.get("baseline_version")),
+            current_version=str(scope_spec.get("current_version")),
+            current_revision_pct=latest_revision,
+            method_spec=method_spec,
         )
         series = [
             {
@@ -1025,6 +1183,25 @@ def analyze_dataframe(
             "revision_magnitude_class": revision_magnitude_class,
             "volatility_class": volatility_class,
             "confidence": confidence,
+            "confidence_target_period": confidence_target_period,
+            "confidence_method": method_spec.get(
+                "confidence_method",
+                "standardized_revision_score",
+            ),
+            "confidence_z_score": (
+                None if confidence_z is None else round(confidence_z, 3)
+            ),
+            "confidence_reference_mean_pct": (
+                None
+                if confidence_reference_mean is None
+                else round(confidence_reference_mean, 3)
+            ),
+            "confidence_reference_std_pct": (
+                None
+                if confidence_reference_std is None
+                else round(confidence_reference_std, 3)
+            ),
+            "confidence_reference_count": confidence_reference_count,
             "recommended_action": action,
             "rationale": rationale,
             "top_driver_links": links,
@@ -1098,6 +1275,19 @@ def analyze_dataframe(
         },
     ]
 
+    artifact_summary = _analytical_artifact_summary(
+        target_results,
+        matrix_points,
+        decision_cards,
+    )
+
+    total_downstream_artifacts = (
+        artifact_summary["analytical_records"]
+        + 3 * len(target_results)  # revision, volatility, confidence signals
+        + len(matrix_points)
+        + len(decision_cards)
+    )
+
     return {
         "dataset_profile": {
             **profile,
@@ -1114,6 +1304,8 @@ def analyze_dataframe(
         "target_results": target_results,
         "matrix_points": matrix_points,
         "decision_cards": decision_cards,
+        "analytical_artifacts": artifact_summary,
+        "total_downstream_artifacts": total_downstream_artifacts,
         "conformance_results": _conformance(
             field_specs,
             method_spec,

@@ -21,8 +21,14 @@ class FieldSpec:
 class MethodSpec:
     revision_method: str = "version_to_version_pct"
     volatility_method: str = "version_dispersion_pct"
+    confidence_method: str = "standardized_revision_score"
+
     revision_magnitude_threshold_large: float = 5.0
     volatility_threshold_high: float = 4.0
+
+    confidence_threshold_medium: float = 1.645
+    confidence_threshold_high: float = 1.96
+
     rolling_window: int = 4
     custom_revision_formula: str = ""
     custom_volatility_formula: str = ""
