@@ -918,8 +918,11 @@ def analyze_dataframe(
     custom_concepts: list[dict[str, Any]] | None = None,
     policy_rules: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    compile_start = time.perf_counter()
+    profile_start = time.perf_counter()
     profile = dataset_profile(df)
+    profile_end = time.perf_counter()
+    print(f"Dataset Profile time: {profile_end - profile_start}", flush=True)
+    compile_start = time.perf_counter()
     field_specs = field_specs or profile["default_field_specs"]
     method_spec = _method_spec(methods)
     scope_spec = _scope_spec(scope, profile)
@@ -1287,6 +1290,9 @@ def analyze_dataframe(
         + len(matrix_points)
         + len(decision_cards)
     )
+
+    print(f"Total Downstream Artifacts: {total_downstream_artifacts}", flush=True)
+    print(f"Artifact Summary: {artifact_summary}", flush=True)
 
     return {
         "dataset_profile": {
