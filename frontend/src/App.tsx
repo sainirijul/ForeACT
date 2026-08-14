@@ -132,6 +132,9 @@ export default function App() {
       setSpec(saved.spec);
       setProfile(saved.profile);
       setWorkspaceFile(saved.workspace_file);
+      if (saved.metamodel) {
+        setMetamodel(saved.metamodel);
+      }
     }, "Saved central ForeACT project specification.");
   }
 
@@ -160,6 +163,9 @@ export default function App() {
 
       if (result.workspace_file) {
         setWorkspaceFile(result.workspace_file);
+      }
+      if (result.metamodel) {
+        setMetamodel(result.metamodel);
       }
 
       setActive("transformations");
@@ -257,6 +263,7 @@ export default function App() {
           spec={spec}
           setSpec={updateSpec}
           metamodel={metamodel}
+          setMetamodel={setMetamodel}
         />
       )}
 

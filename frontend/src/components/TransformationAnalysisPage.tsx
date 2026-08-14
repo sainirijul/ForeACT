@@ -4,7 +4,6 @@ import type {
   ProfileResponse,
 } from "../types/analysis";
 import {
-  graphToFlow,
   MetamodelGraphView,
   modelInstanceToFlow,
 } from "./GraphViews";
@@ -20,9 +19,10 @@ export function TransformationAnalysisPage({
   analysis: AnalysisResponse | null;
   onAnalyze: () => void;
 }) {
-  const metamodelFlow = analysis
-    ? graphToFlow(analysis.metamodel.graph)
-    : { nodes: [], edges: [] };
+  // We keep the instance flow for the second graph, but remove the metamodelFlow
+  // const metamodelFlow = analysis
+  //   ? graphToFlow(analysis.metamodel.graph)
+  //   : { nodes: [], edges: [] };
   const instanceFlow = analysis
     ? modelInstanceToFlow(analysis)
     : { nodes: [], edges: [] };
@@ -127,11 +127,29 @@ export function TransformationAnalysisPage({
               <code>backend/metamodel/foreact.ecore</code> plus the current
               use-case extensions.
             </p>
-            <MetamodelGraphView
-              nodes={metamodelFlow.nodes}
-              edges={metamodelFlow.edges}
-              height={650}
-            />
+
+            {/* Replaced ReactFlow with the PlantUML SVG Image */}
+            <div style={{
+              minHeight: 400,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              background: "#ffffff",
+              padding: "24px",
+              borderRadius: "8px",
+              border: "1px solid #e2e8f0",
+              overflow: "auto"
+            }}>
+              {analysis.metamodel.plantuml?.url ? (
+                <img
+                  src={analysis.metamodel.plantuml.url}
+                  alt="ForeACT PlantUML Metamodel Diagram"
+                  style={{ maxWidth: "100%", height: "auto" }}
+                />
+              ) : (
+                <p className="muted">Loading PlantUML diagram...</p>
+              )}
+            </div>
           </article>
           <article className="panel full-span">
             <p className="eyebrow">Model instance</p>

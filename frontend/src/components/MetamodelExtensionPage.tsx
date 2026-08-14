@@ -1,23 +1,17 @@
-import { useMemo, useState } from "react";
-import {
-  Background,
-  Controls,
-  ReactFlow,
-  ReactFlowProvider,
-} from "@xyflow/react";
+import { useState, useEffect } from "react";
 import type { ForeACTProjectSpec, CustomConcept } from "../types/analysis";
-import { nodeTypes } from "./GraphViews";
-import { metamodelToFlow } from "../utils/metamodelFlow";
 import type { ApiMetamodel } from "../utils/metamodelFlow";
 
-function EditorInner({
+export function MetamodelExtensionPage({
   spec,
   setSpec,
   metamodel,
+  setMetamodel
 }: {
   spec: ForeACTProjectSpec;
   setSpec: (spec: ForeACTProjectSpec) => void;
   metamodel?: ApiMetamodel | null;
+  setMetamodel?: (m: any) => void;
 }) {
   const [name, setName] = useState("DomainAssumption");
   const [kind, setKind] = useState("business_concept");
@@ -26,18 +20,40 @@ function EditorInner({
   );
   const [connectsTo, setConnectsTo] = useState("AssumptionElement");
   const [message, setMessage] = useState("");
-  const flow = useMemo(() => metamodelToFlow(metamodel ?? null), [metamodel]);
-  const concepts = spec.metamodel_extension?.concepts ?? [];
 
-  function updateConcepts(next: CustomConcept[]) {
-    setSpec({
-      ...spec,
-      metamodel_extension: {
-        ...(spec.metamodel_extension ?? { edges: [] }),
-        concepts: next,
-        edges: spec.metamodel_extension?.edges ?? [],
-      },
-    });
+  const concepts = spec.metamodel_extension?.concepts ?? [];
+  const [localUrl, setLocalUrl] = useState<string | undefined>(undefined);
+
+  // Sync with the parent's metamodel prop when the page first loads
+  useEffect(() => {
+    if (metamodel?.plantuml?.url) {
+      setLocalUrl(metamodel.plantuml.url);
+    }
+  }, [metamodel]);
+
+  // Instantly save to the backend to get the updated SVG
+  async function saveAndUpdateDiagram(updatedSpec: ForeACTProjectSpec) {
+    setMessage("Saving to backend and generating new diagram...");
+    try {
+      const response = await fetch("/api/workspace/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ spec: updatedSpec }),
+      });
+      const data = await response.json();
+
+      if (data.metamodel?.plantuml?.url) {
+        setLocalUrl(data.metamodel.plantuml.url);
+        if (setMetamodel) {
+          setMetamodel(data.metamodel);
+        }
+        setMessage("Diagram updated successfully!");
+      } else {
+        setMessage("Saved, but no diagram URL was returned.");
+      }
+    } catch (error) {
+      setMessage("Error saving to backend.");
+    }
   }
 
   function addConcept() {
@@ -50,25 +66,42 @@ function EditorInner({
       setMessage(`Extension concept '${cleanName}' already exists.`);
       return;
     }
-    updateConcepts([
-      ...concepts,
-      {
-        name: cleanName,
-        kind,
-        description: description.trim(),
-        connects_to: connectsTo.trim(),
-        attributes: [],
-        references: [],
+
+    const nextSpec = {
+      ...spec,
+      metamodel_extension: {
+        ...(spec.metamodel_extension ?? { edges: [] }),
+        concepts: [
+          ...concepts,
+          {
+            name: cleanName,
+            kind,
+            description: description.trim(),
+            connects_to: connectsTo.trim(),
+            attributes: [],
+            references: [],
+          },
+        ],
+        edges: spec.metamodel_extension?.edges ?? [],
       },
-    ]);
-    setMessage(
-      `Added '${cleanName}' to the workspace extension model. Save the workspace to persist it.`,
-    );
+    };
+
+    setSpec(nextSpec);
+    saveAndUpdateDiagram(nextSpec);
   }
 
   function removeConcept(conceptName: string) {
-    updateConcepts(concepts.filter((item) => item.name !== conceptName));
-    setMessage(`Removed '${conceptName}' from the workspace extension model.`);
+    const nextSpec = {
+      ...spec,
+      metamodel_extension: {
+        ...(spec.metamodel_extension ?? { edges: [] }),
+        concepts: concepts.filter((item) => item.name !== conceptName),
+        edges: spec.metamodel_extension?.edges ?? [],
+      },
+    };
+
+    setSpec(nextSpec);
+    saveAndUpdateDiagram(nextSpec);
   }
 
   return (
@@ -87,16 +120,28 @@ function EditorInner({
       </article>
 
       <article className="panel full-span metamodel-canvas-panel">
-        <div style={{ height: 560 }}>
-          <ReactFlow
-            nodes={flow.nodes}
-            edges={flow.edges}
-            nodeTypes={nodeTypes}
-            fitView
-          >
-            <Background />
-            <Controls />
-          </ReactFlow>
+        <div
+          style={{
+            minHeight: 400,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            background: "#ffffff",
+            padding: "24px",
+            borderRadius: "8px",
+            border: "1px solid #e2e8f0",
+            overflow: "auto",
+          }}
+        >
+          {localUrl ? (
+            <img
+              src={localUrl}
+              alt="ForeACT PlantUML Diagram"
+              style={{ maxWidth: "100%", height: "auto" }}
+            />
+          ) : (
+            <p className="muted">Loading PlantUML diagram...</p>
+          )}
         </div>
       </article>
 
@@ -154,17 +199,5 @@ function EditorInner({
         )}
       </article>
     </section>
-  );
-}
-
-export function MetamodelExtensionPage(props: {
-  spec: ForeACTProjectSpec;
-  setSpec: (spec: ForeACTProjectSpec) => void;
-  metamodel?: ApiMetamodel | null;
-}) {
-  return (
-    <ReactFlowProvider>
-      <EditorInner {...props} />
-    </ReactFlowProvider>
   );
 }

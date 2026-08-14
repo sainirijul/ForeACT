@@ -4,22 +4,37 @@ from xml.etree import ElementTree as ET
 
 XSI_TYPE = "{http://www.w3.org/2001/XMLSchema-instance}type"
 
+
 def local_type(value: str | None) -> str:
+    """Return the local part of an xsi:type such as ecore:EClass."""
     if not value:
         return ""
     return value.split(":")[-1]
 
+
 def local_tag(tag: str) -> str:
+    """Return the local XML tag name, ignoring namespaces."""
     return tag.split("}")[-1]
 
+
 def ecore_type(value: str | None) -> str:
+    """
+    Convert an Ecore type reference such as:
+        #//DirectionKind
+        ecore:EString
+    into:
+        DirectionKind
+        EString
+    """
     if not value:
         return ""
     if "#//" in value:
         return value.split("#//")[-1]
     return value.split(":")[-1]
 
+
 def multiplicity(lower: str | None, upper: str | None) -> str:
+    """Convert Ecore lowerBound / upperBound to PlantUML multiplicity."""
     lower = lower if lower is not None else "0"
     upper = upper if upper is not None else "1"
     if upper == "-1":
@@ -28,7 +43,10 @@ def multiplicity(lower: str | None, upper: str | None) -> str:
         return lower
     return f"{lower}..{upper}"
 
-def ecore_to_plantuml(ecore_path: str | Path, custom_concepts: list[dict[str, Any]] | None = None) -> str:
+
+def ecore_to_plantuml(
+    ecore_path: str | Path, custom_concepts: list[dict[str, Any]] | None = None
+) -> str:
     ecore_path = Path(ecore_path)
     tree = ET.parse(ecore_path)
     root = tree.getroot()
@@ -45,6 +63,9 @@ def ecore_to_plantuml(ecore_path: str | Path, custom_concepts: list[dict[str, An
     enums: dict[str, ET.Element] = {}
     datatypes: dict[str, ET.Element] = {}
 
+    # =========================================================
+    # Find EClasses, EEnums and EDataTypes
+    # =========================================================
     for element in root.iter():
         element_type = local_type(element.attrib.get(XSI_TYPE))
         name = element.attrib.get("name")
@@ -58,7 +79,7 @@ def ecore_to_plantuml(ecore_path: str | Path, custom_concepts: list[dict[str, An
             datatypes[name] = element
 
     # =========================================================
-    # Classes & Custom Extensions
+    # Classes
     # =========================================================
     for class_name, element in classes.items():
         if element.attrib.get("abstract") == "true":
@@ -67,6 +88,8 @@ def ecore_to_plantuml(ecore_path: str | Path, custom_concepts: list[dict[str, An
             lines.append(f"class {class_name}")
 
     if custom_concepts:
+        lines.append("")
+        lines.append("' Custom Domain Extensions")
         for concept in custom_concepts:
             c_name = str(concept.get("name") or "").strip().replace(" ", "")
             if c_name:
@@ -149,7 +172,7 @@ def ecore_to_plantuml(ecore_path: str | Path, custom_concepts: list[dict[str, An
                     parameters.append(f"{parameter_name}: {parameter_e_type}")
                 elif parameter_name:
                     parameters.append(parameter_name)
-            
+
             return_type = ""
             for operation_child in child:
                 operation_child_type = local_type(operation_child.attrib.get(XSI_TYPE))
@@ -162,7 +185,7 @@ def ecore_to_plantuml(ecore_path: str | Path, custom_concepts: list[dict[str, An
                 if parameter_e_type:
                     return_type = parameter_e_type
                     break
-            
+
             signature = f"{operation_name}({', '.join(parameters)})"
             if return_type:
                 signature += f": {return_type}"
@@ -180,11 +203,14 @@ def ecore_to_plantuml(ecore_path: str | Path, custom_concepts: list[dict[str, An
             if parent in classes:
                 lines.append(f"{parent} <|-- {class_name}")
 
-    # Add Inheritance for Custom Extension Concepts
     if custom_concepts:
         for concept in custom_concepts:
             c_name = str(concept.get("name") or "").strip().replace(" ", "")
-            connects_to = str(concept.get("connects_to") or "AssumptionElement").strip().replace(" ", "")
+            connects_to = (
+                str(concept.get("connects_to") or "AssumptionElement")
+                .strip()
+                .replace(" ", "")
+            )
             if c_name and connects_to:
                 lines.append(f"{connects_to} <|-- {c_name}")
 
@@ -204,7 +230,11 @@ def ecore_to_plantuml(ecore_path: str | Path, custom_concepts: list[dict[str, An
             target = ecore_type(child.attrib.get("eType"))
             if not target:
                 continue
-            if target not in classes and target not in enums and target not in datatypes:
+            if (
+                target not in classes
+                and target not in enums
+                and target not in datatypes
+            ):
                 continue
 
             containment = child.attrib.get("containment") == "true"
@@ -216,15 +246,20 @@ def ecore_to_plantuml(ecore_path: str | Path, custom_concepts: list[dict[str, An
 
             lines.append(
                 f'{class_name} "{source_multiplicity}" '
-                f'{operator} '
+                f"{operator} "
                 f'"{target_multiplicity}" '
-                f'{target} : {ref_name}'
+                f"{target} : {ref_name}"
             )
 
     lines.append("")
     lines.append("@enduml")
 
     return "\n".join(lines)
+
+
+# =============================================================
+# Main
+# =============================================================
 
 if __name__ == "__main__":
     path = Path(__file__).parent / "metamodel" / "foreact.ecore"

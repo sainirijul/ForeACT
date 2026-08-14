@@ -12,39 +12,42 @@ def encode_plantuml(text: str) -> str:
 
 def encode64(data: bytes) -> str:
     alphabet = (
-        "0123456789"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz"
-        "-_"
+        "0123456789" "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "abcdefghijklmnopqrstuvwxyz" "-_"
     )
 
     result = []
 
     for i in range(0, len(data), 3):
         if i + 2 == len(data):
-            result.append(append3bytes(
-                data[i],
-                data[i + 1],
-                0,
-                2,
-                alphabet,
-            ))
+            result.append(
+                append3bytes(
+                    data[i],
+                    data[i + 1],
+                    0,
+                    2,
+                    alphabet,
+                )
+            )
         elif i + 1 == len(data):
-            result.append(append3bytes(
-                data[i],
-                0,
-                0,
-                1,
-                alphabet,
-            ))
+            result.append(
+                append3bytes(
+                    data[i],
+                    0,
+                    0,
+                    1,
+                    alphabet,
+                )
+            )
         else:
-            result.append(append3bytes(
-                data[i],
-                data[i + 1],
-                data[i + 2],
-                3,
-                alphabet,
-            ))
+            result.append(
+                append3bytes(
+                    data[i],
+                    data[i + 1],
+                    data[i + 2],
+                    3,
+                    alphabet,
+                )
+            )
 
     return "".join(result)
 
