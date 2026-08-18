@@ -48,6 +48,11 @@ export type ApiMetamodel = {
     nodes?: ApiGraphNode[];
     edges?: ApiGraphEdge[];
   };
+  plantuml?: {
+    source: string;
+    encoded: string;
+    url: string;
+  };
 };
 
 function formatAttribute(attr: ApiAttribute): string {

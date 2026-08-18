@@ -1,8 +1,30 @@
 from __future__ import annotations
-
 from typing import Any
-
 from app.metamodel_loader import METAMODEL_PATH, load_foreact_package
+
+
+def _attach_plantuml(
+    result_dict: dict[str, Any], custom_concepts: list[dict[str, Any]] | None
+) -> dict[str, Any]:
+    """Helper function to generate and attach PlantUML data to the graph dictionary."""
+    try:
+        from plantuml import ecore_to_plantuml
+        from plantuml_encoder import encode_plantuml
+
+        plantuml_source = ecore_to_plantuml(
+            METAMODEL_PATH, custom_concepts=custom_concepts
+        )
+        plantuml_encoded = encode_plantuml(plantuml_source)
+
+        result_dict["plantuml"] = {
+            "source": plantuml_source,
+            "encoded": plantuml_encoded,
+            "url": f"https://www.plantuml.com/plantuml/svg/{plantuml_encoded}",
+        }
+    except Exception as e:
+        print(f"Failed to generate PlantUML: {e}")
+
+    return result_dict
 
 
 def _safe_name(obj: Any) -> str:
@@ -62,6 +84,7 @@ def _layout_position(
         "DecisionRule": (1420, 960),
         "DecisionCard": (1660, 960),
     }
+
     if class_name in positions:
         x, y = positions[class_name]
         return {"x": x, "y": y}
@@ -78,6 +101,7 @@ def _layout_position(
         "Signals": (1720, 1240),
         "Decision": (1960, 1240),
     }
+
     base_x, base_y = package_offsets.get(package_name, (40, 1460))
     return {"x": base_x + (index % 2) * 240, "y": base_y + (index // 2) * 160}
 
@@ -131,6 +155,7 @@ def _package_for(name: str) -> str:
         return "Signals"
     if name in {"DecisionModel", "DecisionPolicy", "DecisionRule", "DecisionCard"}:
         return "Decision"
+
     return "Extension"
 
 
@@ -143,6 +168,7 @@ def _ecore_to_graph_without_pyecore(
     tree = ET.parse(METAMODEL_PATH)
     root = tree.getroot()
     # ns = {"xsi": "http://www.w3.org/2001/XMLSchema-instance"}
+
     nodes: list[dict[str, Any]] = []
     edges: list[dict[str, Any]] = []
     enums: list[dict[str, Any]] = []
@@ -150,6 +176,7 @@ def _ecore_to_graph_without_pyecore(
 
     classifiers = list(root.findall("eClassifiers"))
     index = 0
+
     for classifier in classifiers:
         xtype = classifier.attrib.get(
             "{http://www.w3.org/2001/XMLSchema-instance}type", ""
@@ -157,6 +184,7 @@ def _ecore_to_graph_without_pyecore(
         name = classifier.attrib.get("name", "")
         if not name:
             continue
+
         if xtype.endswith("EEnum"):
             enums.append(
                 {
@@ -168,11 +196,14 @@ def _ecore_to_graph_without_pyecore(
                 }
             )
             continue
+
         if not xtype.endswith("EClass"):
             continue
+
         attrs, refs = [], []
         package_name = _package_for(name)
         abstract = classifier.attrib.get("abstract") == "true"
+
         for feature in classifier.findall("eStructuralFeatures"):
             ftype = feature.attrib.get(
                 "{http://www.w3.org/2001/XMLSchema-instance}type", ""
@@ -183,6 +214,7 @@ def _ecore_to_graph_without_pyecore(
             )
             lb = int(feature.attrib.get("lowerBound", "0"))
             ub = int(feature.attrib.get("upperBound", "1"))
+
             if ftype.endswith("EAttribute"):
                 attrs.append(
                     {
@@ -211,6 +243,7 @@ def _ecore_to_graph_without_pyecore(
                         "kind": "composition" if containment else "association",
                     }
                 )
+
         for super_ref in classifier.attrib.get("eSuperTypes", "").split():
             super_name = super_ref.split("#//")[-1]
             if super_name:
@@ -222,6 +255,7 @@ def _ecore_to_graph_without_pyecore(
                         "kind": "inheritance",
                     }
                 )
+
         node = {
             "id": name,
             "label": name,
@@ -267,6 +301,7 @@ def _ecore_to_graph_without_pyecore(
                 "isCore": False,
             }
         )
+
         connects_to = str(concept.get("connects_to") or "AssumptionElement").replace(
             " ", ""
         )
@@ -278,6 +313,7 @@ def _ecore_to_graph_without_pyecore(
                 "kind": "inheritance",
             }
         )
+
         for ref in refs:
             target = str(ref.get("target") or "").replace(" ", "")
             if target:
@@ -290,7 +326,7 @@ def _ecore_to_graph_without_pyecore(
                     }
                 )
 
-    return {
+    result = {
         "name": "ForeACT Forecast Assurance Metamodel",
         "version": "1.0.0",
         "source": str(METAMODEL_PATH),
@@ -300,6 +336,8 @@ def _ecore_to_graph_without_pyecore(
         "enums": enums,
         "graph": {"nodes": nodes, "edges": edges},
     }
+
+    return _attach_plantuml(result, custom_concepts)
 
 
 def ecore_to_graph(
@@ -312,12 +350,13 @@ def ecore_to_graph(
         package = load_foreact_package()
     except Exception:
         return _ecore_to_graph_without_pyecore(custom_concepts)
+
     nodes: list[dict[str, Any]] = []
     edges: list[dict[str, Any]] = []
     classes: list[dict[str, Any]] = []
     enums: list[dict[str, Any]] = []
-
     class_index = 0
+
     for classifier in package.eClassifiers:
         if isinstance(classifier, EEnum):
             enums.append(
@@ -327,12 +366,14 @@ def ecore_to_graph(
                 }
             )
             continue
+
         if not isinstance(classifier, EClass):
             continue
 
         package_name = _package_for(classifier.name)
         attrs = []
         refs = []
+
         for feature in classifier.eStructuralFeatures:
             if isinstance(feature, EAttribute):
                 attrs.append(
@@ -417,6 +458,7 @@ def ecore_to_graph(
                 "isCore": False,
             }
         )
+
         connects_to = str(concept.get("connects_to") or "AssumptionElement").replace(
             " ", ""
         )
@@ -429,6 +471,7 @@ def ecore_to_graph(
                     "kind": "inheritance",
                 }
             )
+
         for ref in refs:
             target = str(ref.get("target") or "").replace(" ", "")
             if target:
@@ -441,7 +484,7 @@ def ecore_to_graph(
                     }
                 )
 
-    return {
+    result = {
         "name": "ForeACT Forecast Assurance Metamodel",
         "version": "1.0.0",
         "source": str(METAMODEL_PATH),
@@ -451,3 +494,5 @@ def ecore_to_graph(
         "enums": enums,
         "graph": {"nodes": nodes, "edges": edges},
     }
+
+    return _attach_plantuml(result, custom_concepts)

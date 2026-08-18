@@ -379,10 +379,14 @@ def workspace_save():
 
     payload = _save_workspace_and_profile(incoming_spec, workspace_id)
 
+    concepts = incoming_spec.get("metamodel_extension", {}).get("concepts", [])
+    metamodel = ecore_to_graph(concepts)
+
     return jsonify(
         {
             "status": "saved",
             **payload,
+            "metamodel": metamodel,
         }
     )
 
@@ -438,7 +442,7 @@ def workspace_analyze():
         row_count=_profile.get("rows", 0),
     )
     validate_end = time.perf_counter()
-    print(f"Validation time: {validate_end - validate_start}", flush = True)
+    print(f"Validation time: {validate_end - validate_start}", flush=True)
     analysis["compiled_ecore_model"] = compiled_ecore_model
     analysis["conformance_results"] = ecore_results + analysis.get(
         "conformance_results", []

@@ -276,6 +276,11 @@ export type MetaModel = {
   concepts?: Record<string, unknown>;
   conformance_rules?: unknown[];
   runtime_summary?: Record<string, unknown>;
+  plantuml?: {
+    source: string;
+    encoded: string;
+    url: string;
+  };
 };
 
 export type AnalysisResponse = {
